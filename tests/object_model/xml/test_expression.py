@@ -1,7 +1,8 @@
 import unittest
 
-from pyffi.object_models.xml.expression import Expression
 from nose.tools import assert_equals, assert_false, assert_true, raises
+
+from pyffi.object_models.xml.expression import Expression
 
 
 class A(object):
@@ -36,7 +37,7 @@ class TestExpression(unittest.TestCase):
         def nameFilter(s):
             return 'hello_' + s.lower()
 
-        assert_false(bool(Expression('(99 &15) &&WoRlD', name_filter = nameFilter).eval(self.a)))
+        assert_false(bool(Expression('(99 &15) &&WoRlD', name_filter=nameFilter).eval(self.a)))
 
     @raises(AttributeError)
     def test_attribute_error(self):
@@ -53,6 +54,7 @@ class TestExpression(unittest.TestCase):
     def test_implicit_cast(self):
         self.a.x = B()
         assert_equals(Expression('x * 10').eval(self.a), 70)
+
 
 class TestPartition:
 

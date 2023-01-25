@@ -111,15 +111,14 @@ Create an BSA file from scratch and write to file
 
 
 import logging
-import struct
 import os
 import re
+import struct
 
-import pyffi.object_models.xml
-import pyffi.object_models.common
-from pyffi.object_models.xml.basic import BasicBase
 import pyffi.object_models
-from pyffi.utils.graph import EdgeFilter
+import pyffi.object_models.common
+import pyffi.object_models.xml
+from pyffi.object_models.xml.basic import BasicBase
 
 
 class BsaFormat(pyffi.object_models.xml.FileFormat):
@@ -152,7 +151,7 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
 
         def read(self, stream, data=None):
             length, = struct.unpack('<B', stream.read(1))
-            self._value = stream.read(length)[:-1] # strip trailing null byte
+            self._value = stream.read(length)[:-1]  # strip trailing null byte
 
         def write(self, stream, data=None):
             stream.write(struct.pack('<B', len(self._value)))
@@ -328,6 +327,8 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
             # write the file
             raise NotImplementedError
 
+
 if __name__ == '__main__':
     import doctest
+
     doctest.testmod()

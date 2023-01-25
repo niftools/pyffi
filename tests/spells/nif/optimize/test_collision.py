@@ -1,9 +1,9 @@
-from tests.utils import BaseNifFileTestCase
 import nose
-import pyffi
-from pyffi.spells import Toaster
-from pyffi.formats.nif import NifFormat
 
+import pyffi
+from pyffi.formats.nif import NifFormat
+from pyffi.spells import Toaster
+from tests.utils import BaseNifFileTestCase
 from tests.utils import assert_tuple_values
 
 
@@ -165,7 +165,8 @@ class TestNotBoxCollisionOptimisationNif(BaseNifFileTestCase):
         """Test that a collision mesh which is not a box, but whose vertices form a box, is not converted to a box."""
 
         # check initial data
-        nose.tools.assert_equals(self.data.roots[0].collision_object.body.shape.__class__.__name__, 'bhkMoppBvTreeShape')
+        nose.tools.assert_equals(self.data.roots[0].collision_object.body.shape.__class__.__name__,
+                                 'bhkMoppBvTreeShape')
 
         # run the box spell
         spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=self.data)
@@ -179,7 +180,8 @@ class TestNotBoxCollisionOptimisationNif(BaseNifFileTestCase):
         """
 
         # check that we still have a mopp collision, and not a box collision
-        nose.tools.assert_equals(self.data.roots[0].collision_object.body.shape.__class__.__name__, 'bhkMoppBvTreeShape')
+        nose.tools.assert_equals(self.data.roots[0].collision_object.body.shape.__class__.__name__,
+                                 'bhkMoppBvTreeShape')
 
 
 class TestMoppCollisionOptimisationNif(BaseNifFileTestCase):
@@ -190,7 +192,6 @@ class TestMoppCollisionOptimisationNif(BaseNifFileTestCase):
         super(TestMoppCollisionOptimisationNif, self).readNifData()
 
     def test_optimise_collision_complex_mopp(self):
-
         # check initial data
         shape = self.shape
         nose.tools.assert_equals(shape.sub_shapes[0].num_vertices, 53)

@@ -1,5 +1,6 @@
-from pyffi.formats.nif import NifFormat
 from nose.tools import assert_equals
+
+from pyffi.formats.nif import NifFormat
 
 
 class TestSkinPartition:
@@ -39,7 +40,6 @@ class TestSkinPartition:
 
         expected_mapped_tris = [(2, 4, 6), (4, 5, 6), (6, 5, 3), (0, 1, 7)]
         assert_equals(list(part.get_mapped_triangles()), expected_mapped_tris)
-
 
     def test_skinpartition_update_triangles(self):
         """Test NifFormat.SkinPartition updating triangle"""

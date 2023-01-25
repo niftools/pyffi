@@ -54,13 +54,12 @@ __license__ = "MIT"
 __version__ = "1.1dev"
 __date__ = "2008-09-05"
 
-
 import gc
 import inspect
-import types
-import weakref
 import operator
 import os
+import types
+import weakref
 
 
 def count(typename):
@@ -186,7 +185,7 @@ def find_backref_chain(obj, predicate, max_depth=20, extra_ignore=()):
                     depth[id(source)] = tdepth + 1
                     parent[id(source)] = target
                     queue.append(source)
-    return None # not found
+    return None  # not found
 
 
 def show_backrefs(objs, max_depth=3, extra_ignore=(), filter=None, too_many=10,
@@ -257,6 +256,7 @@ def show_refs(objs, max_depth=3, extra_ignore=(), filter=None, too_many=10,
     show_graph(objs, max_depth=max_depth, extra_ignore=extra_ignore,
                filter=filter, too_many=too_many, highlight=highlight,
                edge_func=gc.get_referents, swap_source_target=True)
+
 
 #
 # Internal helpers
@@ -379,9 +379,9 @@ def gradient(start_color, end_color, depth, max_depth):
     h1, s1, v1 = start_color
     h2, s2, v2 = end_color
     f = float(depth) / max_depth
-    h = h1 * (1-f) + h2 * f
-    s = s1 * (1-f) + s2 * f
-    v = v1 * (1-f) + v2 * f
+    h = h1 * (1 - f) + h2 * f
+    s = s1 * (1 - f) + s2 * f
+    v = v1 * (1 - f) + v2 * f
     return h, s, v
 
 
@@ -396,4 +396,3 @@ def edge_label(source, target):
                 else:
                     return ' [label="%s"]' % quote(safe_repr(k))
     return ''
-

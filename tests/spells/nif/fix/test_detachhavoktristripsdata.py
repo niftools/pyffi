@@ -1,10 +1,9 @@
 """Tests for the fix_detachhavoktristripsdata spell"""
-from tests.scripts.nif import call_niftoaster
-from tests.utils import BaseNifFileTestCase
+from nose.tools import assert_true, assert_false
 
 from pyffi.spells.nif.fix import SpellDetachHavokTriStripsData
-
-from nose.tools import assert_equals, assert_true, assert_false
+from tests.scripts.nif import call_niftoaster
+from tests.utils import BaseNifFileTestCase
 
 
 class TestDetachHavokTriStripsDataNif(BaseNifFileTestCase):

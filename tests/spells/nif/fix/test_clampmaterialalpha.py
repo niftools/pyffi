@@ -1,10 +1,9 @@
 """Tests for the fix_texturepath spell"""
-from tests.scripts.nif import call_niftoaster
-from tests.utils import BaseNifFileTestCase
+from nose.tools import assert_true, assert_equals
 
 from pyffi.spells.nif.fix import SpellClampMaterialAlpha
-
-from nose.tools import assert_true, assert_equals
+from tests.scripts.nif import call_niftoaster
+from tests.utils import BaseNifFileTestCase
 
 
 class TestFixTexturePathToasterNif(BaseNifFileTestCase):
@@ -29,8 +28,8 @@ class TestFixTexturePathToasterNif(BaseNifFileTestCase):
         assert_equals(self.data.roots[0].children[0].children[1].properties[0].alpha, 0.0)
 
     def test_non_interactive_fix_clamp_material_alpha(self):
-
-        call_niftoaster("--raise", "fix_clampmaterialalpha", "--dry-run", "--noninteractive", "--verbose=1", self.dest_file)
+        call_niftoaster("--raise", "fix_clampmaterialalpha", "--dry-run", "--noninteractive", "--verbose=1",
+                        self.dest_file)
 
         """
         pyffi.toaster:INFO:=== tests/spells/nif/files/test_fix_clampmaterialalpha.nif ===

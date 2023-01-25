@@ -41,7 +41,6 @@
 # --------------------------------------------------------------------------
 
 import re
-import sys  # stderr (for debugging)
 
 
 class Expression(object):
@@ -190,10 +189,10 @@ class Expression(object):
         m = re.match(r'^([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)$', expr_str)
         if m:
             ver = (
-                (int(m.group(1)) << 24)
-                + (int(m.group(2)) << 16)
-                + (int(m.group(3)) << 8)
-                + int(m.group(4))
+                    (int(m.group(1)) << 24)
+                    + (int(m.group(2)) << 16)
+                    + (int(m.group(3)) << 8)
+                    + int(m.group(4))
             )
             return ver
         # apply name filter on each component separately

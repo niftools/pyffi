@@ -1,9 +1,9 @@
 import imp
+import logging
 import os.path
 import sys
-import logging
-
 from os.path import dirname
+
 dir_path = __file__
 for i in range(4):  # recurse up to root repo dir
     dir_path = dirname(dir_path)

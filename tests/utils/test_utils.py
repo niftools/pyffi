@@ -1,7 +1,8 @@
 """Tests for pyffi.utils module."""
 
-from pyffi.utils import unique_map, hex_dump
 import nose.tools
+
+from pyffi.utils import unique_map, hex_dump
 
 
 def test_hex_dump():

@@ -36,6 +36,7 @@ class TestDumpTextureDataNif(BaseNifFileTestCase):
         pyffi.toaster:INFO:Finished.
         """
 
+
 class TestDumpTextureDataNif(BaseNifFileTestCase):
     """Invoke the dump_tex spell check through nif toaster"""
 

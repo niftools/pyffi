@@ -1,6 +1,7 @@
 """Tests for the fix_texturepath spell"""
 from tests.scripts.nif import call_niftoaster
-from tests.utils import BaseNifFileTestCase, assert_tuple_values
+from tests.utils import BaseNifFileTestCase
+
 
 class TestFixTangentSpaceNif(BaseNifFileTestCase):
     """Invoke the fix_texturepath spell check through nif toaster"""
@@ -34,4 +35,3 @@ class TestFixTangentSpaceNif(BaseNifFileTestCase):
         pyffi.toaster:INFO:  writing to temporary file
         pyffi.toaster:INFO:Finished.
         """
-

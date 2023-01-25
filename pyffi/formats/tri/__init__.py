@@ -107,16 +107,16 @@ Create an TRI file from scratch and write to file
 #
 # ***** END LICENSE BLOCK *****
 
-from itertools import chain
-import struct
 import os
 import re
+from itertools import chain
 
-import pyffi.object_models.xml
-import pyffi.object_models.common
-from pyffi.object_models.xml.basic import BasicBase
 import pyffi.object_models
+import pyffi.object_models.common
+import pyffi.object_models.xml
+from pyffi.object_models.xml.basic import BasicBase
 from pyffi.utils.graph import EdgeFilter
+
 
 class TriFormat(pyffi.object_models.xml.FileFormat):
     """This class implements the TRI format."""
@@ -147,9 +147,9 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             :return: Number of bytes.
             """
             return (
-                1 +
-                pyffi.object_models.common.SizedString.get_size(self, data)
-                )
+                    1 +
+                    pyffi.object_models.common.SizedString.get_size(self, data)
+            )
 
         def read(self, stream, data):
             """Read string from stream.
@@ -172,6 +172,7 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
 
     class FileSignature(BasicBase):
         """Basic type which implements the header of a TRI file."""
+
         def __init__(self, **kwargs):
             BasicBase.__init__(self, **kwargs)
 
@@ -308,7 +309,6 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             finally:
                 stream.seek(pos)
 
-
         def read(self, stream):
             """Read a tri file.
 
@@ -329,10 +329,10 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             for modifier in self.modifiers:
                 modifier.modifier_vertices.update_size()
                 for src_vert, dst_vert in zip(
-                    self.modifier_vertices[
+                        self.modifier_vertices[
                         start_index:start_index
-                        + modifier.num_vertices_to_modify],
-                    modifier.modifier_vertices):
+                                    + modifier.num_vertices_to_modify],
+                        modifier.modifier_vertices):
                     dst_vert.x = src_vert.x
                     dst_vert.y = src_vert.y
                     dst_vert.z = src_vert.z
@@ -351,9 +351,9 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
                     for modifier in self.modifiers)
                 self.modifier_vertices.update_size()
                 for self_vert, vert in zip(
-                    self.modifier_vertices,
-                    chain(*(modifier.modifier_vertices
-                            for modifier in self.modifiers))):
+                        self.modifier_vertices,
+                        chain(*(modifier.modifier_vertices
+                                for modifier in self.modifiers))):
                     self_vert.x = vert.x
                     self_vert.y = vert.y
                     self_vert.z = vert.z
@@ -398,6 +398,7 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
         [1000, 3000, 2000]
         [-8999, 3000, -999]
         """
+
         def get_relative_vertices(self):
             for vert in self.vertices:
                 yield (vert.x * self.scale,
@@ -439,6 +440,8 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             """
             self.scale *= scale
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     import doctest
+
     doctest.testmod()

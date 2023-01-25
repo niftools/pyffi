@@ -247,7 +247,7 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             :return: Number of bytes.
             """
             return len(self.version_string(data.version)) \
-                   + (1 if not self._doseol else 2)
+                + (1 if not self._doseol else 2)
 
         # DetailNode
 

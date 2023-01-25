@@ -119,15 +119,15 @@ Create an EGM file from scratch and write to file
 # ***** END LICENSE BLOCK *****
 
 
-import struct
 import os
 import re
 
-import pyffi.object_models.xml
-import pyffi.object_models.common
-from pyffi.object_models.xml.basic import BasicBase
 import pyffi.object_models
+import pyffi.object_models.common
+import pyffi.object_models.xml
+from pyffi.object_models.xml.basic import BasicBase
 from pyffi.utils.graph import EdgeFilter
+
 
 class EgmFormat(pyffi.object_models.xml.FileFormat):
     """This class implements the EGM format."""
@@ -152,6 +152,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
 
     class FileSignature(BasicBase):
         """Basic type which implements the header of a EGM file."""
+
         def __init__(self, **kwargs):
             BasicBase.__init__(self, **kwargs)
 
@@ -247,6 +248,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
 
     class Data(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual egm data."""
+
         def __init__(self, version=2, num_vertices=0):
             self.header = EgmFormat.Header()
             self.header.num_vertices = num_vertices
@@ -286,7 +288,6 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             finally:
                 stream.seek(pos)
 
-
         def read(self, stream):
             """Read a egm file.
 
@@ -309,7 +310,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             if stream.read(1):
                 raise ValueError(
                     'end of file not reached: corrupt egm file?')
-            
+
         def write(self, stream):
             """Write a egm file.
 
@@ -381,6 +382,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
         [1000, 3000, 2000]
         [-8999, 3000, -999]
         """
+
         def get_relative_vertices(self):
             for vert in self.vertices:
                 yield (vert.x * self.scale,

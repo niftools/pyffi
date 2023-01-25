@@ -1,9 +1,9 @@
-from tests.utils import BaseNifFileTestCase
 from nose.tools import assert_true
-from tests import test_logger
-import pyffi
-from tests.utils import BaseNifFileTestCase
+
 from pyffi.spells.nif.optimize import SpellDelZeroScale
+from tests import test_logger
+from tests.utils import BaseNifFileTestCase
+
 
 class TestDelZeroScaleOptimisationNif(BaseNifFileTestCase):
     """Test for the delete zero scale spell"""

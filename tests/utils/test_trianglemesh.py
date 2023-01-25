@@ -1,6 +1,7 @@
 """Tests for pyffi.utils.trianglemesh module."""
 
 import nose.tools
+
 from pyffi.utils.trianglemesh import Face, Mesh, Edge
 
 
@@ -131,8 +132,8 @@ class TestMesh:
         self.m.add_face(5, 6, 2)
         self.m.lock()
 
-        #Should be sorted
-        nose.tools.assert_equals(self.m.faces , [Face(0, 1, 2), Face(1, 2, 3), Face(2, 5, 6)])
+        # Should be sorted
+        nose.tools.assert_equals(self.m.faces, [Face(0, 1, 2), Face(1, 2, 3), Face(2, 5, 6)])
         nose.tools.assert_equals(self.m.faces[0].index, 0)
         nose.tools.assert_equals(self.m.faces[1].index, 1)
         nose.tools.assert_equals(self.m.faces[2].index, 2)
@@ -156,7 +157,6 @@ class TestMesh:
         self.m.add_face(1, 2, 3)
 
     def test_discard_face(self):
-
         f0 = self.m.add_face(0, 1, 2)
         f1 = self.m.add_face(1, 3, 2)
         self.m.add_face(2, 3, 4)

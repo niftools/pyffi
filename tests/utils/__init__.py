@@ -1,12 +1,13 @@
 """Tests for utility classes"""
 
-import nose
-import nose.tools
-import tempfile
 import os
 import shutil
+import tempfile
 import unittest
 from os.path import dirname
+
+import nose
+import nose.tools
 
 from pyffi.formats.cgf import CgfFormat
 from pyffi.formats.nif import NifFormat
@@ -16,6 +17,7 @@ def assert_tuple_values(a, b):
     """Wrapper func to cleanly assert tuple values"""
     for elem, j in zip(a, b):
         nose.tools.assert_almost_equal(elem, j, places=3)
+
 
 dir_path = __file__
 for i in range(2):  # recurse up to root repo dir

@@ -45,21 +45,21 @@ import os
 from distutils.cmd import Command
 
 
-class BuildDoc(Command): # pragma: no cover
+class BuildDoc(Command):  # pragma: no cover
     """
     Distutils command to stop setup.py from throwing errors
     if sphinx is not installed
     """
-    
+
     description = 'Sphinx is not installed'
     user_options = []
-    
+
     def initialize_options(self):
         self.source_dir = self.build_dir = None
         self.project = ''
         self.version = ''
         self.release = ''
-    
+
     def finalize_options(self):
         return
 
@@ -103,7 +103,8 @@ def walk(top, topdown=True, onerror=None, re_filename=None):
 # for c in [chr(i) for i in range(32,128)]:
 #     table += c
 # table += "."*128
-chartable = '................................ !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.................................................................................................................................'.encode("ascii")
+chartable = '................................ !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.................................................................................................................................'.encode(
+    "ascii")
 
 
 def hex_dump(f, num_lines=8):
@@ -112,8 +113,8 @@ def hex_dump(f, num_lines=8):
     dumpstr = ""
 
     pos = f.tell()
-    if pos > num_lines*8:
-        f.seek((pos-num_lines*8) & 0xfffffff0)
+    if pos > num_lines * 8:
+        f.seek((pos - num_lines * 8) & 0xfffffff0)
     else:
         f.seek(0)
     dumppos = f.tell()
@@ -171,4 +172,5 @@ def unique_map(hash_generator):
 
 if __name__ == '__main__':
     import doctest
+
     doctest.testmod()

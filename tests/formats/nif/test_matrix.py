@@ -1,5 +1,6 @@
-from pyffi.formats.nif import NifFormat
 from nose.tools import assert_equals, assert_true, assert_false, assert_almost_equals
+
+from pyffi.formats.nif import NifFormat
 from tests.utils import assert_tuple_values
 
 
@@ -66,7 +67,7 @@ class TestMatrix:
 
         s, r = mat.get_inverse().get_scale_rotation()
         assert_almost_equals(s, 3.11526432)
-        assert_true(abs(0.321 - 1/s) < NifFormat.EPSILON)
+        assert_true(abs(0.321 - 1 / s) < NifFormat.EPSILON)
 
         rotation = ((-0.43430806610505857, -0.45177006876291087, 0.7792821186127868),
                     (0.8930951359360114, -0.10331401572519507, 0.43784406664326525),

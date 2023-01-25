@@ -39,7 +39,7 @@
 
 
 import logging
-import operator
+
 
 def float_to_int(value):
     """Convert float to integer, rounding and handling nan and inf
@@ -79,6 +79,7 @@ def float_to_int(value):
                 "float_to_int converted -inf to -2147483648.")
             return -2147483648
 
+
 def getBoundingBox(veclist):
     """Calculate bounding box (pair of vectors with minimum and maximum
     coordinates).
@@ -87,13 +88,14 @@ def getBoundingBox(veclist):
     ((0, 0, 0), (1, 1, 2))"""
     if not veclist:
         # assume 3 dimensions if veclist is empty
-        return (0,0,0), (0,0,0)
+        return (0, 0, 0), (0, 0, 0)
 
     # find bounding box
     dim = len(veclist[0])
     return (
         tuple((min(vec[i] for vec in veclist) for i in range(dim))),
         tuple((max(vec[i] for vec in veclist) for i in range(dim))))
+
 
 def getCenterRadius(veclist):
     """Calculate center and radius of given list of vectors.
@@ -103,7 +105,7 @@ def getCenterRadius(veclist):
     """
     if not veclist:
         # assume 3 dimensions if veclist is empty
-        return (0,0,0), 0
+        return (0, 0, 0), 0
 
     # get bounding box
     vecmin, vecmax = getBoundingBox(veclist)
@@ -121,15 +123,19 @@ def getCenterRadius(veclist):
 
     return center, radius
 
+
 def vecSub(vec1, vec2):
     """Vector substraction."""
     return tuple(x - y for x, y in zip(vec1, vec2))
 
+
 def vecAdd(vec1, vec2):
     return tuple(x + y for x, y in zip(vec1, vec2))
 
+
 def vecscalarMul(vec, scalar):
     return tuple(x * scalar for x in vec)
+
 
 def vecDotProduct(vec1, vec2):
     """The vector dot product (any dimension).
@@ -137,6 +143,7 @@ def vecDotProduct(vec1, vec2):
     >>> vecDotProduct((1,2,3),(4,-5,6))
     12"""
     return sum(x1 * x2 for x1, x2 in zip(vec1, vec2))
+
 
 def vecDistance(vec1, vec2):
     """Return distance between two vectors (any dimension).
@@ -146,9 +153,11 @@ def vecDistance(vec1, vec2):
     """
     return vecNorm(vecSub(vec1, vec2))
 
+
 def vecNormal(vec1, vec2, vec3):
     """Returns a vector that is orthogonal on C{triangle}."""
     return vecCrossProduct(vecSub(vec2, vec1), vecSub(vec3, vec1))
+
 
 def vecDistanceAxis(axis, vec):
     """Return distance between the axis spanned by axis[0] and axis[1] and the
@@ -162,6 +171,7 @@ def vecDistanceAxis(axis, vec):
     """
     return vecNorm(vecNormal(axis[0], axis[1], vec)) / vecDistance(*axis)
 
+
 def vecDistanceTriangle(triangle, vert):
     """Return (signed) distance between the plane spanned by triangle[0],
     triangle[1], and triange[2], and the vector v, in 3 dimensions.
@@ -173,7 +183,8 @@ def vecDistanceTriangle(triangle, vert):
     """
     normal = vecNormal(*triangle)
     return vecDotProduct(normal, vecSub(vert, triangle[0])) \
-           / vecNorm(normal)
+        / vecNorm(normal)
+
 
 def vecNorm(vec):
     """Norm of a vector (any dimension).
@@ -183,6 +194,7 @@ def vecNorm(vec):
     """
     return vecDotProduct(vec, vec) ** 0.5
 
+
 def vecNormalized(vec):
     """Normalized version of a vector (any dimension).
 
@@ -190,6 +202,7 @@ def vecNormalized(vec):
     (0.371..., 0.557..., 0.742...)
     """
     return vecscalarMul(vec, 1.0 / vecNorm(vec))
+
 
 def vecCrossProduct(vec1, vec2):
     """The vector cross product (in 3d).
@@ -203,58 +216,66 @@ def vecCrossProduct(vec1, vec2):
             vec1[2] * vec2[0] - vec1[0] * vec2[2],
             vec1[0] * vec2[1] - vec1[1] * vec2[0])
 
+
 def matTransposed(mat):
     """Return the transposed of a nxn matrix.
 
     >>> matTransposed(((1, 2), (3, 4)))
     ((1, 3), (2, 4))"""
     dim = len(mat)
-    return tuple( tuple( mat[i][j]
-                         for i in range(dim) )
-                  for j in range(dim) )
+    return tuple(tuple(mat[i][j]
+                       for i in range(dim))
+                 for j in range(dim))
+
 
 def matscalarMul(mat, scalar):
     """Return matrix * scalar."""
     dim = len(mat)
-    return tuple( tuple( mat[i][j] * scalar
-                         for j in range(dim) )
-                  for i in range(dim) )
+    return tuple(tuple(mat[i][j] * scalar
+                       for j in range(dim))
+                 for i in range(dim))
+
 
 def matvecMul(mat, vec):
     """Return matrix * vector."""
     dim = len(mat)
-    return tuple( sum( mat[i][j] * vec[j] for j in range(dim) )
-                  for i in range(dim) )
+    return tuple(sum(mat[i][j] * vec[j] for j in range(dim))
+                 for i in range(dim))
+
 
 def matMul(mat1, mat2):
     """Return matrix * matrix."""
     dim = len(mat1)
-    return tuple( tuple( sum( mat1[i][k] * mat2[k][j]
-                              for k in range(dim) )
-                         for j in range(dim) )
-                  for i in range(dim) )
+    return tuple(tuple(sum(mat1[i][k] * mat2[k][j]
+                           for k in range(dim))
+                       for j in range(dim))
+                 for i in range(dim))
+
 
 def matAdd(mat1, mat2):
     """Return matrix + matrix."""
     dim = len(mat1)
-    return tuple( tuple( mat1[i][j] + mat2[i][j]
-                         for j in range(dim) )
-                  for i in range(dim) )
+    return tuple(tuple(mat1[i][j] + mat2[i][j]
+                       for j in range(dim))
+                 for i in range(dim))
+
 
 def matSub(mat1, mat2):
     """Return matrix - matrix."""
     dim = len(mat1)
-    return tuple( tuple( mat1[i][j] - mat2[i][j]
-                         for j in range(dim) )
-                  for i in range(dim) )
+    return tuple(tuple(mat1[i][j] - mat2[i][j]
+                       for j in range(dim))
+                 for i in range(dim))
+
 
 def matCofactor(mat, i, j):
     dim = len(mat)
-    return matDeterminant(tuple( tuple( mat[ii][jj]
-                                        for jj in range(dim)
-                                        if jj != j )
-                                 for ii in range(dim)
-                                 if ii != i ))
+    return matDeterminant(tuple(tuple(mat[ii][jj]
+                                      for jj in range(dim)
+                                      if jj != j)
+                                for ii in range(dim)
+                                if ii != i))
+
 
 def matDeterminant(mat):
     """Calculate determinant.
@@ -265,13 +286,18 @@ def matDeterminant(mat):
     36
     """
     dim = len(mat)
-    if dim == 0: return 0
-    elif dim == 1: return mat[0][0]
-    elif dim == 2: return mat[0][0] * mat[1][1] - mat[1][0] * mat[0][1]
+    if dim == 0:
+        return 0
+    elif dim == 1:
+        return mat[0][0]
+    elif dim == 2:
+        return mat[0][0] * mat[1][1] - mat[1][0] * mat[0][1]
     else:
-        return sum( (-1 if i&1 else 1) * mat[i][0] * matCofactor(mat, i, 0)
-                    for i in range(dim) )
+        return sum((-1 if i & 1 else 1) * mat[i][0] * matCofactor(mat, i, 0)
+                   for i in range(dim))
+
 
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()

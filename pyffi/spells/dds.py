@@ -47,9 +47,11 @@ There are no spells yet.
 import pyffi.spells
 from pyffi.formats.dds import DdsFormat
 
+
 class DdsSpell(pyffi.spells.Spell):
     """Base class for spells for dds files."""
     pass
+
 
 class DdsToaster(pyffi.spells.Toaster):
     FILEFORMAT = DdsFormat

@@ -1,7 +1,7 @@
 """Tests for pyffi."""
-import tempfile
 import os
 import shutil
+import tempfile
 
 from nose.tools import assert_true, assert_false
 
@@ -34,7 +34,6 @@ class TestToaster:
         assert_false(toaster.is_admissible_branch_class(NifFormat.NiLODNode))
         assert_false(toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty))
 
-
     def test_toaster_include(self):
         """Test include only NiProperty and NiNode inherited types"""
         toaster = MyToaster(options={"include": ["NiProperty", "NiNode"]})
@@ -43,7 +42,6 @@ class TestToaster:
         assert_false(toaster.is_admissible_branch_class(NifFormat.NiAVObject))
         assert_true(toaster.is_admissible_branch_class(NifFormat.NiLODNode))  # NiNode subclass!
         assert_true(toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty))  # NiProperties are!
-
 
     def test_toaster_include_and_exclude(self):
         """Test include NiProperty and NiNode, exclude NiMaterialProp and NiLODNode"""
@@ -160,7 +158,3 @@ class TestIniParser:
 
         for name, value in sorted(toaster.options.items()):
             fake_logger.info("%s: %s" % (name, value))
-
-
-
-

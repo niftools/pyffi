@@ -11,6 +11,7 @@ for the presence of particular attributes.
 
 DEBUG = False
 
+
 # This metaclass checks for the presence of an _attrs and __doc__ attribute.
 # Used as metaclass of _Block.
 class _MetaBlock(type):
@@ -20,6 +21,7 @@ class _MetaBlock(type):
             raise TypeError(str(cls) + ': missing _attrs attribute')
         if '__doc__' not in dct:
             raise TypeError(str(cls) + ': missing __doc__ attribute')
+
 
 class _Block(object, metaclass=_MetaBlock):
     """Base class from which all file block types are derived.
@@ -31,6 +33,7 @@ class _Block(object, metaclass=_MetaBlock):
     interface, see MetaFileFormat.__init__ for an example.
     """
     _attrs = ()
+
     # initialize all _attrs attributes
     def __init__(self):
         self._initAttributes(self.__class__)
@@ -65,6 +68,7 @@ class _Block(object, metaclass=_MetaBlock):
             s += str(name) + ' : ' + str(getattr(self, name)) + '\n'
         return s
 
+
 # The MetaFileFormat class transforms the XML description of a file format
 # into a bunch of classes via the "type(name, bases, dct)" factory.
 # Because its base is type, MetaFileFormat is a metaclass: each file format
@@ -87,7 +91,7 @@ class MetaFileFormat(type):
         # of course we should read the data from file dct['xml_file_name']
         # the code below is only a proof of concept
         block_name = 'NiObjectNET'
-        block_ancestor = _Block # base of all block classes
+        block_ancestor = _Block  # base of all block classes
         block_dct = {}
         # add docstring
         block_dct['__doc__'] = 'Some nif object.'
@@ -95,20 +99,19 @@ class MetaFileFormat(type):
         # is a tuple containing all attributes: their name, default, and so on
         # (to be extended! probably have a tuple of Attribute instances
         # instead of a tuple of tuples)
-        block_dct['_attrs'] = ( ('name', 'noname'), )
+        block_dct['_attrs'] = (('name', 'noname'),)
         # create class cls.<block_name>
         setattr(cls, block_name, type(block_name, (block_ancestor,), block_dct))
-        if DEBUG: print('cls.NiObjectNET: ', dir(cls.NiObjectNET)) # debug
+        if DEBUG: print('cls.NiObjectNET: ', dir(cls.NiObjectNET))  # debug
 
         # do another one
         block_name = 'NiNode'
         block_ancestor = getattr(cls, 'NiObjectNET')
         block_dct = {}
         block_dct['__doc__'] = 'Basic node.'
-        block_dct['_attrs'] = ( ('translateX', 0.0), ('translateY', 0.0), ('translateZ', 0.0) )
+        block_dct['_attrs'] = (('translateX', 0.0), ('translateY', 0.0), ('translateZ', 0.0))
         setattr(cls, block_name, type(block_name, (block_ancestor,), block_dct))
-        if DEBUG: print('cls.NiNode: ', dir(cls.NiNode)) # debug
-
+        if DEBUG: print('cls.NiNode: ', dir(cls.NiNode))  # debug
 
 
 # The NifFormat class simply processes nif.xml via MetaFileFormat
@@ -116,6 +119,7 @@ class MetaFileFormat(type):
 # blocks, and enums.
 class NifFormat(object, metaclass=MetaFileFormat):
     xml_file_name = "nif.xml"
+
 
 # For example, NifFormat.NiNode is now a class representing the NiNode block
 # type! The _Block class, from which NifFormat.NiNode is derived, takes care

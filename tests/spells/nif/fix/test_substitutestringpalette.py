@@ -1,8 +1,8 @@
 """Tests for the modify_substitutestringpalette spell"""
+from nose.tools import assert_true
+
 from tests.scripts.nif import call_niftoaster
 from tests.utils import BaseNifFileTestCase
-
-from nose.tools import assert_true
 
 
 class TestModifySubstitutePaletteNif(BaseNifFileTestCase):
@@ -21,7 +21,8 @@ class TestModifySubstitutePaletteNif(BaseNifFileTestCase):
         assert_true(strings, expected)
 
         # substitute
-        call_niftoaster("--raise", "modify_substitutestringpalette", "-a", "/Test/Woops", "--noninteractive", "--verbose=1", self.dest_file)
+        call_niftoaster("--raise", "modify_substitutestringpalette", "-a", "/Test/Woops", "--noninteractive",
+                        "--verbose=1", self.dest_file)
 
         """
         pyffi.toaster:INFO:=== tests/spells/nif/files...test_fix_cleanstringpalette.nif ===

@@ -44,6 +44,7 @@ alternatives.
 
 import pyffi.utils.graph
 
+
 class AnyType(pyffi.utils.graph.DetailNode):
     """Abstract base class from which all types are derived."""
 

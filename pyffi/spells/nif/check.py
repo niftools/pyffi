@@ -40,13 +40,14 @@
 # --------------------------------------------------------------------------
 
 
+import tempfile
 from contextlib import closing
 from itertools import repeat
-import tempfile
 
-from pyffi.formats.nif import NifFormat
 import pyffi.spells.nif
-import pyffi.utils.tristrip # for check_tristrip
+import pyffi.utils.tristrip  # for check_tristrip
+from pyffi.formats.nif import NifFormat
+
 
 class SpellReadWrite(pyffi.spells.nif.NifSpell):
     """Like the original read-write spell, but with additional file size
@@ -88,14 +89,16 @@ class SpellReadWrite(pyffi.spells.nif.NifSpell):
                     f_debug = open("debug.nif", "wb")
                     f_debug.write(f_tmp.read(-1))
                     f_debug.close()
-                    raise Exception('write check failed: file sizes differ (written file saved as debug.nif for inspection)')
+                    raise Exception(
+                        'write check failed: file sizes differ (written file saved as debug.nif for inspection)')
         finally:
             f_tmp.close()
-    
+
         self.toaster.msgblockend()
 
         # spell is finished: prevent recursing into the tree
         return False
+
 
 class SpellNodeNamesByFlag(pyffi.spells.nif.NifSpell):
     """This spell goes over all NIF files, and at the end, it gives a summary
@@ -130,6 +133,7 @@ class SpellNodeNamesByFlag(pyffi.spells.nif.NifSpell):
         else:
             return False
 
+
 class SpellCompareSkinData(pyffi.spells.nif.NifSpell):
     """This spell compares skinning data with a reference nif."""
 
@@ -139,15 +143,15 @@ class SpellCompareSkinData(pyffi.spells.nif.NifSpell):
 
     @staticmethod
     def are_vectors_equal(oldvec, newvec, tolerance=0.01):
-        return (max([abs(x-y)
-                for (x,y) in zip(oldvec.as_list(), newvec.as_list())])
+        return (max([abs(x - y)
+                     for (x, y) in zip(oldvec.as_list(), newvec.as_list())])
                 < tolerance)
 
     @staticmethod
     def are_matrices_equal(oldmat, newmat, tolerance=0.01):
-        return (max([max([abs(x-y)
-                     for (x,y) in zip(oldrow, newrow)])
-                    for (oldrow, newrow) in zip(oldmat.as_list(),
+        return (max([max([abs(x - y)
+                          for (x, y) in zip(oldrow, newrow)])
+                     for (oldrow, newrow) in zip(oldmat.as_list(),
                                                  newmat.as_list())])
                 < tolerance)
 
@@ -169,7 +173,7 @@ class SpellCompareSkinData(pyffi.spells.nif.NifSpell):
         toaster.refbonedata = []
         for refgeom in toaster.refdata.get_global_iterator():
             if (isinstance(refgeom, NifFormat.NiGeometry)
-                and refgeom.skin_instance and refgeom.skin_instance.data):
+                    and refgeom.skin_instance and refgeom.skin_instance.data):
                 toaster.refbonedata += list(zip(
                     repeat(refgeom.skin_instance.skeleton_root),
                     repeat(refgeom.skin_instance.data),
@@ -187,14 +191,14 @@ class SpellCompareSkinData(pyffi.spells.nif.NifSpell):
 
     def branchentry(self, branch):
         if (isinstance(branch, NifFormat.NiGeometry)
-            and branch.skin_instance and branch.skin_instance.data):
+                and branch.skin_instance and branch.skin_instance.data):
             for skelroot, skeldata, bonenode, bonedata in zip(
-                repeat(branch.skin_instance.skeleton_root),
-                repeat(branch.skin_instance.data),
-                branch.skin_instance.bones,
-                branch.skin_instance.data.bone_list):
+                    repeat(branch.skin_instance.skeleton_root),
+                    repeat(branch.skin_instance.data),
+                    branch.skin_instance.bones,
+                    branch.skin_instance.data.bone_list):
                 for refskelroot, refskeldata, refbonenode, refbonedata \
-                    in self.toaster.refbonedata:
+                        in self.toaster.refbonedata:
                     if bonenode.name == refbonenode.name:
                         self.toaster.msgblockbegin("checking bone %s"
                                                    % bonenode.name)
@@ -217,26 +221,26 @@ class SpellCompareSkinData(pyffi.spells.nif.NifSpell):
                             # can we find skeleton root of data in reference
                             # data?
                             for refskelroot_branch \
-                                in self.toaster.refdata.get_global_iterator():
+                                    in self.toaster.refdata.get_global_iterator():
                                 if not isinstance(refskelroot_branch,
                                                   NifFormat.NiAVObject):
                                     continue
                                 if skelroot.name == refskelroot_branch.name:
                                     # yes! found!
-                                    #self.toaster.msg(
+                                    # self.toaster.msg(
                                     #    "found alternative in reference nif")
                                     branchtransform_extra = \
                                         refskelroot_branch.get_transform(refskelroot).get_inverse()
                                     break
                             else:
                                 for skelroot_ref \
-                                    in self.data.get_global_iterator():
+                                        in self.data.get_global_iterator():
                                     if not isinstance(skelroot_ref,
                                                       NifFormat.NiAVObject):
                                         continue
                                     if refskelroot.name == skelroot_ref.name:
                                         # yes! found!
-                                        #self.toaster.msg(
+                                        # self.toaster.msg(
                                         #    "found alternative in nif")
                                         branchtransform_extra = \
                                             skelroot_ref.get_transform(skelroot)
@@ -252,21 +256,21 @@ skipping: skeleton roots are not identical
                         # to a vertex in the reference geometry in the position
                         # of the reference bone
                         reftransform = (
-                            refbonedata.get_transform()
-                            * refbonenode.get_transform(refskelroot)
-                            * refskeldata.get_transform())
+                                refbonedata.get_transform()
+                                * refbonenode.get_transform(refskelroot)
+                                * refskeldata.get_transform())
                         # calculate total transform matrix that would be applied
                         # to a vertex in this branch in the position of the
                         # reference bone
                         branchtransform = (
-                            bonedata.get_transform()
-                            * refbonenode.get_transform(refskelroot) # NOT a typo
-                            * skeldata.get_transform()
-                            * branchtransform_extra) # skelroot differences
+                                bonedata.get_transform()
+                                * refbonenode.get_transform(refskelroot)  # NOT a typo
+                                * skeldata.get_transform()
+                                * branchtransform_extra)  # skelroot differences
                         # compare
                         if not self.are_matrices_equal(reftransform,
                                                        branchtransform):
-                            #raise ValueError(
+                            # raise ValueError(
                             self.toaster.msg(
                                 "transform mismatch\n%s\n!=\n%s\n"
                                 % (reftransform, branchtransform))
@@ -277,6 +281,7 @@ skipping: skeleton roots are not identical
         else:
             # keep iterating
             return True
+
 
 class SpellCheckBhkBodyCenter(pyffi.spells.nif.NifSpell):
     """Recalculate the center of mass and inertia matrix,
@@ -306,8 +311,8 @@ class SpellCheckBhkBodyCenter(pyffi.spells.nif.NifSpell):
             self.toaster.msg("recalculating...")
             branch.update_mass_center_inertia(mass=branch.mass)
 
-            #self.toaster.msg("checking mass...")
-            #if mass != branch.mass:
+            # self.toaster.msg("checking mass...")
+            # if mass != branch.mass:
             #    #raise ValueError("center does not match; original %s, calculated %s"%(center, branch.center))
             #    self.toaster.logger.warn("warning: mass does not match; original %s, calculated %s"%(mass, branch.mass))
             #    # adapt calculated inertia matrix with observed mass
@@ -315,20 +320,20 @@ class SpellCheckBhkBodyCenter(pyffi.spells.nif.NifSpell):
             #        correction = mass / branch.mass
             #        for i in range(12):
             #            branch.inertia[i] *= correction
-            #else:
+            # else:
             #    self.toaster.msg("perfect match!")
 
             self.toaster.msg("checking center...")
             report = {}
             if center != branch.center:
-                #raise ValueError("center does not match; original %s, calculated %s"%(center, branch.center))
+                # raise ValueError("center does not match; original %s, calculated %s"%(center, branch.center))
                 self.toaster.logger.warn(
                     "center does not match; original %s, calculated %s"
                     % (center, branch.center))
                 report["center"] = {
                     "orig": center.as_tuple(),
                     "calc": branch.center.as_tuple(),
-                    }
+                }
 
             self.toaster.msg("checking inertia...")
 
@@ -336,19 +341,20 @@ class SpellCheckBhkBodyCenter(pyffi.spells.nif.NifSpell):
             if (max(max(abs(x - y)
                         for x, y in zip(row1, row2))
                     for row1, row2 in zip(inertia.as_list(), branch.inertia.as_list()))
-                > 0.1 * scale):
-                #raise ValueError("center does not match; original %s, calculated %s"%(center, branch.center))
+                    > 0.1 * scale):
+                # raise ValueError("center does not match; original %s, calculated %s"%(center, branch.center))
                 self.toaster.logger.warn(
                     "inertia does not match:\n\noriginal\n%s\n\ncalculated\n%s\n"
                     % (inertia, branch.inertia))
                 report["inertia"] = {
                     "orig": inertia.as_tuple(),
                     "calc": branch.inertia.as_tuple(),
-                    }
+                }
             if report:
                 self.append_report(report)
             # stop recursing
             return False
+
 
 class SpellCheckCenterRadius(pyffi.spells.nif.NifSpell):
     """Recalculate the center and radius, compare them to the originals,
@@ -396,10 +402,10 @@ class SpellCheckCenterRadius(pyffi.spells.nif.NifSpell):
             maxr = maxr ** 0.5
 
             if maxr > 1.01 * radius + 0.01:
-                #raise ValueError(
+                # raise ValueError(
                 self.toaster.logger.warn(
-                   "not all vertices inside bounding sphere (vertex %s, error %s)"
-                   % (maxv, abs(maxr - radius)))
+                    "not all vertices inside bounding sphere (vertex %s, error %s)"
+                    % (maxv, abs(maxr - radius)))
                 report["vertex_outside"] = maxv.as_tuple()
 
             self.toaster.msg("recalculating bounding sphere")
@@ -407,25 +413,26 @@ class SpellCheckCenterRadius(pyffi.spells.nif.NifSpell):
 
             self.toaster.msg("comparing old and new spheres")
             if center != branch.center:
-               self.toaster.logger.warn(
-                   "center does not match; original %s, calculated %s"
-                   % (center, branch.center))
-               report["center"] = {
-                   "orig": center.as_tuple(),
-                   "calc": branch.center.as_tuple(),
-                   }
+                self.toaster.logger.warn(
+                    "center does not match; original %s, calculated %s"
+                    % (center, branch.center))
+                report["center"] = {
+                    "orig": center.as_tuple(),
+                    "calc": branch.center.as_tuple(),
+                }
             if abs(radius - branch.radius) > NifFormat.EPSILON:
-               self.toaster.logger.warn(
-                   "radius does not match; original %s, calculated %s"
-                   % (radius, branch.radius))
-               report["radius"] = {
-                   "orig": radius,
-                   "calc": branch.radius,
-                   }
+                self.toaster.logger.warn(
+                    "radius does not match; original %s, calculated %s"
+                    % (radius, branch.radius))
+                report["radius"] = {
+                    "orig": radius,
+                    "calc": branch.radius,
+                }
             if report:
                 self.append_report(report)
             # stop recursing
             return False
+
 
 class SpellCheckSkinCenterRadius(pyffi.spells.nif.NifSpell):
     """Recalculate the skindata center and radius for each bone, compare them
@@ -442,7 +449,7 @@ class SpellCheckSkinCenterRadius(pyffi.spells.nif.NifSpell):
                                    NifFormat.NiGeometry))
 
     def branchentry(self, branch):
-        if not(isinstance(branch, NifFormat.NiGeometry) and branch.is_skin()):
+        if not (isinstance(branch, NifFormat.NiGeometry) and branch.is_skin()):
             # keep recursing
             return True
         else:
@@ -464,13 +471,14 @@ class SpellCheckSkinCenterRadius(pyffi.spells.nif.NifSpell):
                         % (branch.skin_instance.bones[i].name,
                            center[i], skindatablock.bounding_sphere_offset))
                 if abs(radius[i] - skindatablock.bounding_sphere_radius) \
-                    > NifFormat.EPSILON:
+                        > NifFormat.EPSILON:
                     self.toaster.logger.error(
                         "%s radius does not match; original %s, calculated %s"
                         % (branch.skin_instance.bones[i].name,
                            radius[i], skindatablock.bounding_sphere_radius))
             # stop recursing
             return False
+
 
 class SpellCheckConvexVerticesShape(pyffi.spells.nif.NifSpell):
     """This test checks whether each vertex is the intersection of at least
@@ -503,7 +511,7 @@ class SpellCheckConvexVerticesShape(pyffi.spells.nif.NifSpell):
                     n.x = n4.x
                     n.y = n4.y
                     n.z = n4.z
-                    d   = n4.w
+                    d = n4.w
                     if abs(v * n + d) < 0.01:
                         num_intersect += 1
                 if num_intersect == 0:
@@ -517,6 +525,7 @@ class SpellCheckConvexVerticesShape(pyffi.spells.nif.NifSpell):
                         "vertex %s only intersects with two planes" % v)
             # stop recursing
             return False
+
 
 class SpellCheckMopp(pyffi.spells.nif.NifSpell):
     """Parse and dump mopp trees, and check their validity:
@@ -599,18 +608,19 @@ class SpellCheckMopp(pyffi.spells.nif.NifSpell):
                     self.toaster.logger.debug([mopp[k] for k in range(i, min(branch.mopp_data_size, i + 10))])
                 error = True
 
-            #if error:
+            # if error:
             #    raise ValueError("mopp parsing failed")
 
             # stop recursing
             return False
+
 
 class SpellCheckTangentSpace(pyffi.spells.nif.NifSpell):
     """Check and recalculate the tangent space, compare them to the originals,
     and report accordingly.
     """
     SPELLNAME = 'check_tangentspace'
-    PRECISION = 0.3 #: Difference between values worth warning about.
+    PRECISION = 0.3  #: Difference between values worth warning about.
 
     def datainspect(self):
         return self.inspectblocktype(NifFormat.NiTriBasedGeom)
@@ -629,7 +639,7 @@ class SpellCheckTangentSpace(pyffi.spells.nif.NifSpell):
                 # no tangent space present
                 return False
             self.toaster.msg("checking tangent space")
-            oldspace = [] # we will store the old tangent space here
+            oldspace = []  # we will store the old tangent space here
             for i, (n, t, b) in enumerate(tangentspace):
                 oldspace.append(n.as_list() + t.as_list() + b.as_list())
                 if abs(n * n - 1) > NifFormat.EPSILON:
@@ -649,16 +659,16 @@ class SpellCheckTangentSpace(pyffi.spells.nif.NifSpell):
                     self.toaster.logger.warn(
                         'non-ortogonal tangent space at vertex %i' % i)
                     self.toaster.logger.warn(
-                        'n * t = %s * %s = %f'%(n, t, n * t))
+                        'n * t = %s * %s = %f' % (n, t, n * t))
                     self.toaster.logger.warn(
-                        'n * b = %s * %s = %f'%(n, b, n * b))
+                        'n * b = %s * %s = %f' % (n, b, n * b))
                     self.toaster.logger.warn(
-                        't * b = %s * %s = %f'%(t, b, t * b))
+                        't * b = %s * %s = %f' % (t, b, t * b))
                     self.toaster.logger.warn(
                         'volume = %f' % volume)
             # recalculate the tangent space
             branch.update_tangent_space()
-            newspace = [] # we will store the old tangent space here
+            newspace = []  # we will store the old tangent space here
             for i, (n, t, b) in enumerate(branch.get_tangent_space()):
                 newspace.append(n.as_list() + t.as_list() + b.as_list())
             # check if old matches new
@@ -676,9 +686,10 @@ class SpellCheckTangentSpace(pyffi.spells.nif.NifSpell):
                         self.toaster.logger.warn('new: %s' % new[3:6])
                         self.toaster.logger.warn('new: %s' % new[6:9])
                         break
-            
+
             # don't recurse further
-            return False 
+            return False
+
 
 class SpellCheckTriStrip(pyffi.spells.nif.NifSpell):
     """Run the stripifier on all triangles from NIF files. This spell is also
@@ -793,6 +804,7 @@ class SpellCheckTriStrip(pyffi.spells.nif.NifSpell):
             unstitchedstrips = pyffi.utils.tristrip.unstitch_strip(stitchedstrip)
             pyffi.utils.tristrip._check_strips(triangles, unstitchedstrips)
 
+
 class SpellCheckVersion(pyffi.spells.nif.NifSpell):
     """Checks all versions used by the files (without reading the full files).
     """
@@ -800,9 +812,9 @@ class SpellCheckVersion(pyffi.spells.nif.NifSpell):
 
     @classmethod
     def toastentry(cls, toaster):
-        toaster.versions = {} # counts number of nifs with version
-        toaster.user_versions = {} # tracks used user version's per version
-        toaster.user_version_2s = {} # tracks used user version2's per version
+        toaster.versions = {}  # counts number of nifs with version
+        toaster.user_versions = {}  # tracks used user version's per version
+        toaster.user_version_2s = {}  # tracks used user version2's per version
         return True
 
     @classmethod
@@ -835,6 +847,7 @@ class SpellCheckVersion(pyffi.spells.nif.NifSpell):
             self.toaster.user_version_2s[version].append(user_version_2)
         return False
 
+
 class SpellCheckMaterialEmissiveValue(pyffi.spells.nif.NifSpell):
     """Check (and warn) about potentially bad material emissive values."""
 
@@ -855,7 +868,7 @@ class SpellCheckMaterialEmissiveValue(pyffi.spells.nif.NifSpell):
         # only inspect the NiAVObject branch, and material properties
         return isinstance(branch, (NifFormat.NiAVObject,
                                    NifFormat.NiMaterialProperty))
-    
+
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiMaterialProperty):
             # check if any emissive values exceeds usual values
@@ -875,6 +888,7 @@ class SpellCheckMaterialEmissiveValue(pyffi.spells.nif.NifSpell):
         else:
             # keep recursing into children
             return True
+
 
 class SpellCheckTriangles(pyffi.spells.nif.NifSpell):
     """Base class for spells which need to check all triangles."""
@@ -908,6 +922,7 @@ class SpellCheckTriangles(pyffi.spells.nif.NifSpell):
     def toastexit(cls, toaster):
         toaster.msg("found {0} geometries".format(len(toaster.geometries)))
 
+
 try:
     import numpy
     import scipy.optimize
@@ -915,15 +930,16 @@ except ImportError:
     numpy = None
     scipy = None
 
+
 class SpellCheckTrianglesATVR(SpellCheckTriangles):
     """Find optimal parameters for vertex cache algorithm by simulated
     annealing.
     """
 
     SPELLNAME = "check_triangles_atvr"
-    INITIAL = [1.5,    0.75, 2.0, 0.5]
-    LOWER =   [0.01, -10.0,  0.1, 0.01]
-    UPPER =   [5.0,    1.0, 10.0, 5.0]
+    INITIAL = [1.5, 0.75, 2.0, 0.5]
+    LOWER = [0.01, -10.0, 0.1, 0.01]
+    UPPER = [5.0, 1.0, 10.0, 5.0]
 
     @classmethod
     def toastentry(cls, toaster):
@@ -943,8 +959,8 @@ class SpellCheckTrianglesATVR(SpellCheckTriangles):
         # check bounds
         if any(value < lower or value > upper
                for (lower, value, upper) in zip(
-                   cls.LOWER, args, cls.UPPER)):
-            return 1e30 # infinity
+            cls.LOWER, args, cls.UPPER)):
+            return 1e30  # infinity
         cache_decay_power, last_tri_score, valence_boost_scale, valence_boost_power = args
         vertex_score = pyffi.utils.vertex_cache.VertexScore()
         vertex_score.CACHE_DECAY_POWER = cache_decay_power
@@ -953,8 +969,8 @@ class SpellCheckTrianglesATVR(SpellCheckTriangles):
         vertex_score.VALENCE_BOOST_POWER = valence_boost_power
         vertex_score.precalculate()
         print("{0:.3f} {1:.3f} {2:.3f} {3:.3f}".format(
-                cache_decay_power, last_tri_score,
-                valence_boost_scale, valence_boost_power))
+            cache_decay_power, last_tri_score,
+            valence_boost_scale, valence_boost_power))
         atvr = []
         for triangles in toaster.geometries:
             mesh = pyffi.utils.vertex_cache.Mesh(triangles, vertex_score)
@@ -974,10 +990,10 @@ class SpellCheckTrianglesATVR(SpellCheckTriangles):
             full_output=True,
             lower=numpy.array(cls.LOWER),
             upper=numpy.array(cls.UPPER),
-            #maxeval=10,
-            #maxaccept=10,
-            #maxiter=10,
-            #dwell=10,
-            #feps=0.1,
-            )
+            # maxeval=10,
+            # maxaccept=10,
+            # maxiter=10,
+            # dwell=10,
+            # feps=0.1,
+        )
         toaster.msg(str(result))

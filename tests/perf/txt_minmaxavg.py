@@ -50,11 +50,11 @@ parser = argparse.ArgumentParser(
 parser.add_argument(
     '--robust', dest='robust', default=False, action='store_true',
     help='use median and iqr instead of mean and standard deviation',
-    )
+)
 parser.add_argument(
     'folder', type=str, action='store',
     help='the folder to process files from',
-    )
+)
 
 args = parser.parse_args()
 
@@ -71,9 +71,11 @@ for root, dirs, files in os.walk(folder):
                 row = row.strip()
                 total[name].append(float(row))
 
+
 def summary(outfile):
     for name, vec in sorted(total.items()):
         low, up = confint(vec, robust=args.robust)
         print("{0:10}: [{1:10.4f}, {2:10.4f}]".format(name, low, up), file=outfile)
+
 
 summary(sys.stdout)

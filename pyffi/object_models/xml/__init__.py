@@ -40,18 +40,15 @@ file, and xml handler for converting the xml description into Python classes.
 # ***** END LICENSE BLOCK *****
 
 import logging
-import time # for timing stuff
-import types
-import os.path
-import sys
+import time  # for timing stuff
 import xml.etree.ElementTree as ET
 
 import pyffi.object_models
-from pyffi.object_models.xml.struct_    import StructBase
-from pyffi.object_models.xml.basic      import BasicBase
+from pyffi.object_models.xml.basic import BasicBase
 from pyffi.object_models.xml.bit_struct import BitStructBase
-from pyffi.object_models.xml.enum       import EnumBase
+from pyffi.object_models.xml.enum import EnumBase
 from pyffi.object_models.xml.expression import Expression
+from pyffi.object_models.xml.struct_ import StructBase
 
 
 class MetaFileFormat(pyffi.object_models.MetaFileFormat):
@@ -102,11 +99,12 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
 
             cls.logger.debug("Parsing finished in %.3f seconds." % (time.time() - start))
 
+
 class FileFormat(pyffi.object_models.FileFormat, metaclass=MetaFileFormat):
     """This class can be used as a base class for file formats
     described by an xml file."""
-    xml_file_name = None #: Override.
-    xml_file_path = None #: Override.
+    xml_file_name = None  #: Override.
+    xml_file_path = None  #: Override.
     logger = logging.getLogger("pyffi.object_models.xml")
 
     # We also keep an ordered list of all classes that have been created.
@@ -122,6 +120,7 @@ class FileFormat(pyffi.object_models.FileFormat, metaclass=MetaFileFormat):
     xml_alias = []
     xml_bit_struct = []
     xml_struct = []
+
 
 class StructAttribute(object):
     """Helper class to collect attribute data of struct add tags."""
@@ -210,6 +209,7 @@ class StructAttribute(object):
         if self.ver2:
             self.ver2 = cls.version_number(self.ver2)
 
+
 class BitStructAttribute(object):
     """Helper class to collect attribute data of bitstruct bits tags."""
 
@@ -228,7 +228,7 @@ class BitStructAttribute(object):
         self.ver1 = attrs.get("ver1")
         self.ver2 = attrs.get("ver2")
         self.userver = attrs.get("userver")
-        self.doc = "" # handled in xml parser's characters function
+        self.doc = ""  # handled in xml parser's characters function
 
         # post-processing
         if self.default:
@@ -242,14 +242,17 @@ class BitStructAttribute(object):
         if self.ver2:
             self.ver2 = cls.version_number(self.ver2)
 
+
 class XmlError(Exception):
     """The XML handler will throw this exception if something goes wrong while
     parsing."""
     pass
 
+
 class XmlParser:
     struct_types = ("compound", "niobject", "struct")
     bitstruct_types = ("bitfield", "bitflags", "bitstruct")
+
     def __init__(self, cls):
         """Set up the xml parser."""
 
@@ -272,8 +275,8 @@ class XmlParser:
         self.version_string = None
 
         # list of tuples ({tokens}, (target_attribs)) for each <token>
-        self.tokens = [ ]
-        self.versions = [ ([], ("versions", "until", "since")), ]
+        self.tokens = []
+        self.versions = [([], ("versions", "until", "since")), ]
 
     def load_xml(self, file):
         """Loads an XML (can be filepath or open file) and does all parsing"""
@@ -281,7 +284,7 @@ class XmlParser:
         root = tree.getroot()
         self.load_root(root)
         self.final_cleanup()
-            
+
     def load_root(self, root):
         """Goes over all children of the root node and calls the appropriate function depending on type of the child"""
         for child in root:
@@ -305,22 +308,22 @@ class XmlParser:
     # the following constructs do not create classes
     def read_token(self, token):
         """Reads an xml <token> block and stores it in the tokens list"""
-        self.tokens.append( ([], token.attrib["attrs"].split(" ") ) )
+        self.tokens.append(([], token.attrib["attrs"].split(" ")))
         for sub_token in token:
-            self.tokens[-1][0].append( (sub_token.attrib["token"], sub_token.attrib["string"]) )
-        
+            self.tokens[-1][0].append((sub_token.attrib["token"], sub_token.attrib["string"]))
+
     def read_version(self, version):
         """Reads an xml <version> block and stores it in the versions list"""
         # todo [versions] this ignores the user vers!
         # versions must be in reverse order so don't append but insert at beginning
         if "id" in version.attrib:
-            self.versions[0][0].insert( 0, (version.attrib["id"], version.attrib["num"]) )
+            self.versions[0][0].insert(0, (version.attrib["id"], version.attrib["num"]))
         # add to supported versions
         self.version_string = version.attrib["num"]
         self.cls.versions[self.version_string] = self.cls.version_number(self.version_string)
         self.update_gamesdict(self.cls.games, version.text)
         self.version_string = None
-    
+
     def read_module(self, module):
         """Reads a xml <module> block"""
         # no children, not interesting for now
@@ -335,11 +338,11 @@ class XmlParser:
         # check the class variables
         is_template = self.is_generic(basic.attrib)
         if basic_class._is_template != is_template:
-            raise XmlError( 'class %s should have _is_template = %s' % (self.class_name, is_template))
+            raise XmlError('class %s should have _is_template = %s' % (self.class_name, is_template))
 
         # link class cls.<class_name> to basic_class
         setattr(self.cls, self.class_name, basic_class)
-    
+
     # the following constructs create classes
     def read_bitstruct(self, bitstruct):
         """Create a bitstruct class"""
@@ -371,8 +374,8 @@ class XmlParser:
                     if numextrabits < 0:
                         raise XmlError("values of bitflags must be increasing")
                     if numextrabits > 0:
-                        reserved = dict(name="Reserved Bits %i"% len(self.class_dict["_attrs"]), numbits=numextrabits)
-                        self.class_dict["_attrs"].append( BitStructAttribute( self.cls, reserved))
+                        reserved = dict(name="Reserved Bits %i" % len(self.class_dict["_attrs"]), numbits=numextrabits)
+                        self.class_dict["_attrs"].append(BitStructAttribute(self.cls, reserved))
                 # add the actual attribute
                 bit_attrs = dict(name=attrs["name"], numbits=1)
             # new nif xml    
@@ -380,8 +383,8 @@ class XmlParser:
                 bit_attrs = dict(name=attrs["name"], numbits=attrs["width"])
             else:
                 raise XmlError("only bits tags allowed in struct type declaration")
-            
-            self.class_dict["_attrs"].append( BitStructAttribute(self.cls, bit_attrs) )
+
+            self.class_dict["_attrs"].append(BitStructAttribute(self.cls, bit_attrs))
             self.update_doc(self.class_dict["_attrs"][-1].doc, member.text)
 
         self.create_class(bitstruct.tag)
@@ -398,20 +401,20 @@ class XmlParser:
             try:
                 self.base_class = getattr(self.cls, class_basename)
             except KeyError:
-                raise XmlError( "typo, or forward declaration of struct %s" % class_basename)
+                raise XmlError("typo, or forward declaration of struct %s" % class_basename)
         else:
             self.base_class = StructBase
         # set attributes (see class StructBase)
         # 'generic' attribute is optional- if not set, then the struct is not a template
-        self.class_dict["_is_template" ] = self.is_generic(attrs)
-        self.class_dict["_attrs" ] = []
-        self.class_dict["_games" ] = {}
+        self.class_dict["_is_template"] = self.is_generic(attrs)
+        self.class_dict["_attrs"] = []
+        self.class_dict["_games"] = {}
         for field in struct:
             attrs = self.replace_tokens(field.attrib)
             # the common case
             if field.tag in ("add", "field"):
                 # add attribute to class dictionary
-                self.class_dict["_attrs"].append( StructAttribute(self.cls, attrs) )
+                self.class_dict["_attrs"].append(StructAttribute(self.cls, attrs))
                 self.update_doc(self.class_dict["_attrs"][-1].doc, field.text)
             # not found in current nifxml
             elif field.tag == "version":
@@ -472,7 +475,6 @@ class XmlParser:
             raise XmlError("typo, or forward declaration of type %s" % typename)
         self.create_class(alias.tag)
 
-
     # the following are helper functions
     def is_generic(self, attr):
         # be backward compatible
@@ -486,7 +488,7 @@ class XmlParser:
                     gamesdict[gamestr].append(self.cls.versions[self.version_string])
                 else:
                     gamesdict[gamestr] = [self.cls.versions[self.version_string]]
-        
+
     def update_class_dict(self, attrs, doc_text):
         """This initializes class_dict, sets the class name and doc text"""
         doc_text = doc_text.strip() if doc_text else ""
@@ -496,7 +498,7 @@ class XmlParser:
     def update_doc(self, doc, doc_text):
         if doc_text:
             doc += doc_text.strip()
-        
+
     def create_class(self, tag):
         """Creates a class for <tag> (tag name of the class that was just finished)"""
         # assign it to cls.<class_name> if it has not been implemented internally
@@ -510,8 +512,8 @@ class XmlParser:
                 return
             # it has been created in format's __init__.py
             # create and add to base class of customizer
-            gen_klass = type("_"+self.class_name, (self.base_class,), self.class_dict)
-            setattr(self.cls, "_"+self.class_name, gen_klass)
+            gen_klass = type("_" + self.class_name, (self.base_class,), self.class_dict)
+            setattr(self.cls, "_" + self.class_name, gen_klass)
             # recreate the class, to ensure that the metaclass is called!!
             # (otherwise, cls_klass does not have correct _attribute_list, etc.)
             cls_klass = type(cls_klass.__name__, (gen_klass,) + cls_klass.__bases__, dict(cls_klass.__dict__))
@@ -534,7 +536,7 @@ class XmlParser:
             self.cls.xml_enum.append(gen_klass)
         elif tag == "alias":
             self.cls.xml_alias.append(gen_klass)
-            
+
     def replace_tokens(self, attr_dict):
         """Update attr_dict with content of tokens+versions list."""
         # replace versions after tokens because tokens include versions
@@ -546,19 +548,20 @@ class XmlParser:
                         expr_str = expr_str.replace(op_token, op_str)
                     attr_dict[target_attrib] = expr_str
         # additional tokens that are not specified by nif.xml
-        fixed_tokens = ( ("\\", "."), ("&gt;", ">"), ("&lt;", "<"), ("&amp;", "&"), ("#ARG#", "ARG"), ("#T#", "TEMPLATE") )
+        fixed_tokens = (
+        ("\\", "."), ("&gt;", ">"), ("&lt;", "<"), ("&amp;", "&"), ("#ARG#", "ARG"), ("#T#", "TEMPLATE"))
         for attrib, expr_str in attr_dict.items():
             for op_token, op_str in fixed_tokens:
                 expr_str = expr_str.replace(op_token, op_str)
             attr_dict[attrib] = expr_str
         # onlyT & excludeT act as aliases for deprecated cond
-        prefs = ( ("onlyT", ""), ("excludeT", "!") )
+        prefs = (("onlyT", ""), ("excludeT", "!"))
         for t, pref in prefs:
             if t in attr_dict:
-                attr_dict["cond"] = pref+attr_dict[t]
+                attr_dict["cond"] = pref + attr_dict[t]
                 break
         return attr_dict
-        
+
     def final_cleanup(self):
         """Called when the xml is completely parsed.
         Searches and adds class customized functions.
@@ -578,7 +581,7 @@ class XmlParser:
             for attr in obj._attrs:
                 templ = attr.template
                 if isinstance(templ, str):
-                    attr.template =  getattr(self.cls, templ) if templ != "TEMPLATE" else type(None)
+                    attr.template = getattr(self.cls, templ) if templ != "TEMPLATE" else type(None)
                 attrtype = attr.type_
                 if isinstance(attrtype, str):
                     attr.type_ = getattr(self.cls, attrtype)

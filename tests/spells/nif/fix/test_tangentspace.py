@@ -1,8 +1,7 @@
 """Regression test for tangent space algorithm"""
+from pyffi.spells.nif.fix import SpellAddTangentSpace
 from tests.scripts.nif import call_niftoaster
 from tests.utils import BaseNifFileTestCase, assert_tuple_values
-
-from pyffi.spells.nif.fix import SpellAddTangentSpace
 
 
 class TestFixTangentSpaceNif(BaseNifFileTestCase):
@@ -1518,8 +1517,7 @@ class TestFixDeltaTangentSpaceNif(BaseNifFileTestCase):
         super(TestFixDeltaTangentSpaceNif, self).readNifData()
 
     def test_non_interactive_fix_addtangentspace(self):
-
-        call_niftoaster("--raise", "fix_deltangentspace", "fix_addtangentspace", "--dry-run",  "--noninteractive",
+        call_niftoaster("--raise", "fix_deltangentspace", "fix_addtangentspace", "--dry-run", "--noninteractive",
                         "--verbose=1", self.dest_file)
         """
         pyffi.toaster:INFO:=== tests/spells/nif/files/test_fix_tangentspace.nif ===
@@ -1533,9 +1531,8 @@ class TestFixDeltaTangentSpaceNif(BaseNifFileTestCase):
         """
 
     def test_non_interactive_fix_addtangentspace_series(self):
-
         call_niftoaster("--raise", "fix_deltangentspace", "fix_addtangentspace", "--series",
-                        "--dry-run",  "--noninteractive", "--verbose=1", self.dest_file)
+                        "--dry-run", "--noninteractive", "--verbose=1", self.dest_file)
 
         """
         pyffi.toaster:INFO:=== tests/spells/nif/files/test_fix_tangentspace.nif ===

@@ -38,9 +38,10 @@
 # ***** END LICENSE BLOCK *****
 
 import os.path
-import tempfile
 import subprocess
 import sys
+import tempfile
+
 
 def _skip_terminal_chars(stream):
     """Skip initial terminal characters (happens when mopper runs via wine)."""
@@ -49,6 +50,7 @@ def _skip_terminal_chars(stream):
         stream.seek(firstline.rfind('\x1b') + 2)
     else:
         stream.seek(0)
+
 
 def getMopperPath():
     """Get path to the mopper.
@@ -65,6 +67,7 @@ def getMopperPath():
     if not os.path.exists(mopper):
         raise OSError("mopper.exe not found at %s" % mopper)
     return mopper
+
 
 def getMopperCredits():
     """Get info about mopper, and credit havok.
@@ -87,7 +90,7 @@ def getMopperCredits():
     :rtype: ``str``
     """
     mopper = getMopperPath()
-    outfile = tempfile.TemporaryFile("w+") # not binary
+    outfile = tempfile.TemporaryFile("w+")  # not binary
     try:
         # get license info, credit havok (raises OSError on failure)
         if sys.platform == "win32":
@@ -100,6 +103,7 @@ def getMopperCredits():
     finally:
         outfile.close()
     return creditstr
+
 
 def getMopperOriginScaleCodeWelding(vertices, triangles, material_indices=None):
     """Generate mopp code and welding info for given geometry. Raises
@@ -153,8 +157,8 @@ def getMopperOriginScaleCodeWelding(vertices, triangles, material_indices=None):
         material_indices = []
 
     mopper = getMopperPath()
-    infile = tempfile.TemporaryFile("w+") # not binary
-    outfile = tempfile.TemporaryFile("w+") # not binary
+    infile = tempfile.TemporaryFile("w+")  # not binary
+    outfile = tempfile.TemporaryFile("w+")  # not binary
     try:
         # set up input
         infile.write("%i\n" % len(vertices))
@@ -193,7 +197,8 @@ def getMopperOriginScaleCodeWelding(vertices, triangles, material_indices=None):
         outfile.close()
     return origin, scale, moppcode, welding_info
 
+
 if __name__ == "__main__":
     import doctest
-    doctest.testmod()
 
+    doctest.testmod()

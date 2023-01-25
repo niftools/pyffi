@@ -42,6 +42,7 @@
 
 from pyffi.spells import Spell
 
+
 class SpellNop(Spell):
     """A spell which really does nothing. For testing."""
 
@@ -50,6 +51,7 @@ class SpellNop(Spell):
 
     def datainspect(self):
         return False
+
 
 class SpellRead(Spell):
     """A spell which does nothing, besides reading the file."""
@@ -61,6 +63,7 @@ class SpellRead(Spell):
         # prevent recursing into the tree
         return False
 
+
 class SpellReadWrite(SpellRead):
     """A spell which writes the data to a temporary file (essentially,
     it is like L{SpellRead} but it forces --dry-run and sets READONLY to
@@ -69,7 +72,7 @@ class SpellReadWrite(SpellRead):
 
     SPELLNAME = "check_readwrite"
     READONLY = False
-    changed = True # we want it to write the file back
+    changed = True  # we want it to write the file back
 
     @classmethod
     def toastentry(cls, toaster):
@@ -77,4 +80,3 @@ class SpellReadWrite(SpellRead):
         toaster.options["dryrun"] = True
         # the spell always acts
         return True
-

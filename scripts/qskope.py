@@ -57,6 +57,7 @@ from pyffi.qskope import QSkope
 import sys
 from optparse import OptionParser
 
+
 # main script function
 def main():
     """The main script function. Does argument parsing, file type checking,
@@ -66,8 +67,8 @@ def main():
     description = """Parse and display the file <file>."""
 
     parser = OptionParser(usage,
-                          version = "%prog $Rev$",
-                          description = description)
+                          version="%prog $Rev$",
+                          description=description)
     (options, args) = parser.parse_args()
 
     if len(args) > 1:
@@ -77,9 +78,10 @@ def main():
     app = QtGui.QApplication(sys.argv)
     mainwindow = QSkope()
     if len(args) >= 1:
-        mainwindow.openFile(filename = args[0])
+        mainwindow.openFile(filename=args[0])
     mainwindow.show()
     sys.exit(app.exec_())
+
 
 if __name__ == "__main__":
     # set up logger

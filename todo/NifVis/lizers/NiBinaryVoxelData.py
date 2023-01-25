@@ -2,9 +2,10 @@ from NifVis.ua import *
 
 radius = 0.1
 
-def Radius( block ):
+
+def Radius(block):
     if not block: return
-    if not isinstance( block, NifFormat.NiBinaryVoxelData ): return
+    if not isinstance(block, NifFormat.NiBinaryVoxelData): return
 
     global radius
 
@@ -16,16 +17,15 @@ def Radius( block ):
     return radius
 
 
-def Draw( block ):
+def Draw(block):
     if not block: return
-    if not isinstance( block, NifFormat.NiBinaryVoxelData ): return
+    if not isinstance(block, NifFormat.NiBinaryVoxelData): return
 
     global radius
 
     GLNoLighting()
 
-    SetPointSize( 4 )
-    SetColor( 1, 1, 1 )
+    SetPointSize(4)
+    SetColor(1, 1, 1)
 
-    DrawVertices( block.unknownVectors )
-
+    DrawVertices(block.unknownVectors)

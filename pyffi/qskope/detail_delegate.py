@@ -41,11 +41,12 @@ from PyQt4 import QtCore, QtGui
 
 # each delegate type corresponds to a QtGui delegate type
 # (see _checkValidEditor for more details)
-from pyffi.object_models.editable import EditableComboBox     # -> QComboBox
-from pyffi.object_models.editable import EditableFloatSpinBox # -> QDoubleSpinBox
-from pyffi.object_models.editable import EditableSpinBox      # -> QSpinBox
-from pyffi.object_models.editable import EditableTextEdit     # -> QTextEdit
-from pyffi.object_models.editable import EditableLineEdit     # -> QLineEdit
+from pyffi.object_models.editable import EditableComboBox  # -> QComboBox
+from pyffi.object_models.editable import EditableFloatSpinBox  # -> QDoubleSpinBox
+from pyffi.object_models.editable import EditableLineEdit  # -> QLineEdit
+from pyffi.object_models.editable import EditableSpinBox  # -> QSpinBox
+from pyffi.object_models.editable import EditableTextEdit  # -> QTextEdit
+
 
 # implementation details:
 # http://doc.trolltech.com/4.3/model-view-delegate.html
@@ -196,4 +197,3 @@ class DetailDelegate(QtGui.QItemDelegate):
         # set the model data
         # EditRole ensures that setData uses set_editor_value to set the data
         model.setData(index, editorvalue, QtCore.Qt.EditRole)
-

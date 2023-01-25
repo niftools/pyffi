@@ -39,7 +39,9 @@ shapes."""
 # ***** END LICENSE BLOCK *****
 
 import math
+
 from pyffi.utils.mathutils import *
+
 
 # see http://en.wikipedia.org/wiki/List_of_moment_of_inertia_tensors
 
@@ -74,7 +76,7 @@ def getMassInertiaBox(size, density=1, solid=True):
     24.0
     >>> inertia
     ((26.0, 0, 0), (0, 20.0, 0), (0, 0, 10.0))"""
-    assert(len(size) == 3)  # debug
+    assert (len(size) == 3)  # debug
     if solid:
         mass = density * size[0] * size[1] * size[2]
         tmp = tuple(mass * (length ** 2) / 12.0 for length in size)
@@ -136,7 +138,7 @@ def get_mass_center_inertia_polyhedron(vertices, triangles, density=1, solid=Tru
     covariance_canonical = ((2, 1, 1),
                             (1, 2, 1),
                             (1, 1, 2))
-    covariance_correction = 1.0/120
+    covariance_correction = 1.0 / 120
 
     covariances = []
     masses = []
@@ -190,7 +192,7 @@ def get_mass_center_inertia_polyhedron(vertices, triangles, density=1, solid=Tru
             # (this is approximate only as it replaces triangle with point mass
             # todo: find better way)
             covariances.append(
-                tuple(tuple(masses[-1]*x*y for x in centers[-1])
+                tuple(tuple(masses[-1] * x * y for x in centers[-1])
                       for y in centers[-1])
             )
 
@@ -239,6 +241,8 @@ def get_mass_center_inertia_polyhedron(vertices, triangles, density=1, solid=Tru
 
     return total_mass, total_center, total_inertia
 
+
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()

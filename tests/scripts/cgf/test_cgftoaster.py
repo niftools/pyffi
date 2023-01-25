@@ -1,5 +1,6 @@
 """Tests for the cgftoaster script"""
 from nose.tools import raises
+
 from tests.scripts.cgf import call_cgftoaster
 
 cfg_dir = "tests/spells/cgf/files/"

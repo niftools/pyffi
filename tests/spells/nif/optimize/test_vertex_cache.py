@@ -1,7 +1,7 @@
-from tests.utils import BaseNifFileTestCase
 from nose.tools import assert_equals
 
 import pyffi
+from tests.utils import BaseNifFileTestCase
 
 
 class TestVertexCacheOptimisationNif(BaseNifFileTestCase):

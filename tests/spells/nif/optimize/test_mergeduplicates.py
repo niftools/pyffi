@@ -1,10 +1,9 @@
-from tests.scripts.nif import call_niftoaster
-from tests.utils import BaseNifFileTestCase
+from nose.tools import assert_true, assert_false
 
 import pyffi
 from pyffi.spells import Toaster
-
-from nose.tools import assert_true, assert_false
+from tests.scripts.nif import call_niftoaster
+from tests.utils import BaseNifFileTestCase
 
 
 class TestMergeDuplicatesOptimisationNif(BaseNifFileTestCase):
@@ -16,8 +15,9 @@ class TestMergeDuplicatesOptimisationNif(BaseNifFileTestCase):
         super(TestMergeDuplicatesOptimisationNif, self).copyFile()
 
     def test_non_interactive_opt_merge_duplicates(self):
-        call_niftoaster("--raise", "opt_mergeduplicates", "--dry-run", "--noninteractive", "--verbose=1", self.dest_file)
-    
+        call_niftoaster("--raise", "opt_mergeduplicates", "--dry-run", "--noninteractive", "--verbose=1",
+                        self.dest_file)
+
 
 class TestMergeDuplicatesGeomOptimisationNif(BaseNifFileTestCase):
     # I didn't need setUp and tearDown here..

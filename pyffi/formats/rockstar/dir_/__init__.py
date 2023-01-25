@@ -103,16 +103,15 @@ Create an DIR file from scratch and write to file
 #
 # ***** END LICENSE BLOCK *****
 
-from itertools import chain
-import struct
 import os
 import re
+import struct
 
-import pyffi.object_models.xml
-import pyffi.object_models.common
-from pyffi.object_models.xml.basic import BasicBase
 import pyffi.object_models
+import pyffi.object_models.common
+import pyffi.object_models.xml
 from pyffi.utils.graph import EdgeFilter
+
 
 class DirFormat(pyffi.object_models.xml.FileFormat):
     """This class implements the DIR format."""
@@ -124,6 +123,7 @@ class DirFormat(pyffi.object_models.xml.FileFormat):
 
     # basic types
     UInt = pyffi.object_models.common.UInt
+
     class String(pyffi.object_models.common.FixedString):
         _len = 24
 
@@ -165,10 +165,10 @@ class DirFormat(pyffi.object_models.xml.FileFormat):
                 except struct.error:
                     # this happens if .dir only contains one file record
                     off2 = size1
-                if not(off1 == 0
-                       #and size1 < 1000 # heuristic
-                       and off2 == size1
-                       and file1[-1] == 0):
+                if not (off1 == 0
+                        # and size1 < 1000 # heuristic
+                        and off2 == size1
+                        and file1[-1] == 0):
                     raise ValueError('Not a Rockstar DIR file.')
             finally:
                 stream.seek(pos)
@@ -186,7 +186,6 @@ class DirFormat(pyffi.object_models.xml.FileFormat):
                 self.inspect_quick(stream)
             finally:
                 stream.seek(pos)
-
 
         def read(self, stream):
             """Read a dir file.
@@ -243,6 +242,8 @@ class DirFormat(pyffi.object_models.xml.FileFormat):
                     if len(allbytes) < size:
                         image.write('\x00' * (size - len(allbytes)))
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     import doctest
+
     doctest.testmod()

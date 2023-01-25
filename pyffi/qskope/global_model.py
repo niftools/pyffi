@@ -40,10 +40,11 @@ built from StructBase instances possibly referring to one another."""
 
 from collections import MutableMapping
 
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtCore
 
-from pyffi.utils.graph import EdgeFilter
 from pyffi.qskope.global_tree import GlobalTreeItemData, GlobalTreeItem
+from pyffi.utils.graph import EdgeFilter
+
 
 # implementation references:
 # http://doc.trolltech.com/4.3/model-view-programming.html
@@ -76,7 +77,7 @@ class GlobalModel(QtCore.QAbstractItemModel):
             # index becomes available
             self.free_indices.append(self.data[id(key)])
             # remove it
-            del self.data[id(key)] 
+            del self.data[id(key)]
 
         def clear(self):
             # all indices larger than the first element
@@ -87,8 +88,10 @@ class GlobalModel(QtCore.QAbstractItemModel):
         # override abstract functions which aren't used anyway
         def __len__(self):
             raise NotImplementedError()
+
         def __setitem__(self):
             raise NotImplementedError()
+
         def __iter__(self):
             raise NotImplementedError()
 
@@ -107,7 +110,6 @@ class GlobalModel(QtCore.QAbstractItemModel):
         self.index_dict[item.data.node]
         for child_item in item.children:
             self.updateIndexDict(child_item)
-            
 
     def flags(self, index):
         """Return flags for the given index: all indices are enabled and
@@ -147,7 +149,7 @@ class GlobalModel(QtCore.QAbstractItemModel):
     def headerData(self, section, orientation, role):
         """Return header data."""
         if (orientation == QtCore.Qt.Horizontal
-            and role == QtCore.Qt.DisplayRole):
+                and role == QtCore.Qt.DisplayRole):
             if section == self.COL_TYPE:
                 return "Type"
             elif section == self.COL_NAME:
@@ -156,7 +158,7 @@ class GlobalModel(QtCore.QAbstractItemModel):
                 return "#"
         return None
 
-    def rowCount(self, parent = QtCore.QModelIndex()):
+    def rowCount(self, parent=QtCore.QModelIndex()):
         """Calculate a row count for the given parent index."""
         if not parent.isValid():
             return 1
@@ -164,7 +166,7 @@ class GlobalModel(QtCore.QAbstractItemModel):
             # get the parent child count = number of references
             return len(parent.internalPointer().children)
 
-    def columnCount(self, parent = QtCore.QModelIndex()):
+    def columnCount(self, parent=QtCore.QModelIndex()):
         """Return column count."""
         # column count is constant everywhere
         return self.NUM_COLUMNS

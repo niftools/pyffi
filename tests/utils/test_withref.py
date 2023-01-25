@@ -1,6 +1,7 @@
 """Tests for pyffi.utils.withref module."""
 
 import nose.tools
+
 from pyffi.utils.withref import ref
 
 

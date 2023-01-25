@@ -41,9 +41,8 @@
 
 # note: some imports are defined at the end to avoid problems with circularity
 
-from functools import partial
-
 import struct
+from functools import partial
 
 from pyffi.object_models.editable import EditableSpinBox  # for Bits
 from pyffi.utils.graph import DetailNode, EdgeFilter
@@ -53,6 +52,7 @@ class _MetaBitStructBase(type):
     """This metaclass checks for the presence of a _attrs attribute.
     For each attribute in _attrs, an <attrname> property is generated which gets and sets bit fields.
     Used as metaclass of BitStructBase."""
+
     def __init__(cls, name, bases, dct):
         super(_MetaBitStructBase, cls).__init__(name, bases, dct)
         # consistency checks
@@ -95,13 +95,15 @@ class _MetaBitStructBase(type):
         cls._names = cls._get_names()
 
     def __repr__(cls):
-        return "<bit_struct '%s'>"%(cls.__name__)
+        return "<bit_struct '%s'>" % (cls.__name__)
+
 
 class Bits(DetailNode, EditableSpinBox):
     """Basic implementation of a n-bit unsigned integer type (without read and write)."""
-    def __init__(self, numbits=1, default=0, parent = None):
+
+    def __init__(self, numbits=1, default=0, parent=None):
         # parent disabled for performance
-        #self._parent = weakref.ref(parent) if parent else None
+        # self._parent = weakref.ref(parent) if parent else None
         self._value = default
         self._numbits = numbits
 
@@ -412,8 +414,8 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
             # print("version check passed") # debug
 
             # check user version
-            if not(attr.userver is None or user_version is None) \
-               and user_version != attr.userver:
+            if not (attr.userver is None or user_version is None) \
+                    and user_version != attr.userver:
                 continue
             # print("user version check passed") # debug
 

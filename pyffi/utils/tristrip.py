@@ -46,6 +46,7 @@ except ImportError:
     from pyffi.utils.trianglestripifier import TriangleStripifier
     from pyffi.utils.trianglemesh import Mesh
 
+
 def triangulate(strips):
     """A generator for iterating over the faces in a set of
     strips. Degenerate triangles in strips are discarded.
@@ -57,14 +58,14 @@ def triangulate(strips):
     triangles = []
 
     for strip in strips:
-        if len(strip) < 3: continue # skip empty strips
+        if len(strip) < 3: continue  # skip empty strips
         # make list copy incase input data does not like slice notation
         strip_list = list(strip)
         # flips the order of verts in every other tri
         flip = False
-        for i in range(0, len(strip_list)-2):
+        for i in range(0, len(strip_list) - 2):
             flip = not flip
-            t0, t1, t2 = strip_list[i:i+3]
+            t0, t1, t2 = strip_list[i:i + 3]
             # skip degenerate tri
             if t0 == t1 or t1 == t2 or t2 == t0: continue
             # append tri in correct order
@@ -72,10 +73,12 @@ def triangulate(strips):
 
     return triangles
 
+
 def _generate_faces_from_triangles(triangles):
     """Creates faces (tris) from a flat list of non-overlapping triangle indices"""
     for i in range(0, len(triangles), 3):
-        yield triangles[i], triangles[i+1], triangles[i+2]
+        yield triangles[i], triangles[i + 1], triangles[i + 2]
+
 
 def _sort_triangle_indices(triangles):
     """Sorts indices of each triangle so lowest index always comes first.
@@ -101,6 +104,7 @@ def _sort_triangle_indices(triangles):
             # should *never* happen
             raise RuntimeError(
                 "Unexpected error while sorting triangle indices.")
+
 
 def _check_strips(triangles, strips):
     """Checks that triangles and strips describe the same geometry.
@@ -139,7 +143,8 @@ def _check_strips(triangles, strips):
                triangles - strips_triangles,
                strips_triangles - triangles))
 
-def stripify(triangles, stitchstrips = False):
+
+def stripify(triangles, stitchstrips=False):
     """Converts triangles into a list of strips.
 
     If stitchstrips is True, then everything is wrapped in a single strip using
@@ -199,6 +204,7 @@ def stripify(triangles, stitchstrips = False):
         return [stitch_strips(strips)]
     else:
         return strips
+
 
 class OrientedStrip:
     """An oriented strip, with stitching support."""
@@ -383,16 +389,17 @@ class OrientedStrip:
 
         # append stitches
         if num_stitches >= 1:
-            result.vertices.append(self.vertices[-1]) # first stitch
+            result.vertices.append(self.vertices[-1])  # first stitch
         if num_stitches >= 2:
-            result.vertices.append(other.vertices[0]) # second stitch
+            result.vertices.append(other.vertices[0])  # second stitch
         if num_stitches >= 3:
-            result.vertices.append(other.vertices[0]) # third stitch
+            result.vertices.append(other.vertices[0])  # third stitch
 
         # append other vertices
         result.vertices.extend(other.vertices)
 
         return result
+
 
 def stitch_strips(strips):
     """Stitch strips keeping stitch size minimal.
@@ -433,6 +440,7 @@ def stitch_strips(strips):
 
     class ExperimentSelector:
         """Helper class to select best experiment."""
+
         def __init__(self):
             self.best_ostrip1 = None
             self.best_ostrip2 = None
@@ -442,7 +450,7 @@ def stitch_strips(strips):
         def update(self, ostrip_index, ostrip1, ostrip2):
             num_stitches = ostrip1.get_num_stitches(ostrip2)
             if ((self.best_num_stitches is None)
-                or (num_stitches < self.best_num_stitches)):
+                    or (num_stitches < self.best_num_stitches)):
                 self.best_ostrip1 = ostrip1
                 self.best_ostrip2 = ostrip2
                 self.best_ostrip_index = ostrip_index
@@ -484,6 +492,7 @@ def stitch_strips(strips):
     # return resulting strip
     return strip
 
+
 def unstitch_strip(strip):
     """Revert stitched strip back to a set of strips without stitches.
 
@@ -520,17 +529,17 @@ def unstitch_strip(strip):
     strips = []
     currentstrip = []
     i = 0
-    while i < len(strip)-1:
+    while i < len(strip) - 1:
         winding = i & 1
         currentstrip.append(strip[i])
-        if strip[i] == strip[i+1]:
+        if strip[i] == strip[i + 1]:
             # stitch detected, add current strip to list of strips
             strips.append(currentstrip)
             # and start a new one, taking into account winding
             if winding == 1:
                 currentstrip = []
             else:
-                currentstrip = [strip[i+1]]
+                currentstrip = [strip[i + 1]]
         i += 1
     # add last part
     currentstrip.extend(strip[i:])
@@ -542,6 +551,8 @@ def unstitch_strip(strip):
             strip.pop(0)
     return [strip for strip in strips if len(strip) > 3 or (len(strip) == 3 and strip[0] != strip[1])]
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     import doctest
+
     doctest.testmod()

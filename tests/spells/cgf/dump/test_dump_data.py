@@ -1,6 +1,6 @@
 """Tests for the dump spell for cgf"""
-from tests.utils import BaseCgfFileTestCase
 from tests.scripts.cgf import call_cgftoaster
+from tests.utils import BaseCgfFileTestCase
 
 
 class TestDumpDataCgf(BaseCgfFileTestCase):

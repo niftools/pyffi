@@ -1,8 +1,9 @@
-from pyffi.formats.nif import NifFormat
 import nose
 
-def test_bhkPackedNiTriStripsShape():
+from pyffi.formats.nif import NifFormat
 
+
+def test_bhkPackedNiTriStripsShape():
     # Adding Shapes
     shape = NifFormat.bhkPackedNiTriStripsShape()
     nose.tools.assert_equal(shape.num_sub_shapes, 0)
@@ -33,4 +34,3 @@ def test_bhkPackedNiTriStripsShape():
     nose.tools.assert_equal(shape.data.sub_shapes[1].material.material, 4)
     nose.tools.assert_equal(shape.data.num_triangles, 3)
     nose.tools.assert_equal(shape.data.num_vertices, 7)
-

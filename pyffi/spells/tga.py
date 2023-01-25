@@ -47,9 +47,11 @@ There are no spells yet.
 import pyffi.spells
 from pyffi.formats.tga import TgaFormat
 
+
 class TgaSpell(pyffi.spells.Spell):
     """Base class for spells for tga files."""
     pass
+
 
 class TgaToaster(pyffi.spells.Toaster):
     FILEFORMAT = TgaFormat

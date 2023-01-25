@@ -1,10 +1,10 @@
-from pyffi.object_models.array_type import ValidatedList
-from pyffi.object_models.array_type import UniformArray
-from pyffi.object_models.simple_type import SimpleType
-from tests.utils import assert_tuple_values
-
 import nose
 from nose.tools import assert_equals
+
+from pyffi.object_models.array_type import UniformArray
+from pyffi.object_models.array_type import ValidatedList
+from pyffi.object_models.simple_type import SimpleType
+from tests.utils import assert_tuple_values
 
 
 class IntList(ValidatedList):
@@ -18,6 +18,7 @@ class IntList(ValidatedList):
 
 class MyInt(SimpleType):
     """Mock class with a simple value"""
+
     def __init__(self, value=0):
         self._value = value
 
@@ -79,12 +80,14 @@ class TestAnyArray:
     @nose.tools.raises(TypeError)
     def test_invalid_anytype_constructor(self):
         """Test elements must be of AnyType"""
+
         class InvalidListOfInts(UniformArray):
             """Mock class to uniform and override values"""
             ItemType = int
 
     def test_subtype_constructor(self):
         """Test subtyping setting correct ItemType with base AnyType"""
+
         class SubInt(SimpleType):
             """Mock class to uniform and override values"""
 

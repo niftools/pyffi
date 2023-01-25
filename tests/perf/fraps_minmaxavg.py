@@ -61,6 +61,7 @@ for root, dirs, files in os.walk(folder):
                 name = name.strip()
                 total[root][name].append(float(num))
 
+
 def summary(outfile):
     for root in sorted(total):
         if not total[root]["Frames"]:
@@ -75,6 +76,7 @@ def summary(outfile):
                 mean(vec),
                 1.96 * sd(vec) / (len(vec) ** 0.5)), file=outfile)
         print(file=outfile)
+
 
 summary(sys.stdout)
 with open(os.path.join(folder, "summary.txt"), "w") as outfile:
