@@ -1,4 +1,104 @@
-"""Implements common basic types in XML file format descriptions."""
+"""
+:mod:`pyffi.object_models.common` --- Common data types in XML fileformat
+=========================================================================
+
+Implements common basic types in XML file format descriptions.
+
+Implementation
+--------------
+
+.. autoclass:: Int
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: UInt
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: Int64
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: UInt64
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: Byte
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: UByte
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: Short
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: UShort
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: ULittle32
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: Bool
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: Char
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: Float
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: HFloat
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: NormByte
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: ZString
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: FixedString
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: SizedString
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: UndecodedData
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Show examples for usage
+"""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -176,9 +276,6 @@ class Int(BasicBase, EditableSpinBox):
         :type stream: file
         """
         stream.write(struct.pack(data._byte_order + self._struct, self._value))
-
-    def __str__(self):
-        return str(self.get_value())
 
     @classmethod
     def get_size(cls, data=None):
@@ -367,6 +464,74 @@ class Char(BasicBase, EditableLineEdit):
         self.get_value()
 
 
+class NormByte(BasicBase, EditableFloatSpinBox):  # TODO: This shit
+    """Implementation of a 8-bit float in the range -1.0:1.0, stored as a byte."""
+    _min = -0x1
+    _max = 0x1
+    _struct = 'B'
+    _size = 1
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._value = 0.0
+
+    def get_value(self):
+        return self._value
+
+    def set_value(self, value):
+        val = float(value)
+        if val < self._min or val > self._max:
+            raise ValueError('value out of range (%i - %i): %i', self._min, self._max, val)
+        self._value = val
+
+    def read(self, stream, data):
+        """Read value from stream.
+
+        :param stream: The stream to read from.
+        :param data:
+        :type stream: file
+        """
+        self._value = struct.unpack(data._byte_order + self._struct, stream.read(self._size))[0]
+
+    def write(self, stream, data):
+        """Write value to stream.
+
+        :param stream: The stream to write to.
+        :param data:
+        :type stream: file
+        """
+        stream.write(struct.pack(data._byte_order + self._struct, self._value))
+
+    @classmethod
+    def get_size(cls, data=None):
+        """Return number of bytes this type occupies in a file.
+
+        :return: Number of bytes.
+        """
+        return cls._size
+
+    def get_hash(self, data=None):
+        """Return a hash value for this value.
+
+        :return: An immutable object that can be used as a hash.
+        """
+        return self.get_value()
+
+    def get_editor_minimum(self):
+        """Minimum possible value.
+
+        :return: Minimum possible value.
+        """
+        return self._min
+
+    def get_editor_maximum(self):
+        """Maximum possible value.
+
+        :return: Maximum possible value.
+        """
+        return self._max
+
+
 class Float(BasicBase, EditableFloatSpinBox):
     """Implementation of a 32-bit float."""
 
@@ -420,6 +585,69 @@ class Float(BasicBase, EditableFloatSpinBox):
         :return: Number of bytes.
         """
         return 4
+
+    def get_hash(self, data=None):
+        """Return a hash value for this value. Currently implemented
+        with precision 1/200.
+
+        :return: An immutable object that can be used as a hash.
+        """
+        return int(self.get_value() * 200)
+
+
+class HFloat(BasicBase, EditableFloatSpinBox):
+    """Implementation of a 16-bit float."""
+
+    def __init__(self, **kwargs):
+        """Initialize the float."""
+        super(HFloat, self).__init__(**kwargs)
+        self._value = 0
+
+    def get_value(self):
+        """Return stored value.
+
+        :return: The stored value.
+        """
+        return self._value
+
+    def set_value(self, value):
+        """Set value to C{value}.
+
+        :param value: The value to assign.
+        :type value: float
+        """
+        self._value = float(value)
+
+    def read(self, stream, data):
+        """Read value from stream.
+
+        :param stream: The stream to read from.
+        :type stream: file
+        """
+        self._value = struct.unpack(data._byte_order + 'e',
+                                    stream.read(2))[0]
+
+    def write(self, stream, data):
+        """Write value to stream.
+
+        :param stream: The stream to write to.
+        :type stream: file
+        """
+        try:
+            stream.write(struct.pack(data._byte_order + 'e',
+                                     self._value))
+        except OverflowError:
+            logger = logging.getLogger("pyffi.object_models")
+            logger.warn("float value overflow, writing NaN")
+            stream.write(struct.pack(data._byte_order + 'I',
+                                     0x7fc00000))
+
+    def get_size(self, data=None):
+        """Return number of bytes this type occupies in a file.
+
+        :return: Number of bytes.
+        """
+        return 2
 
     def get_hash(self, data=None):
         """Return a hash value for this value. Currently implemented

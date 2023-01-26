@@ -1,6 +1,25 @@
-"""Format classes and metaclasses for binary file formats described by a
+"""
+:mod:`pyffi.object_models.mex` --- Mex script fileformat parser
+===============================================================
+
+Format classes and metaclasses for binary file formats described by a
 mexscript file, and mexscript parser for converting the mexscript description
 into Python classes.
+
+Implementation
+--------------
+
+.. autoclass:: _MetaMexFileFormat
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: MexFileFormat
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Show examples for usage
 """
 
 # ***** BEGIN LICENSE BLOCK *****

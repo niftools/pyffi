@@ -1,5 +1,44 @@
-"""Format classes and metaclasses for binary file formats described by an xml
+"""
+:mod:`pyffi.object_models.xml` --- XML fileformat parser
+========================================================
+
+Format classes and metaclasses for binary file formats described by an xml
 file, and xml handler for converting the xml description into Python classes.
+
+Implementation
+--------------
+
+.. autoclass:: MetaFileFormat
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: FileFormat
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: StructAttribute
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: BitStructAttibute
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: XmlError
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: XmlParser
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Show examples for usage
 """
 
 # ***** BEGIN LICENSE BLOCK *****

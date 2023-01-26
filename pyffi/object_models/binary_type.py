@@ -1,4 +1,94 @@
-"""Implements common basic types in XML file format descriptions."""
+"""
+:mod:`pyffi.object_models.binary_type` --- Abstract classes for data stored as a binary
+=======================================================================================
+
+Implements common basic types in XML file format descriptions.
+
+Implementation
+--------------
+
+.. autoclass:: BinaryType
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: BinarySimpleType
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: IntType
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: UIntType
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: ByteType
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: UByteType
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: ShortType
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: UShortType
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: BoolType
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: CharType
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: Float
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: HFloat
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: ZString
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: FixedString
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: SizedString
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: UndecodedData
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Show examples for usage
+"""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -381,6 +471,45 @@ class Float(BinarySimpleType, EditableFloatSpinBox):
         :return: Number of bytes.
         """
         return 4
+
+
+class HFloat(BinarySimpleType, EditableFloatSpinBox):
+    """Implementation of a 16-bit float."""
+
+    def __init__(self):
+        """Initialize the float."""
+        self._value = 0.0
+
+    def set_value(self, value):
+        """Set value to C{value}.
+
+        :param value: The value to assign.
+        :type value: float
+        """
+        self._value = float(value)
+
+    def read(self, stream):
+        """Read value from stream.
+
+        :param stream: The stream to read from.
+        :type stream: file
+        """
+        self._value = struct.unpack('<e', stream.read(2))[0]
+
+    def write(self, stream):
+        """Write value to stream.
+
+        :param stream: The stream to write to.
+        :type stream: file
+        """
+        stream.write(struct.pack('<e', self._value))
+
+    def get_size(self):
+        """Return number of bytes this type occupies in a file.
+
+        :return: Number of bytes.
+        """
+        return 2
 
 
 class ZString(BinarySimpleType, EditableLineEdit):

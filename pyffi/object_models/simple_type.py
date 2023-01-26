@@ -1,4 +1,24 @@
-"""Defines the base class for simple types."""
+"""
+:mod:`pyffi.object_models.simple_type` --- Abstract classes for defining simple types
+=====================================================================================
+
+Defines the base class for simple types.
+
+Implementation
+--------------
+
+.. autoclass:: _MetaSimpleType
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: SimpleType
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Show examples for usage
+"""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****

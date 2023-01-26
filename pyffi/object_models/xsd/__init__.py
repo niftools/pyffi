@@ -1,6 +1,35 @@
-"""This module provides a base class and a metaclass for parsing an XSD
+"""
+:mod:`pyffi.object_models.xsd` --- XSD fileformat parser
+=============================================================
+
+This module provides a base class and a metaclass for parsing an XSD
 schema and providing an interface for writing XML files that follow this
 schema.
+
+Implementation
+--------------
+
+.. autoclass:: Tree
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: MetaFileFormat
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: Type
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: FileFormat
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Show examples for usage
 """
 
 # ***** BEGIN LICENSE BLOCK *****

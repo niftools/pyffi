@@ -1,4 +1,6 @@
-"""Implements abstract editor base classes.
+"""
+:mod:`pyffi.object_models.editable` --- Abstract editor base classes
+====================================================================
 
 These abstract base classes provide an abstract layer for editing data in a
 graphical user interface.
@@ -6,8 +8,47 @@ graphical user interface.
 @todo: Make these into true abstract base classes, and implement and use the
     get_editor_value and set_editor_value functions in non-abstract derived
     classes.
-"""
 
+Implementation
+--------------
+
+.. autoclass:: EditableBase
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: EditableSpinBox
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: EditableFloatSpinBox
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: EditableLineEdit
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: EditableTextEdit
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: EditableComboBox
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: EditableBoolComboBox
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Show examples for usage
+"""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -45,6 +86,9 @@ graphical user interface.
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENSE BLOCK *****
+
+from abc import ABCMeta
+
 
 class EditableBase(object):
     """The base class for all delegates."""

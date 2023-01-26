@@ -1,6 +1,20 @@
-"""Defines base class for any type that stores mutable data
+"""
+:mod:`pyffi.object_models.any_type` --- Abstract class for interchangeable data
+===============================================================================
+
+Defines base class for any type that stores mutable data
 which is readable and writable, and can check for exchangeable
 alternatives.
+
+Implementation
+--------------
+
+.. autoclass:: AnyType
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Show examples for usage
 """
 
 # --------------------------------------------------------------------------

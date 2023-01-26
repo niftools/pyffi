@@ -4,10 +4,11 @@
 
 .. toctree::
    :maxdepth: 3
+   :titlesonly:
 
    formats/index
    spells/index
-   object_models
+   object_models/index
 
 """
 

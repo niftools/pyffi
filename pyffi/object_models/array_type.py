@@ -1,4 +1,44 @@
-"""Defines base class for arrays of data."""
+"""
+:mod:`pyffi.object_models.array_type` --- Abstract classes for data stored as an array
+======================================================================================
+
+Defines base class for arrays of data.
+
+Implementation
+--------------
+
+.. autoclass:: ValidatedList
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: AnyArray
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: MetaUniformArray
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: UniformArray
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: MetaUniformSimpleArray
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: UniformSimpleArray
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Example of usage
+"""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****

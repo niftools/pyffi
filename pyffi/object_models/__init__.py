@@ -6,6 +6,21 @@
 
    The documentation of this module is very incomplete.
 
+.. toctree::
+   :maxdepth: 2
+   :titlesonly:
+
+   mex/index
+   xml/index
+   xsd/index
+
+   any_type
+   array_type
+   binary_type
+   common
+   editable
+   simple_type
+
 This module bundles all file format object models. An object model
 is a group of classes whose instances can hold the information
 contained in a file whose format is described in a particular way
