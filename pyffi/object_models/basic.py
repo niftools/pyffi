@@ -1,4 +1,19 @@
-"""Implements base class for basic types."""
+"""
+:mod:`pyffi.object_models.basic` --- Basic Types
+================================================
+
+Implements base class for basic types.
+
+Implementation
+--------------
+
+.. autoclass:: BasicBase
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Show examples for usage
+"""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****

@@ -1,1 +1,1 @@
-.. automodule:: pyffi.object_models.niftoolsxml.bit_struct
+.. automodule:: pyffi.object_models.xml.bit_struct

@@ -1,1 +1,1 @@
-.. automodule:: pyffi.object_models.niftoolsxml.struct_
+.. automodule:: pyffi.object_models.xml.struct_

@@ -128,7 +128,7 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
     float = pyffi.object_models.common.Float
     PixelData = pyffi.object_models.common.UndecodedData
 
-    class FooterString(pyffi.object_models.xml.basic.BasicBase):
+    class FooterString(pyffi.object_models.basic.BasicBase):
         """The Targa footer signature."""
 
         def __str__(self):

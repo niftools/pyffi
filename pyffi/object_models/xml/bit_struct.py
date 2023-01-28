@@ -187,7 +187,7 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
 
     See the pyffi.XmlHandler class for a more advanced example.
 
-    >>> from pyffi.object_models.xml.basic import BasicBase
+    >>> from pyffi.object_models.basic import BasicBase
     >>> from pyffi.object_models.xml import BitStructAttribute as Attr
     >>> class SimpleFormat(object):
     ...     @staticmethod

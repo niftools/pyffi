@@ -19,15 +19,15 @@ import pyffi.formats.tri
 import pyffi.object_models
 import pyffi.object_models.any_type
 import pyffi.object_models.array_type
+import pyffi.object_models.basic
 import pyffi.object_models.binary_type
 import pyffi.object_models.common
+import pyffi.object_models.expression
 import pyffi.object_models.mex
 import pyffi.object_models.simple_type
 import pyffi.object_models.xml
-import pyffi.object_models.xml.basic
 import pyffi.object_models.xml.bit_struct
 import pyffi.object_models.xml.enum
-import pyffi.object_models.xml.expression
 import pyffi.object_models.xml.struct_
 import pyffi.spells
 import pyffi.spells.nif

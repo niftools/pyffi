@@ -1,1 +1,1 @@
-.. automodule:: pyffi.object_models.niftoolsxml.enum
+.. automodule:: pyffi.object_models.xml.enum

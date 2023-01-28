@@ -16,9 +16,11 @@
 
    any_type
    array_type
+   basic
    binary_type
    common
    editable
+   expression
    simple_type
 
 This module bundles all file format object models. An object model

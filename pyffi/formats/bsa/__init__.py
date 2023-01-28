@@ -118,7 +118,7 @@ import struct
 import pyffi.object_models
 import pyffi.object_models.common
 import pyffi.object_models.xml
-from pyffi.object_models.xml.basic import BasicBase
+from pyffi.object_models.basic import BasicBase
 
 
 class BsaFormat(pyffi.object_models.xml.FileFormat):

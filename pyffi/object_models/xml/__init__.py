@@ -96,10 +96,10 @@ import time  # for timing stuff
 import xml.etree.ElementTree as ET
 
 import pyffi.object_models
-from pyffi.object_models.xml.basic import BasicBase
+from pyffi.object_models.basic import BasicBase
+from pyffi.object_models.expression import Expression
 from pyffi.object_models.xml.bit_struct import BitStructBase
 from pyffi.object_models.xml.enum import EnumBase
-from pyffi.object_models.xml.expression import Expression
 from pyffi.object_models.xml.struct_ import StructBase
 
 

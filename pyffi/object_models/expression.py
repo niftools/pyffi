@@ -1,8 +1,8 @@
 """
-:mod:`pyffi.object_models.xml.expression` --- Expression parser
-===============================================================
+:mod:`pyffi.object_models.expression` --- Expression parser
+===========================================================
 
-Expression parser (for arr1, arr2, cond, and vercond niftoolsxml attributes of
+Expression parser (for length, width, cond, and vercond xml attributes of
 <add> tag).
 
 Implementation
@@ -58,7 +58,7 @@ Implementation
 import re
 
 
-class Expression(object):
+class Expression(object):  # TODO: Check if this can handle sub vars A.x.y
     """This class represents an expression.
 
     >>> class A(object):
@@ -89,8 +89,8 @@ class Expression(object):
     False
     """
 
-    operators = set(('==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!',
-                     '<', '>', '/', '*', '+', '%'))
+    # Operators >> and << are already included by > and <. TODO: Confirm if this is the case
+    operators = {'==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!', '<', '>', '/', '*', '+', '%'}
 
     def __init__(self, expr_str, name_filter=None):
         try:
@@ -181,6 +181,9 @@ class Expression(object):
         if not self._op: return left
         right = str(self._right) if not self._right is None else ""
         return left + ' ' + self._op + ' ' + right
+
+    def __repr__(self):
+        return "Expression(%s)" % self.__str__()
 
     @classmethod
     def _parse(cls, expr_str, name_filter=None):

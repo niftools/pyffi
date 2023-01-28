@@ -64,6 +64,7 @@ import logging
 from functools import partial
 
 import pyffi.object_models.common
+from pyffi.object_models.basic import BasicBase
 from pyffi.utils.graph import GlobalNode, EdgeFilter
 
 
@@ -179,7 +180,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
 
     See the pyffi.XmlHandler class for a more advanced example.
 
-    >>> from pyffi.object_models.xml.basic import BasicBase
+    >>> from pyffi.object_models.basic import BasicBase
     >>> from pyffi.object_models.xml.expression import Expression
     >>> from pyffi.object_models.xml import StructAttribute as Attr
     >>> class SimpleFormat(object):
@@ -671,5 +672,4 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
             yield branch
 
 
-from pyffi.object_models.xml.basic import BasicBase
 from pyffi.object_models.xml.array import Array

@@ -140,11 +140,11 @@ Implementation
 import logging
 import struct
 
+from pyffi.object_models.basic import BasicBase
 from pyffi.object_models.editable import EditableBoolComboBox
 from pyffi.object_models.editable import EditableFloatSpinBox
 from pyffi.object_models.editable import EditableLineEdit
 from pyffi.object_models.editable import EditableSpinBox
-from pyffi.object_models.xml.basic import BasicBase
 
 # TODO get rid of these
 _b = b''
@@ -276,6 +276,12 @@ class Int(BasicBase, EditableSpinBox):
         :type stream: file
         """
         stream.write(struct.pack(data._byte_order + self._struct, self._value))
+
+    def __str__(self):
+        return str(self.get_value())
+
+    def __int__(self):
+        return int(self.get_value())
 
     @classmethod
     def get_size(cls, data=None):
@@ -464,74 +470,6 @@ class Char(BasicBase, EditableLineEdit):
         self.get_value()
 
 
-class NormByte(BasicBase, EditableFloatSpinBox):  # TODO: This shit
-    """Implementation of a 8-bit float in the range -1.0:1.0, stored as a byte."""
-    _min = -0x1
-    _max = 0x1
-    _struct = 'B'
-    _size = 1
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._value = 0.0
-
-    def get_value(self):
-        return self._value
-
-    def set_value(self, value):
-        val = float(value)
-        if val < self._min or val > self._max:
-            raise ValueError('value out of range (%i - %i): %i', self._min, self._max, val)
-        self._value = val
-
-    def read(self, stream, data):
-        """Read value from stream.
-
-        :param stream: The stream to read from.
-        :param data:
-        :type stream: file
-        """
-        self._value = struct.unpack(data._byte_order + self._struct, stream.read(self._size))[0]
-
-    def write(self, stream, data):
-        """Write value to stream.
-
-        :param stream: The stream to write to.
-        :param data:
-        :type stream: file
-        """
-        stream.write(struct.pack(data._byte_order + self._struct, self._value))
-
-    @classmethod
-    def get_size(cls, data=None):
-        """Return number of bytes this type occupies in a file.
-
-        :return: Number of bytes.
-        """
-        return cls._size
-
-    def get_hash(self, data=None):
-        """Return a hash value for this value.
-
-        :return: An immutable object that can be used as a hash.
-        """
-        return self.get_value()
-
-    def get_editor_minimum(self):
-        """Minimum possible value.
-
-        :return: Minimum possible value.
-        """
-        return self._min
-
-    def get_editor_maximum(self):
-        """Maximum possible value.
-
-        :return: Maximum possible value.
-        """
-        return self._max
-
-
 class Float(BasicBase, EditableFloatSpinBox):
     """Implementation of a 32-bit float."""
 
@@ -594,29 +532,17 @@ class Float(BasicBase, EditableFloatSpinBox):
         """
         return int(self.get_value() * 200)
 
+    def __float__(self):
+        return float(self.get_value())
 
-class HFloat(BasicBase, EditableFloatSpinBox):
+
+class HFloat(Float, EditableFloatSpinBox):
     """Implementation of a 16-bit float."""
 
     def __init__(self, **kwargs):
         """Initialize the float."""
         super(HFloat, self).__init__(**kwargs)
         self._value = 0
-
-    def get_value(self):
-        """Return stored value.
-
-        :return: The stored value.
-        """
-        return self._value
-
-    def set_value(self, value):
-        """Set value to C{value}.
-
-        :param value: The value to assign.
-        :type value: float
-        """
-        self._value = float(value)
 
     def read(self, stream, data):
         """Read value from stream.
@@ -649,13 +575,73 @@ class HFloat(BasicBase, EditableFloatSpinBox):
         """
         return 2
 
+
+class NormByte(Float, EditableFloatSpinBox):  # TODO: This shit
+    """Implementation of an 8-bit float in the range -1.0:1.0, stored as a byte."""
+    _min = -0x1
+    _max = 0x1
+    _struct = 'B'
+    _size = 1
+
+    def __init__(self, **kwargs):
+        super(NormByte, self).__init__(**kwargs)
+        self._value = 0.0
+
+    def get_value(self):
+        return self._value
+
+    def set_value(self, value):
+        val = float(value)
+        if val < self._min or val > self._max:
+            raise ValueError('value out of range (%i - %i): %i', self._min, self._max, val)
+        self._value = val
+
+    def read(self, stream, data):
+        """Read value from stream.
+
+        :param stream: The stream to read from.
+        :param data:
+        :type stream: file
+        """
+        self._value = struct.unpack(data._byte_order + self._struct, stream.read(self._size))[0]
+
+    def write(self, stream, data):
+        """Write value to stream.
+
+        :param stream: The stream to write to.
+        :param data:
+        :type stream: file
+        """
+        stream.write(struct.pack(data._byte_order + self._struct, self._value))
+
+    @classmethod
+    def get_size(cls, data=None):
+        """Return number of bytes this type occupies in a file.
+
+        :return: Number of bytes.
+        """
+        return cls._size
+
     def get_hash(self, data=None):
-        """Return a hash value for this value. Currently implemented
-        with precision 1/200.
+        """Return a hash value for this value.
 
         :return: An immutable object that can be used as a hash.
         """
-        return int(self.get_value() * 200)
+        return self.get_value()
+
+    def get_editor_minimum(self):
+        """Minimum possible value.
+
+        :return: Minimum possible value.
+        """
+        return self._min
+
+    def get_editor_maximum(self):
+        """Maximum possible value.
+
+        :return: Maximum possible value.
+        """
+        return self._max
 
 
 class ZString(BasicBase, EditableLineEdit):

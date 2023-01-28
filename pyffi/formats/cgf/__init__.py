@@ -222,7 +222,7 @@ import pyffi.object_models.common
 import pyffi.object_models.xml
 import pyffi.utils.mathutils
 import pyffi.utils.tangentspace
-from pyffi.object_models.xml.basic import BasicBase
+from pyffi.object_models.basic import BasicBase
 from pyffi.utils.graph import EdgeFilter
 
 

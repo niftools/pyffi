@@ -142,7 +142,7 @@ import pyffi.object_models
 import pyffi.object_models.common
 import pyffi.object_models.xml
 import pyffi.object_models.xml.struct_
-from pyffi.object_models.xml.basic import BasicBase
+from pyffi.object_models.basic import BasicBase
 from pyffi.utils.graph import EdgeFilter
 
 

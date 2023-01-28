@@ -1,1 +1,1 @@
-.. automodule:: pyffi.object_models.niftoolsxml
+.. automodule:: pyffi.object_models.xml

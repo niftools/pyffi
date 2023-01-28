@@ -463,7 +463,7 @@ class SpellDumpPython(NifSpell):
                                     "%s[%i][%i]" % (name, i, j), elem):
                                 result = True
             return result
-        elif isinstance(_value, pyffi.object_models.xml.basic.BasicBase):
+        elif isinstance(_value, pyffi.object_models.basic.BasicBase):
             value = _value.get_value()
             if default is None:
                 default = type(_value)().get_value()
