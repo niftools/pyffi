@@ -8,6 +8,7 @@ Implementation
 .. autoclass:: NifFormat
    :show-inheritance:
    :members:
+   :inherited-members:
    :undoc-members:
 
 Regression tests
@@ -172,7 +173,7 @@ Create a NIF model from scratch and write to file
 Get list of versions and games
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
->>> for vnum in sorted(NifFormat.versions.values()):
+>>> for vnum in sorted(NifFormat.versions_num.values()):
 ...     print('0x%08X' % vnum) # doctest: +REPORT_UDIFF
 0x02030000
 0x03000000
