@@ -2,16 +2,24 @@
 :mod:`pyffi.object_models.xml` --- XML fileformat parser
 ========================================================
 
-Format classes and metaclasses for binary file formats described by an xml
-file, and xml handler for converting the xml description into Python classes.
+Format classes and metaclasses for binary file formats described by an niftoolsxml
+file, and niftoolsxml handler for converting the niftoolsxml description into Python classes.
+
+Contents
+--------
+
+.. toctree::
+   :maxdepth: 2
+   :titlesonly:
+
+   array
+   bit_struct
+   enum
+   expression
+   struct
 
 Implementation
 --------------
-
-.. autoclass:: MetaFileFormat
-   :show-inheritance:
-   :members:
-   :undoc-members:
 
 .. autoclass:: FileFormat
    :show-inheritance:
@@ -23,7 +31,12 @@ Implementation
    :members:
    :undoc-members:
 
-.. autoclass:: BitStructAttibute
+.. autoclass:: BitStructAttribute
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: XmlParser
    :show-inheritance:
    :members:
    :undoc-members:
@@ -33,7 +46,7 @@ Implementation
    :members:
    :undoc-members:
 
-.. autoclass:: XmlParser
+.. autoclass:: MetaFileFormat
    :show-inheritance:
    :members:
    :undoc-members:

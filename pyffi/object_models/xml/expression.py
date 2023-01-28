@@ -1,5 +1,20 @@
-"""Expression parser (for arr1, arr2, cond, and vercond xml attributes of
-<add> tag)."""
+"""
+:mod:`pyffi.object_models.xml.expression` --- Expression parser
+===============================================================
+
+Expression parser (for arr1, arr2, cond, and vercond niftoolsxml attributes of
+<add> tag).
+
+Implementation
+--------------
+
+.. autoclass:: Expression
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Show examples for usage
+"""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****

@@ -1,4 +1,24 @@
-"""Abstract base class for implementing xml enum types."""
+"""
+:mod:`pyffi.object_models.xml.enum` --- Enumerated Types
+========================================================
+
+Abstract base class for implementing niftoolsxml enum types.
+
+Implementation
+--------------
+
+.. autoclass:: EnumBase
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: _MetaEnumBase
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Show examples for usage
+"""
 
 # ***** BEGIN LICENSE BLOCK *****
 #

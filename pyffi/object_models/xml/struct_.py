@@ -1,4 +1,24 @@
-"""Implements base class for struct types."""
+"""
+:mod:`pyffi.object_models.xml.struct_` --- Structured Types
+===========================================================
+
+Implements base class for struct types.
+
+Implementation
+--------------
+
+.. autoclass:: StructBase
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: _MetaStructBase
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Show examples for usage
+"""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****

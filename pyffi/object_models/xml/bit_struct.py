@@ -1,4 +1,29 @@
-"""Implements base class for bitstruct types."""
+"""
+:mod:`pyffi.object_models.xml.bit_struct` --- Bit Structured Types
+==================================================================
+
+Implements base class for bitstruct types.
+
+Implementation
+--------------
+
+.. autoclass:: Bits
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: BitStructBase
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: _MetaBitStructBase
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Show examples for usage
+"""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****

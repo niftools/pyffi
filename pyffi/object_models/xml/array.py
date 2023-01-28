@@ -1,4 +1,24 @@
-"""Implements class for arrays."""
+"""
+:mod:`pyffi.object_models.xml.array` --- Array classes
+======================================================
+
+Implements class for arrays.
+
+Implementation
+--------------
+
+.. autoclass:: Array
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: _ListWrap
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Show examples for usage
+"""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
