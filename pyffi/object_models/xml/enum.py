@@ -60,8 +60,8 @@ Implementation
 import logging
 import struct
 
-from pyffi.object_models.editable import EditableComboBox
 from pyffi.object_models.basic import BasicBase
+from pyffi.object_models.editable import EditableComboBox
 
 
 class _MetaEnumBase(type):

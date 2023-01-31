@@ -29,7 +29,6 @@ visit each node (possibly more than once) in a hierarchical order.
 The base classes are roughly based on the TreeItem example in the Qt docs:
 http://doc.trolltech.com/4.4/itemviews-simpletreemodel.html
 """
-
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #

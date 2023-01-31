@@ -280,6 +280,9 @@ class Int(BasicBase, EditableSpinBox):
     def __str__(self):
         return str(self.get_value())
 
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {{'min': {self._min}, 'max': {self._max}, 'struct': {self._struct}, 'size': {self._size}, 'val': {self._value}}}>"
+
     def __int__(self):
         return int(self.get_value())
 
@@ -380,8 +383,7 @@ class ULittle32(UInt):
         :param stream: The stream to read from.
         :type stream: file
         """
-        self._value = struct.unpack('<' + self._struct,
-                                    stream.read(self._size))[0]
+        self._value = struct.unpack('<' + self._struct, stream.read(self._size))[0]
 
     def write(self, stream, data):
         """Write value to stream.
@@ -454,6 +456,9 @@ class Char(BasicBase, EditableLineEdit):
 
     def __str__(self):
         return _as_str(self._value)
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {{'val': {self._value}}}>"
 
     def get_size(self, data=None):
         """Return number of bytes this type occupies in a file.
@@ -534,6 +539,9 @@ class Float(BasicBase, EditableFloatSpinBox):
 
     def __float__(self):
         return float(self.get_value())
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {{'val': {self._value}}}>"
 
 
 class HFloat(Float, EditableFloatSpinBox):
@@ -674,6 +682,9 @@ class ZString(BasicBase, EditableLineEdit):
     def __str__(self):
         return _as_str(self._value)
 
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {{'val': {str(self._value)}}}>"
+
     def get_value(self):
         """Return the string.
 
@@ -769,6 +780,9 @@ class FixedString(BasicBase, EditableLineEdit):
 
     def __str__(self):
         return _as_str(self._value)
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {{'val': {str(self._value)}}}>"
 
     def get_value(self):
         """Return the string.
@@ -873,6 +887,9 @@ class SizedString(BasicBase, EditableLineEdit):
     def __str__(self):
         return _as_str(self._value)
 
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {{'val': {str(self._value)}}}>"
+
     def get_size(self, data=None):
         """Return number of bytes this type occupies in a file.
 
@@ -937,6 +954,9 @@ class UndecodedData(BasicBase):
 
     def __str__(self):
         return '<UNDECODED DATA>'
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {{'val': {self._value}}}>"
 
     def get_size(self, data=None):
         """Return number of bytes the data occupies in a file.

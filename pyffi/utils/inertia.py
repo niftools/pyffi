@@ -39,6 +39,7 @@ shapes."""
 # ***** END LICENSE BLOCK *****
 
 import math
+import operator
 
 from pyffi.utils.mathutils import *
 

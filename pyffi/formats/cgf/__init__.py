@@ -914,7 +914,7 @@ chunk size mismatch when reading %s at 0x%08X
             for chunkhdr, chunk, chunkversion in zip(self.chunk_table.chunk_headers,
                                                      self.chunks, self.versions):
                 logger.debug("Writing %s chunk version 0x%08X at 0x%08X" % (
-                chunk.__class__.__name__, chunkhdr.version, stream.tell()))
+                    chunk.__class__.__name__, chunkhdr.version, stream.tell()))
 
                 # set up chunk header
                 chunkhdr.type = getattr(

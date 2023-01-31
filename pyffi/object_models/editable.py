@@ -87,8 +87,6 @@ Implementation
 #
 # ***** END LICENSE BLOCK *****
 
-from abc import ABCMeta
-
 
 class EditableBase(object):
     """The base class for all delegates."""
