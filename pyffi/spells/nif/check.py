@@ -304,12 +304,12 @@ class SpellCheckBhkBodyCenter(pyffi.spells.nif.NifSpell):
             return True
         else:
             self.toaster.msg("getting rigid body mass, center, and inertia")
-            mass = branch.mass
-            center = branch.center.get_copy()
-            inertia = branch.inertia.get_copy()
+            mass = branch.rigid_body_info.mass
+            center = branch.rigid_body_info.center.get_copy()
+            inertia = branch.rigid_body_info.inertia_tensor.get_copy()  # TODO: intertia has been renamed
 
             self.toaster.msg("recalculating...")
-            branch.update_mass_center_inertia(mass=branch.mass)
+            branch.update_mass_center_inertia(mass=branch.rigid_body_info.mass)
 
             # self.toaster.msg("checking mass...")
             # if mass != branch.mass:
@@ -325,30 +325,30 @@ class SpellCheckBhkBodyCenter(pyffi.spells.nif.NifSpell):
 
             self.toaster.msg("checking center...")
             report = {}
-            if center != branch.center:
+            if center != branch.rigid_body_info.center:
                 # raise ValueError("center does not match; original %s, calculated %s"%(center, branch.center))
                 self.toaster.logger.warn(
                     "center does not match; original %s, calculated %s"
-                    % (center, branch.center))
+                    % (center, branch.rigid_body_info.center))
                 report["center"] = {
                     "orig": center.as_tuple(),
-                    "calc": branch.center.as_tuple(),
+                    "calc": branch.rigid_body_info.center.as_tuple(),
                 }
 
             self.toaster.msg("checking inertia...")
 
-            scale = max(max(abs(x) for x in row) for row in inertia.as_list() + branch.inertia.as_list())
+            scale = max(max(abs(x) for x in row) for row in inertia.as_list() + branch.rigid_body_info.inertia_tensor.as_list())
             if (max(max(abs(x - y)
                         for x, y in zip(row1, row2))
-                    for row1, row2 in zip(inertia.as_list(), branch.inertia.as_list()))
+                    for row1, row2 in zip(inertia.as_list(), branch.rigid_body_info.inertia_tensor.as_list()))
                     > 0.1 * scale):
                 # raise ValueError("center does not match; original %s, calculated %s"%(center, branch.center))
                 self.toaster.logger.warn(
                     "inertia does not match:\n\noriginal\n%s\n\ncalculated\n%s\n"
-                    % (inertia, branch.inertia))
+                    % (inertia, branch.rigid_body_info.inertia))
                 report["inertia"] = {
                     "orig": inertia.as_tuple(),
-                    "calc": branch.inertia.as_tuple(),
+                    "calc": branch.rigid_body_info.inertia_tensor.as_tuple(),
                 }
             if report:
                 self.append_report(report)
@@ -386,10 +386,10 @@ class SpellCheckCenterRadius(pyffi.spells.nif.NifSpell):
             report = {}
             self.toaster.msg("getting bounding sphere")
             center = NifFormat.Vector3()
-            center.x = branch.center.x
-            center.y = branch.center.y
-            center.z = branch.center.z
-            radius = branch.radius
+            center.x = branch.bounding_sphere.center.x
+            center.y = branch.bounding_sphere.center.y
+            center.z = branch.bounding_sphere.center.z
+            radius = branch.bounding_sphere.radius
 
             self.toaster.msg("checking that all vertices are inside")
             maxr = 0.0
@@ -412,21 +412,21 @@ class SpellCheckCenterRadius(pyffi.spells.nif.NifSpell):
             branch.update_center_radius()
 
             self.toaster.msg("comparing old and new spheres")
-            if center != branch.center:
+            if center != branch.bounding_sphere.center:
                 self.toaster.logger.warn(
                     "center does not match; original %s, calculated %s"
-                    % (center, branch.center))
+                    % (center, branch.bounding_sphere.center))
                 report["center"] = {
                     "orig": center.as_tuple(),
-                    "calc": branch.center.as_tuple(),
+                    "calc": branch.bounding_sphere.center.as_tuple(),
                 }
-            if abs(radius - branch.radius) > NifFormat.EPSILON:
+            if abs(radius - branch.bounding_sphere.radius) > NifFormat.EPSILON:
                 self.toaster.logger.warn(
                     "radius does not match; original %s, calculated %s"
-                    % (radius, branch.radius))
+                    % (radius, branch.bounding_sphere.radius))
                 report["radius"] = {
                     "orig": radius,
-                    "calc": branch.radius,
+                    "calc": branch.bounding_sphere.radius,
                 }
             if report:
                 self.append_report(report)
@@ -814,7 +814,7 @@ class SpellCheckVersion(pyffi.spells.nif.NifSpell):
     def toastentry(cls, toaster):
         toaster.versions = {}  # counts number of nifs with version
         toaster.user_versions = {}  # tracks used user version's per version
-        toaster.user_version_2s = {}  # tracks used user version2's per version
+        toaster.bs_versions = {}  # tracks used user version2's per version
         return True
 
     @classmethod
@@ -823,28 +823,28 @@ class SpellCheckVersion(pyffi.spells.nif.NifSpell):
             toaster.msgblockbegin("version 0x%08X" % version)
             toaster.msg("number of nifs: %s" % toaster.versions[version])
             toaster.msg("user version:  %s" % toaster.user_versions[version])
-            toaster.msg("user version2: %s" % toaster.user_version_2s[version])
+            toaster.msg("user version2: %s" % toaster.bs_versions[version])
             toaster.msgblockend()
 
     def datainspect(self):
         # some shortcuts
         version = self.data.version
         user_version = self.data.user_version
-        user_version_2 = self.data.user_version_2
+        bs_version = self.data.bs_version
         # report
         self.toaster.msg("version      0x%08X" % version)
         self.toaster.msg("user version %i" % user_version)
-        self.toaster.msg("user version %i" % user_version_2)
+        self.toaster.msg("user version %i" % bs_version)
         # update stats
         if version not in self.toaster.versions:
             self.toaster.versions[version] = 0
             self.toaster.user_versions[version] = []
-            self.toaster.user_version_2s[version] = []
+            self.toaster.bs_versions[version] = []
         self.toaster.versions[version] += 1
         if user_version not in self.toaster.user_versions[version]:
             self.toaster.user_versions[version].append(user_version)
-        if user_version_2 not in self.toaster.user_version_2s[version]:
-            self.toaster.user_version_2s[version].append(user_version_2)
+        if bs_version not in self.toaster.bs_versions[version]:
+            self.toaster.bs_versions[version].append(bs_version)
         return False
 
 

@@ -12,6 +12,7 @@
 
    mex/index
    xml/index
+   niftoolsxml/index
    xsd/index
 
    any_type

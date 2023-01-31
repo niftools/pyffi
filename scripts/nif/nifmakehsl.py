@@ -156,13 +156,13 @@ def write_struct(cls, ver, hsl_types, f, template):
         f.write('struct ' + cls.__name__ + ' {\n')
     else:
         f.write('struct ' + cls.__name__ + '_' + template.__name__ + ' {\n')
-    # for attrname, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in cls._attribute_list:
+    # for attrname, typ, default, tmpl, arg, length, width, cond, since, until, userver, doc in cls._attribute_list:
     for attr in cls._attribute_list:
         # check version
         if not (ver is None):
-            if (not (attr.ver1 is None)) and ver < attr.ver1:
+            if (not (attr.since is None)) and ver < attr.since:
                 continue
-            if (not (attr.ver2 is None)) and ver > attr.ver2:
+            if (not (attr.until is None)) and ver > attr.until:
                 continue
 
         s = '  '
@@ -184,7 +184,7 @@ def write_struct(cls, ver, hsl_types, f, template):
         # get the attribute template type name
         if (not rt_template is None) and (not issubclass(rt_type, NifFormat.Ref)):
             s += '_'
-            s += rt_template.__name__  # note: basic types are named by their xml name in the template
+            s += rt_template.__name__  # note: basic types are named by their niftoolsxml name in the template
         # attribute name
         s = s.ljust(20) + ' ' + sanitize_attrname(attr.name)
         # array and conditional arguments
@@ -192,22 +192,22 @@ def write_struct(cls, ver, hsl_types, f, template):
         comments = ''
         if not attr.cond is None:
             # catch argument passing and double arrays
-            if (str(attr.cond).find('arg') == -1) and (attr.arr2 is None):
+            if (str(attr.cond).find('arg') == -1) and (attr.width is None):
                 if attr.cond._op is None or (attr.cond._op == '!=' and attr.cond._right == 0):
                     arr_str += sanitize_attrname(str(attr.cond._left))
                 else:
                     comments += ' (' + sanitize_attrname(str(attr.cond)) + ')'
             else:
                 comments += ' (' + sanitize_attrname(str(attr.cond)) + ')'
-        if attr.arr1 is None:
+        if attr._length is None:
             pass
-        elif attr.arr2 is None:
-            if str(attr.arr1).find('arg') == -1:  # catch argument passing
+        elif attr.width is None:
+            if str(attr._length).find('arg') == -1:  # catch argument passing
                 if arr_str:
                     arr_str += ' * '
-                arr_str += sanitize_attrname(str(attr.arr1._left))
-                if attr.arr1._op:
-                    comments += ' [' + sanitize_attrname(str(attr.arr1)) + ']'
+                arr_str += sanitize_attrname(str(attr._length._left))
+                if attr._length._op:
+                    comments += ' [' + sanitize_attrname(str(attr._length)) + ']'
             else:
                 if arr_str:
                     arr_str += ' * '
@@ -217,9 +217,9 @@ def write_struct(cls, ver, hsl_types, f, template):
             # TODO catch args here too (so far not used anywhere in nif.xml)
             if arr_str:
                 arr_str += ' * '
-            arr_str += sanitize_attrname(str(attr.arr1._left)) + ' * ' + sanitize_attrname(str(attr.arr2._left))
-            if attr.arr1._op or attr.arr2._op:
-                comments += ' [' + sanitize_attrname(str(attr.arr1)) + ' * ' + sanitize_attrname(str(attr.arr2)) + ']'
+            arr_str += sanitize_attrname(str(attr._length._left)) + ' * ' + sanitize_attrname(str(attr.width._left))
+            if attr._length._op or attr.width._op:
+                comments += ' [' + sanitize_attrname(str(attr._length)) + ' * ' + sanitize_attrname(str(attr.width)) + ']'
         arr_str = '[' + arr_str + ']' if arr_str else ''
         comments = ' //' + comments if comments else ''
         f.write(s + arr_str + ';' + comments + '\n')
@@ -231,7 +231,7 @@ if __name__ == '__main__':
     # list all types used as a template
     templates = find_templates()
     # write out hex structure library for each nif version
-    for ver_str, ver in list(NifFormat.versions.items()):
+    for ver_str, ver in list(NifFormat.versions_num.items()):
         f = open('nif_' + ver_str.replace('.', '_') + '.hsl', 'w')
         try:
             write_hsl(f, ver, templates)

@@ -13,6 +13,7 @@ PACKAGES = [
     'pyffi',
     'pyffi.object_models',
     'pyffi.object_models.mex',
+    'pyffi.object_models.niftoolsxml',
     'pyffi.object_models.xml',
     'pyffi.object_models.xsd',
     'pyffi.utils',

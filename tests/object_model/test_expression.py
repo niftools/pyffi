@@ -57,6 +57,10 @@ class TestExpression(unittest.TestCase):
         assert not bool(Expression('!((1 <= 2) && (2 <= 3))').eval())
         assert bool(Expression('(1 <= 2) && (2 <= 3) && (3 <= 4)').eval())
 
+    def test_bitwise_operators(self):
+        assert Expression('0xFF000000 >> 18').eval() == 16320
+        assert Expression('0x000000FF << 4').eval() == 4080
+
     def test_implicit_cast(self):
         self.a.x = B()
         assert Expression('x * 10').eval(self.a) == 70

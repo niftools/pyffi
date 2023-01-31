@@ -29,6 +29,10 @@ import pyffi.object_models.xml
 import pyffi.object_models.xml.bit_struct
 import pyffi.object_models.xml.enum
 import pyffi.object_models.xml.struct_
+import pyffi.object_models.niftoolsxml
+import pyffi.object_models.niftoolsxml.bit_struct
+import pyffi.object_models.niftoolsxml.enum
+import pyffi.object_models.niftoolsxml.struct_
 import pyffi.spells
 import pyffi.spells.nif
 import pyffi.spells.nif.check

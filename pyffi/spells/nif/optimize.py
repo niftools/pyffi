@@ -256,7 +256,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         return unique_map(
             vhash
             for i, vhash in enumerate(data.get_vertex_hash_generator(
-                vertexprecision=self.VERTEXPRECISION,
+                vertex_precision=self.VERTEXPRECISION,
                 normalprecision=self.NORMALPRECISION,
                 uvprecision=self.UVPRECISION,
                 vcolprecision=self.VCOLPRECISION)))
@@ -511,7 +511,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         # recalculate tangent space (only if the branch already exists)
         if (branch.find(block_name=b'Tangent space (binormal & tangent vectors)',
                         block_type=NifFormat.NiBinaryExtraData)
-                or (data.num_uv_sets & 61440) or (data.extra_vectors_flags & 16)):
+                or data.data_flags.num_uv_sets or data.bs_data_flags.has_tangents):  # TODO: was these renames correct?
             self.toaster.msg("recalculating tangent space")
             branch.update_tangent_space()
 
@@ -867,14 +867,14 @@ class SpellOptimizeCollisionBox(pyffi.spells.nif.NifSpell):
             # material has a bad value, this sometimes happens
             pass
         boxshape.radius = 0.1
-        boxshape.unknown_8_bytes[0] = 0x6b
-        boxshape.unknown_8_bytes[1] = 0xee
-        boxshape.unknown_8_bytes[2] = 0x43
-        boxshape.unknown_8_bytes[3] = 0x40
-        boxshape.unknown_8_bytes[4] = 0x3a
-        boxshape.unknown_8_bytes[5] = 0xef
-        boxshape.unknown_8_bytes[6] = 0x8e
-        boxshape.unknown_8_bytes[7] = 0x3e
+        boxshape.unused_01[0] = 0x6b
+        boxshape.unused_01[1] = 0xee
+        boxshape.unused_01[2] = 0x43
+        boxshape.unused_01[3] = 0x40
+        boxshape.unused_01[4] = 0x3a
+        boxshape.unused_01[5] = 0xef
+        boxshape.unused_01[6] = 0x8e
+        boxshape.unused_01[7] = 0x3e
         # check translation
         mid = [min_[i] + 0.5 * size[i] for i in range(3)]
         if sum(abs(mid[i]) for i in range(3)) < 1e-6:
@@ -984,7 +984,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
                              % subshape_index)
             v_map, v_map_inverse = unique_map(
                 shape.get_vertex_hash_generator(
-                    vertexprecision=self.VERTEXPRECISION,
+                    vertex_precision=self.VERTEXPRECISION,
                     subshape_index=subshape_index))
             self.toaster.msg(
                 _("(num vertices in collision shape was %i and is now %i)")
@@ -1086,7 +1086,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
             return False
         elif (isinstance(branch, NifFormat.bhkRigidBody)
               and isinstance(branch.shape, NifFormat.bhkNiTriStripsShape)):
-            if branch.havok_col_filter.layer == NifFormat.OblivionLayer.CLUTTER:
+            if branch.havok_filter.layer == NifFormat.OblivionLayer.OL_CLUTTER:
                 # packed collisions do not work for clutter
                 # so skip it
                 # see issue #3194017 reported by Gratis_monsta
@@ -1106,7 +1106,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
                              NifFormat.bhkPackedNiTriStripsShape)):
             # packed collision without mopp
             # add a mopp to it if it is static
-            if any(sub_shape.havok_col_filter.layer != 1
+            if any(sub_shape.havok_filter.layer != 1
                    for sub_shape in branch.shape.get_sub_shapes()):
                 # no mopps for non-static objects
                 return False
@@ -1116,14 +1116,14 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
             self.data.replace_global_node(branch.shape, mopp)
             mopp.shape = shape
             mopp.material = shape.get_sub_shapes()[0].material
-            mopp.unknown_8_bytes[0] = 160
-            mopp.unknown_8_bytes[1] = 13
-            mopp.unknown_8_bytes[2] = 75
-            mopp.unknown_8_bytes[3] = 1
-            mopp.unknown_8_bytes[4] = 192
-            mopp.unknown_8_bytes[5] = 207
-            mopp.unknown_8_bytes[6] = 144
-            mopp.unknown_8_bytes[7] = 11
+            mopp.unused_01[0] = 160
+            mopp.unused_01[1] = 13
+            mopp.unused_01[2] = 75
+            mopp.unused_01[3] = 1
+            mopp.unused_01[4] = 192
+            mopp.unused_01[5] = 207
+            mopp.unused_01[6] = 144
+            mopp.unused_01[7] = 11
             mopp.unknown_float = 1.0
             mopp.update_mopp_welding()
             # call branchentry again in order to optimize the mopp

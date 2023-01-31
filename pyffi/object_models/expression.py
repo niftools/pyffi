@@ -55,6 +55,7 @@ Implementation
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+import logging
 import re
 
 
@@ -87,17 +88,18 @@ class Expression(object):  # TODO: Check if this can handle sub vars A.x.y
     True
     >>> bool(Expression('1 != 1').eval())
     False
+    >>> bool(Expression('0xFFF00000000000 >> 44').eval())
+    4095
     """
 
-    # Operators >> and << are already included by > and <. TODO: Confirm if this is the case
-    operators = {'==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!', '<', '>', '/', '*', '+', '%'}
+    operators = {'<<', '>>', '==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!', '<', '>', '/', '*', '+', '%'}
 
     def __init__(self, expr_str, name_filter=None):
         try:
             left, self._op, right = self._partition(expr_str)
             self._left = self._parse(left, name_filter)
             self._right = self._parse(right, name_filter)
-        except:
+        except Exception:
             print("error while parsing expression '%s'" % expr_str)
             raise
 
@@ -139,40 +141,51 @@ class Expression(object):  # TODO: Check if this can handle sub vars A.x.y
             assert (isinstance(self._right, int))  # debug
             right = self._right
 
-        if self._op == '==':
-            return left == right
-        elif self._op == '!=':
-            return left != right
-        elif self._op == '>=':
-            return left >= right
-        elif self._op == '<=':
-            return left <= right
-        elif self._op == '&&':
-            return left and right
-        elif self._op == '||':
-            return left or right
-        elif self._op == '&':
-            return left & right
-        elif self._op == '|':
-            return left | right
-        elif self._op == '-':
-            return left - right
-        elif self._op == '!':
-            return not (right)
-        elif self._op == '>':
-            return left > right
-        elif self._op == '<':
-            return left < right
-        elif self._op == '/':
-            return left / right
-        elif self._op == '*':
-            return left * right
-        elif self._op == '+':
-            return left + right
-        elif self._op == '%':
-            return left % right
-        else:
-            raise NotImplementedError("expression syntax error: operator '" + self._op + "' not implemented")
+        try:
+            if self._op == '>>':
+                return left >> right
+            elif self._op == '<<':
+                return left << right
+            elif self._op == '==':
+                return left == right
+            elif self._op == '!=':
+                return left != right
+            elif self._op == '>=':
+                return left >= right
+            elif self._op == '<=':
+                return left <= right
+            elif self._op == '&&':
+                return left and right
+            elif self._op == '||':
+                return left or right
+            elif self._op == '&':
+                return left & right
+            elif self._op == '|':
+                return left | right
+            elif self._op == '-':
+                return left - right
+            elif self._op == '!':
+                return not (right)
+            elif self._op == '>':
+                return left > right
+            elif self._op == '<':
+                return left < right
+            elif self._op == '/':
+                return left / right
+            elif self._op == '*':
+                return left * right
+            elif self._op == '+':
+                return left + right
+            elif self._op == '%':
+                return left % right
+            else:
+                raise NotImplementedError("expression syntax error: operator '" + self._op + "' not implemented")
+        except UnboundLocalError:
+            logging.getLogger().error("Expression value was unbound (left: %s, op: %s, right: %s", self._left, self._op, self._right)
+            raise
+        except ArithmeticError:
+            logging.getLogger().error("Failed to evaluate expression. Left: %s; Op: %s; Right: %s", left, self._op, right)
+            raise
 
     def __str__(self):
         """Reconstruct the expression to a string."""
@@ -199,6 +212,11 @@ class Expression(object):  # TODO: Check if this can handle sub vars A.x.y
             if expr_str.find(op) != -1:
                 return Expression(expr_str, name_filter)
         # try to convert it to an integer
+        if expr_str.startswith("0x"):
+            try:
+                return int(expr_str, 16)
+            except ValueError:
+                pass
         try:
             return int(expr_str)
         # failed, so return the string, passed through the name filter
@@ -215,11 +233,12 @@ class Expression(object):  # TODO: Check if this can handle sub vars A.x.y
             return ver
         # apply name filter on each component separately
         # (where a dot separates components)
+        if expr_str == "#ARG#":
+            return "arg"
         if name_filter is None:
             name_filter = lambda x: x
-        return '.'.join(name_filter(comp)
-                        for comp in expr_str.split("."))
-        return expr_str
+        return '.'.join(name_filter(comp) for comp in expr_str.split("."))
+        # return expr_str
 
     @classmethod
     def _partition(cls, expr_str):
@@ -227,6 +246,8 @@ class Expression(object):  # TODO: Check if this can handle sub vars A.x.y
 
         >>> Expression._partition('abc || efg')
         ('abc', '||', 'efg')
+        >>> Expression._partition('0xFFF00000000000 >> 44')
+        ('0xFFF00000000000', '>>', '44')
         >>> Expression._partition('(a== b) &&(( b!=c)||d )')
         ('a== b', '&&', '( b!=c)||d')
         >>> Expression._partition('!(1 <= 2)')

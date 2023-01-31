@@ -585,7 +585,7 @@ class SpellCleanStringPalette(NifSpell):
         >>> seq.string_palette = NifFormat.NiStringPalette()
         >>> block = seq.add_controlled_block()
         >>> block.string_palette = seq.string_palette
-        >>> block.set_variable_1("there")
+        >>> block.set_controller_id("there")
         >>> block.set_node_name("hello")
         >>> block.string_palette.palette.add_string("test")
         12
@@ -596,7 +596,7 @@ class SpellCleanStringPalette(NifSpell):
         False
         >>> seq.string_palette.palette.get_all_strings()
         [b'hello', b'there']
-        >>> block.get_variable_1()
+        >>> block.get_controller_id()
         b'there'
         >>> block.get_node_name()
         b'hello'
@@ -633,8 +633,8 @@ class SpellCleanStringPalette(NifSpell):
                     block.node_name = self.substitute(block.get_node_name())
                     block.property_type = self.substitute(block.get_property_type())
                     block.controller_type = self.substitute(block.get_controller_type())
-                    block.variable_1 = self.substitute(block.get_variable_1())
-                    block.variable_2 = self.substitute(block.get_variable_2())
+                    block.controller_id = self.substitute(block.get_controller_id())
+                    block.interpolator_id = self.substitute(block.get_interpolator_id())
                     # ensure single string palette for all controlled blocks
                     block.string_palette = string_palette
                 # ensure single string palette for all controller sequences
@@ -647,8 +647,8 @@ class SpellCleanStringPalette(NifSpell):
                     block.set_node_name(block.node_name)
                     block.set_property_type(block.property_type)
                     block.set_controller_type(block.controller_type)
-                    block.set_variable_1(block.variable_1)
-                    block.set_variable_2(block.variable_2)
+                    block.set_controller_id(block.controller_id)
+                    block.set_interpolator_id(block.interpolator_id)
             self.changed = True
             # do not recurse further
             return False
@@ -687,7 +687,7 @@ class SpellFixFallout3StringOffsets(NifSpell):
         >>> seq.string_palette = NifFormat.NiStringPalette()
         >>> block = seq.add_controlled_block()
         >>> block.string_palette = seq.string_palette
-        >>> block.set_variable_1("there")
+        >>> block.set_controller_id("there")
         >>> block.set_node_name("hello")
         >>> block.string_palette.palette.add_string("test")
         12
@@ -697,9 +697,9 @@ class SpellFixFallout3StringOffsets(NifSpell):
         -1
         >>> block.controller_type_offset
         -1
-        >>> block.variable_1_offset
+        >>> block.controller_id_offset
         0
-        >>> block.variable_2_offset
+        >>> block.interpolator_id_offset
         -1
         >>> block.get_node_name()
         b'hello'
@@ -707,9 +707,9 @@ class SpellFixFallout3StringOffsets(NifSpell):
         b''
         >>> block.get_controller_type()
         b''
-        >>> block.get_variable_1()
+        >>> block.get_controller_id()
         b'there'
-        >>> block.get_variable_2()
+        >>> block.get_interpolator_id()
         b''
         >>> SpellFixFallout3StringOffsets().branchentry(seq)
         pyffi.toaster:INFO:updating empty links
@@ -723,9 +723,9 @@ class SpellFixFallout3StringOffsets(NifSpell):
         16
         >>> block.controller_type_offset
         16
-        >>> block.variable_1_offset
+        >>> block.controller_id_offset
         0
-        >>> block.variable_2_offset
+        >>> block.interpolator_id_offset
         16
         >>> block.get_node_name()
         b'hello'
@@ -735,9 +735,9 @@ class SpellFixFallout3StringOffsets(NifSpell):
         >>> block.get_controller_type()
         pyffi.nif.stringpalette:WARNING:StringPalette: no string starts at offset 16 (string is b'', preceeding character is b't')
         b''
-        >>> block.get_variable_1()
+        >>> block.get_controller_id()
         b'there'
-        >>> block.get_variable_2()
+        >>> block.get_interpolator_id()
         pyffi.nif.stringpalette:WARNING:StringPalette: no string starts at offset 16 (string is b'', preceeding character is b't')
         b''
         """
@@ -757,7 +757,7 @@ class SpellFixFallout3StringOffsets(NifSpell):
             for block in branch.controlled_blocks:
                 for attr in (
                         "node_name", "property_type", "controller_type",
-                        "variable_1", "variable_2"):
+                        "controller_id", "interpolator_id"):
                     attr_offset = attr + "_offset"
                     offset = getattr(block, attr_offset)
                     if offset == -1:

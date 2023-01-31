@@ -66,7 +66,7 @@ def dumpArray(arr):
     :return: String describing the array.
     """
     text = ""
-    if arr._count2 == None:
+    if arr._width == None:
         for i, element in enumerate(list.__iter__(arr)):
             if i > 16:
                 text += "etc...\n"
@@ -512,8 +512,8 @@ class SpellDumpPython(NifSpell):
         self.print_("n_data.version = %s" % hex(self.data.version))
         if self.data.user_version:
             self.print_("n_data.user_version = %s" % self.data.user_version)
-        if self.data.user_version_2:
-            self.print_("n_data.user_version_2 = %s" % self.data.user_version_2)
+        if self.data.bs_version:
+            self.print_("n_data.bs_version = %s" % self.data.bs_version)
         if self.data.modification:
             self.print_("n_data.modification = %s" % repr(self.data.modification))
         self.print_("n_create_blocks(n_data)")
