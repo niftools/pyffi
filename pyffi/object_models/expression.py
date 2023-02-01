@@ -59,7 +59,7 @@ import logging
 import re
 
 
-class Expression(object):  # TODO: Check if this can handle sub vars A.x.y
+class Expression(object):
     """This class represents an expression.
 
     >>> class A(object):

@@ -374,10 +374,6 @@ from pyffi.object_models.xml.struct_ import StructBase
 from pyffi.utils.graph import EdgeFilter
 from pyffi.utils.mathutils import *  # XXX todo get rid of from XXX import *
 
-# TODO: HERE IS THE PROBLEM
-# https://github.com/niftools/nifxml/blob/develop/nif.xml#L3466
-# NiAVObject contains two Flags, one uint and one ushort. PyFFI is only reading the uint and not the ushort
-
 
 # TODO: Things have been renamed, must figure out what!
 class NifFormat(NifToolsFileFormat):

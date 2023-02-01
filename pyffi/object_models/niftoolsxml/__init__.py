@@ -101,18 +101,17 @@ Implementation
 #
 # ***** END LICENSE BLOCK *****
 
-import dataclasses
 import logging
 import re
 import time  # for timing stuff
 import typing
 from typing import Callable, Optional, List, Tuple
-
+from dataclasses import dataclass, field
 # import xml.etree.ElementTree as ET
 import lxml.etree as ET
 
 import pyffi.object_models
-from object_models.expression import Expression
+from pyffi.object_models.expression import Expression
 from pyffi.object_models.basic import BasicBase
 from pyffi.object_models.niftoolsxml.bit_struct import BitStructBase
 from pyffi.object_models.niftoolsxml.enum import EnumBase
@@ -120,7 +119,7 @@ from pyffi.object_models.niftoolsxml.struct_ import StructBase
 
 main_games = re.compile("(?<={{)[^{}]+(?=}})")
 logger = logging.getLogger("pyffi.object_models.xml")
-default_list = dataclasses.field(default_factory=list)
+default_list = field(default_factory=list)
 
 
 def skip(_element: ET.Element):
@@ -198,14 +197,14 @@ class NifToolsFileFormat(pyffi.object_models.FileFormat, metaclass=MetaFileForma
     xml_struct = []
 
 
-@dataclasses.dataclass
+@dataclass
 class StructAttribute:
     """Helper class to collect attribute data of struct add tags.
 
     Attributes:
         displayname (str): The name of this member variable
-        name (str): TODO
-        type_: TODO
+        name (str): The name of this member variable converted for use as a python variable
+        type_: The type of this attribute
         default: The default value
         template: The template type of this member variable
         arg (Optional[Expression]): The argument of this member variable
@@ -322,40 +321,64 @@ class StructAttribute:
         return clz(**params)
 
 
-class BitStructAttribute(object):
-    """Helper class to collect attribute data of bitstruct bits tags."""
+@dataclass
+class BitStructAttribute:
+    """Helper class to collect attribute data of bitstruct bits tags.
 
-    def __init__(self, cls, attrs):
+    Attributes:
+        name: The name of this variable
+        numbits: Total number of bits used
+        default: The default value
+        cond: An expression to check if value can be used
+        since: The version where this started existing
+        until: The version where this existed until
+        userver: The user version applicable for this attribute
+        doc: The doc string of this attribute"""
+    name: str
+    numbits: int
+    default: Optional[int]
+    cond: Optional[Expression]
+    since: Optional[int]
+    until: Optional[int]
+    userver: Optional[int]
+    doc: Optional[str]
+
+    @classmethod
+    def create(cls, clazz, attrs):
         """Initialize attribute from the xml attrs dictionary of an
         add tag.
 
-        :param cls: The class where all types reside.
+        :param clazz: The class where all types reside.
         :param attrs: The xml add tag attribute dictionary."""
-        # mandatory parameters
-        self.name = cls.name_attribute(attrs["name"])
-        self.numbits = int(cls.name_attribute(attrs["numbits"]))
-        # optional parameters
-        self.default = attrs.get("default")
-        self.cond = attrs.get("cond")
-        self.since = attrs.get("since")
-        self.until = attrs.get("until")
-        self.userver = attrs.get("userver")
-        self.doc = ""  # handled in xml parser's characters function
+        params = {
+            # mandatory parameters
+            "name": clazz.name_attribute(attrs["name"]),
+            "numbits": int(clazz.name_attribute(attrs["numbits"])),
+            # optional parameters
+            "default": attrs.get("default"),
+            "cond": attrs.get("cond"),
+            "since": attrs.get("since"),
+            "until": attrs.get("until"),
+            "userver": attrs.get("userver"),
+            "doc": ""
+        }
 
         # post-processing
-        if self.default:
-            self.default = int(self.default)
-        if self.cond:
-            self.cond = Expression(self.cond, cls.name_attribute)
-        if self.userver:
-            self.userver = int(self.userver)
-        if self.since:
-            self.since = cls.version_number(self.since)
-        if self.until:
-            self.until = cls.version_number(self.until)
+        if params["default"]:
+            params["default"] = int(params["default"])
+        if params["cond"]:
+            params["cond"] = Expression(params["cond"], clazz.name_attribute)
+        if params["userver"]:
+            params["userver"] = int(params["userver"])
+        if params["since"]:
+            params["since"] = clazz.version_number(params["since"])
+        if params["until"]:
+            params["until"] = clazz.version_number(params["until"])
+
+        return cls(**params)
 
 
-@dataclasses.dataclass
+@dataclass
 class Version:
     """A dataclass for Versions, all versions must have an ID and version num"""
     id: str
@@ -365,23 +388,23 @@ class Version:
     function from the relative FileFormat subclass."""
     games: List[str]
     """A list of games which use this version. The primary versions of games is stored by TODO: THIS SHIT"""
-    supported: bool = dataclasses.field(default_factory=lambda: True)
+    supported: bool = field(default_factory=lambda: True)
     """This is false if this version is not fully supported by the xml"""
-    user: Optional[List[int]] = dataclasses.field(default_factory=list)
+    user: Optional[List[int]] = field(default_factory=list)
     """The custom User Version(s) for a specific Version from a game/developer."""
-    bsver: Optional[List[int]] = dataclasses.field(default_factory=list)
+    bsver: Optional[List[int]] = field(default_factory=list)
     """The custom Bethesda Version(s) for a specific Version and User Version."""
-    custom: bool = dataclasses.field(default_factory=lambda: False)
+    custom: bool = field(default_factory=lambda: False)
     """True when version contains extensions to the format not originating from Gamebryo."""
-    ext: Optional[List[str]] = dataclasses.field(default_factory=list)
+    ext: Optional[List[str]] = field(default_factory=list)
     """Any custom NIF extensions associated with this version."""
 
 
-@dataclasses.dataclass
+@dataclass
 class Module:
     name: str
     priority: int
-    depends: Optional[List[str]] = dataclasses.field(default_factory=list())
+    depends: Optional[List[str]] = field(default_factory=list())
 
 
 class XmlError(Exception):
@@ -577,7 +600,7 @@ class XmlParser:  # TODO: look into lxml iterparse so that we can get error with
                         raise XmlError("values of bitflags must be increasing")
                     if numextrabits > 0:
                         reserved = dict(name="Reserved Bits %i" % len(self.class_dict["_attrs"]), numbits=numextrabits)
-                        self.class_dict["_attrs"].append(BitStructAttribute(self.cls, reserved))
+                        self.class_dict["_attrs"].append(BitStructAttribute.create(self.cls, reserved))
                 # add the actual attribute
                 bit_attrs = dict(name=attrs["name"], numbits=1)
             # new nif xml
@@ -586,7 +609,7 @@ class XmlParser:  # TODO: look into lxml iterparse so that we can get error with
             else:
                 raise XmlError("only bits tags allowed in struct type declaration")
 
-            self.class_dict["_attrs"].append(BitStructAttribute(self.cls, bit_attrs))
+            self.class_dict["_attrs"].append(BitStructAttribute.create(self.cls, bit_attrs))
             self.update_doc(self.class_dict["_attrs"][-1].doc, member.text)
 
         self.create_class(bitstruct.tag)

@@ -501,7 +501,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
         for attr in self._get_filtered_attribute_list(data):
             # check if there are any links at all
             # (this speeds things up considerably)
-            if (attr.type_ is not type(None)) and (not attr.type_._has_links):
+            if attr.type_ is not type(None) and not attr.type_._has_links:
                 continue
             # extend list of refs
             refs.extend(
@@ -693,9 +693,9 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
         """
         self._update_attributes(data)
 
-    def _update_attributes(self, data):
+    def _update_attributes(self, data):  # TODO: Only replace different attributes and convert in between
         logger = logging.getLogger()
-        for attr in self._get_filtered_attribute_list(data, True):
+        for attr in self._get_filtered_attribute_list(data, report_duplicates=True):
             # things that can only be determined at runtime (rt_xxx)
             rt_type = attr.type_ if attr.type_ != type(None) else self._template
             rt_template = attr.template if attr.template != type(None) else self._template
@@ -745,8 +745,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
 
     def get_global_display(self):
         """Construct a convenient name for the block itself."""
-        return (pyffi.object_models.common._as_str(self.name)
-                if hasattr(self, "name") else "")
+        return pyffi.object_models.common._as_str(self.name) if hasattr(self, "name") else ""
 
     def get_global_child_nodes(self, edge_filter=EdgeFilter()):
         # TODO replace get_refs with a generator as well
