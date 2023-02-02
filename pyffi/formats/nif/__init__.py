@@ -366,11 +366,13 @@ import pyffi.utils.mopp
 import pyffi.utils.quickhull
 import pyffi.utils.tristrip
 import pyffi.utils.vertex_cache
+
 from pyffi.object_models.basic import BasicBase
 # XXX convert the following to absolute imports
 from pyffi.object_models.editable import EditableBoolComboBox
-from pyffi.object_models.niftoolsxml import NifToolsFileFormat
+from pyffi.object_models.niftoolsxml import NifToolsFileFormat, Version
 from pyffi.object_models.xml.struct_ import StructBase
+from pyffi.utils import get_single
 from pyffi.utils.graph import EdgeFilter
 from pyffi.utils.mathutils import *  # XXX todo get rid of from XXX import *
 
@@ -405,7 +407,7 @@ class NifFormat(NifToolsFileFormat):
     uint = pyffi.object_models.common.UInt
     uint64 = pyffi.object_models.common.UInt64
     byte = pyffi.object_models.common.UByte  # not a typo
-    # normbyte = pyffi.object_models.common.NormByte
+    # normbyte = pyffi.object_models.common.NormByte  # TODO: I actually don't know how a 1 byte float is implemented
     normbyte = pyffi.object_models.common.UByte
     char = pyffi.object_models.common.Char
     short = pyffi.object_models.common.Short
@@ -1100,6 +1102,7 @@ class NifFormat(NifToolsFileFormat):
         :type modification: ``str``
         """
 
+        logger = logging.getLogger("pyffi.nif.data")
         _link_stack = None
         _block_dct = None
         _string_list = None
@@ -1149,23 +1152,38 @@ class NifFormat(NifToolsFileFormat):
         def _getVersion(self):
             return self._version_value_.get_value()
 
-        def _setVersion(self, value):
+        def _setVersion(self, value, skip_attrs_update=False):
             self._version_value_.set_value(value)
+            if not skip_attrs_update:
+                self._update_block_attrs()
 
         def _getUserVersion(self):
             return self._user_version_value_.get_value()
 
-        def _setUserVersion(self, value):
+        def _setUserVersion(self, value, skip_attrs_update=False):
             self._user_version_value_.set_value(value)
+            if not skip_attrs_update:
+                self._update_block_attrs()
 
         def _getBSVersion(self):
             return self._bs_version_value_.get_value()
 
-        def _setBSVersion(self, value):
+        def _setBSVersion(self, value, skip_attrs_update=False):
             self._bs_version_value_.set_value(value)
+            if not skip_attrs_update:
+                self._update_block_attrs()
 
         def _getBSHeader(self):  # TODO: Why
             return self.header.bs_header
+
+        def set_version(self, version: Version, skip_attrs_update=False):
+            self._setVersion(version.num, skip_attrs_update=True)
+            if version.user:
+                self._setUserVersion(get_single(version.user), skip_attrs_update=True)
+            if version.bsver:
+                self._setBSVersion(get_single(version.bsver), skip_attrs_update=True)
+            if not skip_attrs_update:
+                self._update_block_attrs()
 
         version = property(_getVersion, _setVersion)
         user_version = property(_getUserVersion, _setUserVersion)
@@ -1625,6 +1643,13 @@ class NifFormat(NifToolsFileFormat):
             for child in children_left:
                 self._makeBlockList(
                     child, block_index_dct, block_type_list, block_type_dct)
+
+        def _update_block_attrs(self):
+            for block in self.blocks:
+                try:
+                    block.update_version(self)
+                except AttributeError:
+                    self.logger.warning("%s doesn't support version updates", block)
 
     # extensions of generated structures
 

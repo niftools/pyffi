@@ -66,8 +66,8 @@ from functools import partial
 from typing import Optional
 
 import pyffi.object_models.common
-from object_models.expression import Expression
 from pyffi.object_models.basic import BasicBase
+from pyffi.object_models.expression import Expression
 from pyffi.utils.graph import GlobalNode, EdgeFilter
 
 
@@ -86,15 +86,13 @@ class _MetaStructBase(type):
         cls._has_refs = getattr(cls, '_has_refs', False)
         # does the type contain a string?
         cls._has_strings = getattr(cls, '_has_strings', False)
-        for attr in dct.get('_attrs', []):  # TODO: HERE IS PART OF THE PROBLEM
+
+        for attr in dct.get('_attrs', []):
             # basestring is a forward compound type declaration
             # and issubclass must take a type as first argument
             # hence this hack
-            print(attr.name, "Is Basic:", issubclass(attr.type_, BasicBase), "Is Str:", isinstance(attr.type_, str),
-                  "Is Struct:", issubclass(attr.type_, StructBase))
             if not isinstance(attr.type_, str) and \
                     issubclass(attr.type_, BasicBase) and attr.length is None:
-                print(name, "BasicBase", attr)
                 # get and set basic attributes
                 setattr(cls, attr.name, property(
                     partial(StructBase.get_basic_attribute, name=attr.name),
@@ -102,21 +100,18 @@ class _MetaStructBase(type):
                     doc=attr.doc))
             elif not isinstance(attr.type_, str) and \
                     issubclass(attr.type_, StructBase) and attr.length is None:
-                print(name, "StructBase", attr)
                 # get and set struct attributes
                 setattr(cls, attr.name, property(
                     partial(StructBase.get_attribute, name=attr.name),
                     partial(StructBase.set_attribute, name=attr.name),
                     doc=attr.doc))
             elif attr.type_ == type(None) and attr.length is None:
-                print(name, "None", attr)
                 # get and set template attributes
                 setattr(cls, attr.name, property(
                     partial(StructBase.get_template_attribute, name=attr.name),
                     partial(StructBase.set_template_attribute, name=attr.name),
                     doc=attr.doc))
             else:
-                print(name, "Other", attr)
                 # other types of attributes: get only
                 setattr(cls, attr.name, property(
                     partial(StructBase.get_attribute, name=attr.name),
@@ -685,7 +680,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
         # return self
         yield self
 
-    def update_version(self, data):  # TODO: Hook into Data to be updated on version change
+    def update_version(self, data):
         """
 
         :param data:
@@ -693,8 +688,11 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
         """
         self._update_attributes(data)
 
+    @staticmethod
+    def _is_same_attr_type(attr_inst, attr):
+        return attr_inst is not None and type(attr) is type(attr_inst)
+
     def _update_attributes(self, data):  # TODO: Only replace different attributes and convert in between
-        logger = logging.getLogger()
         for attr in self._get_filtered_attribute_list(data, report_duplicates=True):
             # things that can only be determined at runtime (rt_xxx)
             rt_type = attr.type_ if attr.type_ != type(None) else self._template
@@ -724,6 +722,13 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
                     element_type_argument=rt_arg,
                     length=attr.length, width=attr.width,
                     parent=self)
+
+            orig_attr_inst = getattr(self, "_%s_value_" % attr.name, None)
+            if orig_attr_inst is not None:
+                if self._is_same_attr_type(orig_attr_inst, attr_instance):
+                    continue
+                else:
+                    pass  # TODO: Look into converting previous values
 
             # assign attribute value
             setattr(self, "_%s_value_" % attr.name, attr_instance)

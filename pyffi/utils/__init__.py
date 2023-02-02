@@ -170,6 +170,16 @@ def unique_map(hash_generator):
     return hash_map, hash_map_inverse
 
 
+def get_single(val):
+    if isinstance(val, str):
+        return val
+    try:
+        iter(val)
+        return val[0]
+    except TypeError:
+        return val
+
+
 if __name__ == '__main__':
     import doctest
 
