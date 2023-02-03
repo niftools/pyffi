@@ -214,9 +214,9 @@ class Array(_ListWrap):
     def _lengthT(self):
         """The _length the array should have, obtained by evaluating the _length expression."""
         if self._parent is None:
-            return self._length.eval()
+            return int(self._length.eval())
         else:
-            return self._length.eval(self._parent())
+            return int(self._length.eval(self._parent()))
 
     def _widthT(self, index1):
         """The _length the array should have, obtained by evaluating the width expression."""
@@ -228,8 +228,10 @@ class Array(_ListWrap):
             expr = self._width.eval(self._parent())
         if isinstance(expr, int):
             return expr
+        elif isinstance(expr, float):
+            return int(expr)
         else:
-            return expr[index1]
+            return int(expr[index1])
 
     def deepcopy(self, block):
         """Copy attributes from a given array which needs to have at least as many elements (possibly more) as self."""
