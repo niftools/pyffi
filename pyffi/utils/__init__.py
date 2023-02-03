@@ -42,7 +42,10 @@
 # ***** END LICENSE BLOCK *****
 
 import os
+import re
 from distutils.cmd import Command
+
+sci_not = re.compile("([-+]?\d+\.?\d*)[Ee]([-+]?\d+)?")
 
 
 class BuildDoc(Command):  # pragma: no cover
@@ -178,6 +181,14 @@ def get_single(val):
         return val[0]
     except TypeError:
         return val
+
+
+def parse_scientific_notation(string: str):
+    match = sci_not.match(string)
+    if match:
+        val = float(match[1])
+        exp = pow(10, int(match[2]))
+        return val * exp
 
 
 if __name__ == '__main__':

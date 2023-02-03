@@ -58,6 +58,10 @@ Implementation
 import logging
 import re
 
+from pyffi.utils import parse_scientific_notation
+
+scientific_notation = re.compile("[-+]?[\d]+\.?[\d]*[Ee](?:[-+]?[\d]+)?")
+
 
 class Expression(object):
     """This class represents an expression.
@@ -131,6 +135,8 @@ class Expression(object):
         elif isinstance(self._right, str):
             if (not self._right) or self._right == '""':
                 right = ""
+            elif self._right.lower() in ["infinity", "inf"]:
+                right = float("inf")
             else:
                 right = getattr(data, self._right)
         elif isinstance(self._right, type):
@@ -205,11 +211,17 @@ class Expression(object):
         if not expr_str:
             # empty string
             return None
+        srch = scientific_notation.search(expr_str)
+        if srch is not None and len(srch[0]) == len(expr_str):
+            return int(parse_scientific_notation(expr_str))  # We don't have float support so convert to int
         # brackets or operators => expression
         if ("(" in expr_str) or (")" in expr_str):
             return Expression(expr_str, name_filter)
         for op in cls.operators:
-            if expr_str.find(op) != -1:
+            pos = expr_str.find(op)
+            if pos != -1:
+                if srch is not None and srch.pos < pos < len(srch[0]):
+                    continue
                 return Expression(expr_str, name_filter)
         # try to convert it to an integer
         if expr_str.startswith("0x"):
@@ -235,6 +247,8 @@ class Expression(object):
         # (where a dot separates components)
         if expr_str == "#ARG#":
             return "arg"
+        if expr_str == "infinity":
+            return float("inf")
         if name_filter is None:
             name_filter = lambda x: x
         return '.'.join(name_filter(comp) for comp in expr_str.split("."))
@@ -252,6 +266,8 @@ class Expression(object):
         ('a== b', '&&', '( b!=c)||d')
         >>> Expression._partition('!(1 <= 2)')
         ('', '!', '(1 <= 2)')
+        >>> Expression._partition('3.402823466e+38')
+        ('3.402823466e+38', '', '')
         >>> Expression._partition('')
         ('', '', '')
         """
@@ -292,9 +308,14 @@ class Expression(object):
             else:
                 raise ValueError("expression syntax error: expected operator at '%s'" % expr_str[op_startpos:])
         else:
+            sci_not_search = scientific_notation.search(expr_str)
+            start = len(sci_not_search[0]) if sci_not_search is not None and sci_not_search.pos == 0 else 0
+            if start == len(expr_str):
+                start = start - 1
             # it's not... so we need to scan for the first operator
-            for op_startpos, ch in enumerate(expr_str):
-                if ch == ' ': continue
+            for op_startpos, ch in enumerate(expr_str, start=start):
+                if ch == ' ':
+                    continue
                 if ch == '(' or ch == ')':
                     raise ValueError("expression syntax error: expected operator before '%s'" % expr_str[op_startpos:])
                 # to avoid confusion between && and &, and || and |,
