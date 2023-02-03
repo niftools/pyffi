@@ -38,7 +38,7 @@ def test_import_fallout4():
     # TODO: All/some blocks
 
 
-def test_import_falloutnv():  # TODO
+def test_import_falloutnv():
     data = read_file("falloutnv_goldbar.nif")
     assert data.version == NifFormat.version_number("20.2.0.7")
     assert data.user_version == 11
@@ -49,14 +49,14 @@ def test_import_falloutnv():  # TODO
     # TODO: All/some blocks
 
 
-def test_import_morrowind():  # TODO
+def test_import_morrowind():
     data = read_file("morrowind_mossyrock.nif")
     assert data.version == NifFormat.version_number("4.0.0.2")
     assert data.header.num_blocks == 11
     # TODO: All/some blocks
 
 
-def test_import_oblivion():  # TODO
+def test_import_oblivion():
     data = read_file("oblivion_chair.nif")
     assert data.version == NifFormat.version_number("20.0.0.5")
     assert data.user_version == 11
@@ -66,7 +66,7 @@ def test_import_oblivion():  # TODO
     # TODO: All/some blocks
 
 
-def test_import_skyrim():  # TODO
+def test_import_skyrim():
     data = read_file("skyrim_cookiechip.nif")
     assert data.version == NifFormat.version_number("20.2.0.7")
     assert data.user_version == 12
@@ -77,8 +77,8 @@ def test_import_skyrim():  # TODO
     # TODO: All/some blocks
 
 
-def test_import_skyrimse():  # TODO
-    data = read_file("skyrimse_cookiechip.nif")
+def test_import_skyrimse():
+    data = read_file("skyrimse_cookiechip.nif")  # TODO: This is failing because it is defaulting to BSVertexData and not BSVertexDataSSE
     assert data.version == NifFormat.version_number("20.2.0.7")
     assert data.user_version == 12
     assert data.bs_version == 100
