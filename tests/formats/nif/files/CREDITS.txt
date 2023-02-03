@@ -1,0 +1,21 @@
+fallout3_switch: Animated Light Switch by odin_ml
+- https://www.nexusmods.com/fallout3/mods/12677
+
+fallout4_refigerator: Full Clean Kitchen Set (Modder's Resource) by ScottyX2
+- https://www.nexusmods.com/fallout4/mods/44751
+
+falloutnv_goldbar: Gold Bars Modders Resource V2 by lordinquisitor
+- https://www.nexusmods.com/newvegas/mods/40766
+
+morrowind_mossyrock: Mossy Rocks by Calenfair
+- https://www.nexusmods.com/morrowind/mods/46244
+
+oblivion_chair: Ancient Elven Furniture for modders by css0101
+- https://www.nexusmods.com/oblivion/mods/27797
+
+skyrim_cookiechip: Sweets and Such - Modders Resource LE by CatPancake
+- https://www.nexusmods.com/skyrim/mods/114141
+
+
+skyrimse_cookiechip: Sweets and Such - Modders Resource SE by CatPancake
+- https://www.nexusmods.com/skyrimspecialedition/mods/80782
