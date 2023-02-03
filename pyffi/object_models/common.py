@@ -573,7 +573,7 @@ class HFloat(Float, EditableFloatSpinBox):
         except OverflowError:
             logger = logging.getLogger("pyffi.object_models")
             logger.warn("float value overflow, writing NaN")
-            stream.write(struct.pack(data._byte_order + 'I',
+            stream.write(struct.pack(data._byte_order + 'H',
                                      0x7fc00000))
 
     def get_size(self, data=None):
