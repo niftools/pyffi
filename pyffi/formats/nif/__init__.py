@@ -1234,8 +1234,8 @@ class NifFormat(NifToolsFileFormat):
             if not ver in list(NifFormat.versions_num.values()):
                 raise ValueError("Nif version %s not supported. (%s)" % (version_str, NifFormat.versions_num.values()))
             # check version integer and user version
-            userver = 0
-            userver2 = 0
+            user_version = 0
+            bs_version = 0
             if ver >= 0x0303000D:
                 ver_int = None
                 try:
@@ -1265,15 +1265,15 @@ class NifFormat(NifToolsFileFormat):
                             # big endian!
                             self._byte_order = '>'
                     if ver >= 0x0A010000:
-                        userver, = struct.unpack('<I', stream.read(4))
-                        if userver >= 10:
+                        user_version, = struct.unpack('<I', stream.read(4))
+                        if user_version >= 10:
                             stream.read(4)  # number of blocks
-                            userver2, = struct.unpack('<I', stream.read(4))
+                            bs_version, = struct.unpack('<I', stream.read(4))
                 finally:
                     stream.seek(pos)
             self.version = ver
-            self.user_version = userver
-            self.bs_version = userver2
+            self.user_version = user_version
+            self.bs_version = bs_version
 
         # GlobalNode
 
@@ -1328,6 +1328,7 @@ class NifFormat(NifToolsFileFormat):
             :type stream: ``file``
             """
             logger = logging.getLogger("pyffi.nif.data")
+            logger.debug("Reading file: %s", stream.name)
             # read header
             logger.debug("Reading header at 0x%08X" % stream.tell())
             self.inspect_version_only(stream)

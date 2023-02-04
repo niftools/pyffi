@@ -78,7 +78,7 @@ def test_import_skyrim():
 
 
 def test_import_skyrimse():
-    data = read_file("skyrimse_cookiechip.nif")  # TODO: This is failing because it is defaulting to BSVertexData and not BSVertexDataSSE
+    data = read_file("skyrimse_cookiechip.nif")
     assert data.version == NifFormat.version_number("20.2.0.7")
     assert data.user_version == 12
     assert data.bs_version == 100

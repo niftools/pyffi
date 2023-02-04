@@ -164,7 +164,7 @@ class Array(_ListWrap):
             element_type_template=None,
             element_type_argument: Optional[Expression] = None,
             length=None, width=None,
-            parent=None, cond=None):
+            parent=None):
         """Initialize the array type.
 
         :param name: The name of this array, used for error logging and debugging
@@ -192,7 +192,7 @@ class Array(_ListWrap):
         self._elementTypeTemplate = element_type_template
         self._elementTypeArgument = element_type_argument
 
-        if cond is None:  # TODO: This feels wrong, might break stuff
+        try:
             if self._width is None:
                 for i in range(self._lengthT()):
                     elem_instance = self._elementType(
@@ -210,6 +210,8 @@ class Array(_ListWrap):
                             parent=elem)
                         elem.append(elem_instance)
                     self.append(elem)
+        except ArithmeticError:
+            self.logger.exception("Failed to initialize default array")
 
     def _lengthT(self):
         """The _length the array should have, obtained by evaluating the _length expression."""
@@ -319,39 +321,39 @@ class Array(_ListWrap):
     def read(self, stream, data):
         """Read array from stream."""
         # parse arguments
-        self._elementTypeArgument = self.arg
+        if self.arg is not None:
+            self._elementTypeArgument = self.arg
 
         # check array size
-        len1 = self._lengthT()
-        self.logger.debug("Reading array of size " + str(len1))
-        if len1 > 0x10000000:
-            raise ValueError('Array %s too long (%i)' % (self._name, len1))
+        length = self._lengthT()
+        self.logger.debug("Reading array of size " + str(length))
+        if length > 0x10000000:
+            raise ValueError('Array %s too long (%i)' % (self._name, length))
         del self[0:self.__len__()]
 
         # read array
         if self._width is None:
-            for i in range(len1):
-                elem = self._elementType(
+            for i in range(length):
+                element = self._elementType(
                     template=self._elementTypeTemplate,
                     argument=self._elementTypeArgument,
                     parent=self)
-                elem.read(stream, data)
-                logging.getLogger().warning("Arr Elm [%d]: %s", i, elem)  # TODO: DEBUG
-                self.append(elem)
+                element.read(stream, data)
+                self.append(element)
         else:
-            for i in range(len1):
-                len2i = self._widthT(i)
-                if len2i > 0x10000000:
-                    raise ValueError('array too long (%i)' % len2i)
-                elemlist = _ListWrap(self._elementType, parent=self)
-                for j in range(len2i):
-                    elem = self._elementType(
+            for i in range(length):
+                width = self._widthT(i)
+                if width > 0x10000000:
+                    raise ValueError('array too long (%i)' % width)
+                element_list = _ListWrap(self._elementType, parent=self)
+                for j in range(width):
+                    element = self._elementType(
                         template=self._elementTypeTemplate,
                         argument=self._elementTypeArgument,
-                        parent=elemlist)
-                    elem.read(stream, data)
-                    elemlist.append(elem)
-                self.append(elemlist)
+                        parent=element_list)
+                    element.read(stream, data)
+                    element_list.append(element)
+                self.append(element_list)
 
     def write(self, stream, data):
         """Write array to stream."""

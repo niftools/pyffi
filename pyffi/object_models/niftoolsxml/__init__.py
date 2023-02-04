@@ -496,9 +496,10 @@ class XmlParser:  # TODO: look into lxml iterparse so that we can get error with
 
         self.tokens.append(([], token.attrib["attrs"].split(" ")))
         for sub_token in token:
-            self.tokens[-1][0].append((sub_token.attrib["token"], sub_token.attrib["string"]))
-
-    # todo: do we need read_verattr?
+            string = sub_token.attrib["string"]
+            if sub_token.attrib["token"] == "#BSVER#":  # #BSVER# = `BS Header\BS Version` which I don't think works, maybe
+                string = string.split('\\')[1]
+            self.tokens[-1][0].append((sub_token.attrib["token"], string))
 
     def read_version(self, version: ET.Element):  # TODO: Clean this up, currently really shit
         """Reads an XML <version> block and stores it in the versions list

@@ -313,8 +313,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
                     element_type_template=rt_template,
                     element_type_argument=rt_arg,
                     length=attr.length,
-                    parent=self,
-                    cond=attr.cond)
+                    parent=self)
             else:
                 attr_instance = Array(
                     name=attr.name,
@@ -322,8 +321,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
                     element_type_template=rt_template,
                     element_type_argument=rt_arg,
                     length=attr.length, width=attr.width,
-                    parent=self,
-                    cond=attr.cond)
+                    parent=self)
 
             # assign attribute value
             setattr(self, "_%s_value_" % attr.name, attr_instance)
@@ -413,23 +411,49 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
 
     def read(self, stream, data):
         """Read structure from stream."""
-        if data is not None:  # Update the attributes to correlate to the one allowed
-            self._update_attributes(data)
 
-        # read all attributes
-        for attr in self._get_filtered_attribute_list(data):
+        self._items.clear()
+        for attr in self._get_filtered_attribute_list(data, report_duplicates=True):  # We must update the attributes as we read
+            # things that can only be determined at runtime (rt_xxx)
+            rt_type = attr.type_ if attr.type_ != type(None) else self._template
+            rt_template = attr.template if attr.template != type(None) else self._template
+            rt_arg = attr.arg.eval(self) if attr.arg is not None else None
+
+            # instantiate the class, handling arrays at the same time
+            if attr.length is None:
+                attr_instance = rt_type(
+                    template=rt_template, argument=rt_arg,
+                    parent=self)
+                if attr.default is not None:
+                    attr_instance.set_value(attr.default)
+            elif attr.width is None:
+                attr_instance = Array(
+                    name=attr.name,
+                    element_type=rt_type,
+                    element_type_template=rt_template,
+                    element_type_argument=rt_arg,
+                    length=attr.length,
+                    parent=self)
+            else:
+                attr_instance = Array(
+                    name=attr.name,
+                    element_type=rt_type,
+                    element_type_template=rt_template,
+                    element_type_argument=rt_arg,
+                    length=attr.length, width=attr.width,
+                    parent=self)
+
             # skip abstract attributes
             if attr.is_abstract:
                 continue
-            # get attribute argument (can only be done at runtime)
-            rt_arg = attr.arg.eval(self) if attr.arg is not None else None
-            # read the attribute
-            attr_value = getattr(self, "_%s_value_" % attr.name)
-            attr_value.arg = rt_arg
-            # if hasattr(attr, "type_"):
-            #     attr_value._elementType = attr.type_
-            attr_value.read(stream, data)
+
+            # assign attribute value
+            setattr(self, "_%s_value_" % attr.name, attr_instance)
+            attr_instance.read(stream, data)
             self._log_struct(stream, attr)  # Log after read, that way we have data after read
+
+            # add instance to item list
+            self._items.append(attr_instance)
 
     def write(self, stream, data):
         """Write structure to stream."""
@@ -612,16 +636,17 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
             # check conditions
             if attr.cond is not None and not attr.cond.eval(self):
                 continue
+            # print("condition passed") # debug
 
             if version is not None and user_version is not None and attr.vercond is not None:
                 if not attr.vercond.eval(data):
                     continue
-            # print("condition passed") # debug
+            # print("version condition passed") # debug
 
             # skip duplicate names
             if attr.name in names:
                 if report_duplicates:
-                    logging.getLogger().warning("Duplicate attribute %s was found", attr.name)  # TODO: More Verbose
+                    logging.getLogger().warning("Duplicate attribute %s was found: %s", attr.name, attr)  # TODO: More Verbose
                 continue
             names.add(attr.name)
             # print("duplicate check passed") # debug
@@ -690,10 +715,16 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
 
     @staticmethod
     def _is_same_attr_type(attr_inst, attr):
-        return attr_inst is not None and type(attr) is type(attr_inst)
+        if attr_inst is None:
+            return False
+        if isinstance(attr, Array) and isinstance(attr_inst, Array):
+            return type(attr._elementType) is type(attr_inst._elementType)
+        return type(attr) is type(attr_inst)
 
     def _update_attributes(self, data):  # TODO: Only replace different attributes and convert in between
-        for attr in self._get_filtered_attribute_list(data, report_duplicates=True):
+        self._items.clear()
+        for attr in self._get_filtered_attribute_list(data, report_duplicates=True, skip_condition=True):  # skip_condition is failing fallout 4
+            logging.getLogger().warning("Updating ATTR %s (%s)", attr.name, attr.type_)
             # things that can only be determined at runtime (rt_xxx)
             rt_type = attr.type_ if attr.type_ != type(None) else self._template
             rt_template = attr.template if attr.template != type(None) else self._template
@@ -726,12 +757,14 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
             orig_attr_inst = getattr(self, "_%s_value_" % attr.name, None)
             if orig_attr_inst is not None:
                 if self._is_same_attr_type(orig_attr_inst, attr_instance):
+                    logging.getLogger().warning("IS SAME TYPE: %s ; %s - %s", attr.name, type(attr_instance), type(orig_attr_inst))
                     continue
                 else:
                     pass  # TODO: Look into converting previous values
 
             # assign attribute value
             setattr(self, "_%s_value_" % attr.name, attr_instance)
+            logging.getLogger().warning("Set attr %s to %s", attr.name, attr.type_)
 
             # add instance to item list
             self._items.append(attr_instance)
