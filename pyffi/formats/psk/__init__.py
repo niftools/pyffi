@@ -95,16 +95,14 @@ Create an PSK file from scratch and write to file
 #
 # ***** END LICENSE BLOCK *****
 
-from itertools import chain
-import struct
 import os
 import re
 
-import pyffi.object_models.xml
-import pyffi.object_models.common
-from pyffi.object_models.xml.basic import BasicBase
 import pyffi.object_models
+import pyffi.object_models.common
+import pyffi.object_models.xml
 from pyffi.utils.graph import EdgeFilter
+
 
 class PskFormat(pyffi.object_models.xml.FileFormat):
     """This class implements the PSK format."""
@@ -143,7 +141,7 @@ class PskFormat(pyffi.object_models.xml.FileFormat):
 
     class Data(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual psk data."""
-        version = 0 # no versioning, so far
+        version = 0  # no versioning, so far
         user_version = 0
 
         def inspect_quick(self, stream):
@@ -235,6 +233,8 @@ class PskFormat(pyffi.object_models.xml.FileFormat):
         def get_global_display(self):
             return self.chunk_id.decode("utf8", "ignore")
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     import doctest
+
     doctest.testmod()

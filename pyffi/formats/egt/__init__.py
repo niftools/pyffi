@@ -94,16 +94,15 @@ Create an EGT file from scratch and write to file
 #
 # ***** END LICENSE BLOCK *****
 
-from itertools import chain
-import struct
 import os
 import re
 
-import pyffi.object_models.xml
-import pyffi.object_models.common
-from pyffi.object_models.xml.basic import BasicBase
 import pyffi.object_models
+import pyffi.object_models.common
+import pyffi.object_models.xml
+from pyffi.object_models.basic import BasicBase
 from pyffi.utils.graph import EdgeFilter
+
 
 class EgtFormat(pyffi.object_models.xml.FileFormat):
     """This class implements the EGT format."""
@@ -128,6 +127,7 @@ class EgtFormat(pyffi.object_models.xml.FileFormat):
 
     class FileSignature(BasicBase):
         """Basic type which implements the header of a EGT file."""
+
         def __init__(self, **kwargs):
             BasicBase.__init__(self, **kwargs)
 
@@ -258,7 +258,6 @@ class EgtFormat(pyffi.object_models.xml.FileFormat):
             finally:
                 stream.seek(pos)
 
-
         def read(self, stream):
             """Read a egt file.
 
@@ -289,6 +288,8 @@ class EgtFormat(pyffi.object_models.xml.FileFormat):
         def get_global_child_nodes(self, edge_filter=EdgeFilter()):
             return (texture for texture in self.textures)
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     import doctest
+
     doctest.testmod()

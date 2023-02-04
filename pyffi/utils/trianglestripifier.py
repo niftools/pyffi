@@ -47,10 +47,8 @@ output in all circumstances.
 #
 # ***** END LICENSE BLOCK *****
 
-import itertools
-import random # choice
+from pyffi.utils.trianglemesh import Mesh
 
-from pyffi.utils.trianglemesh import Face, Mesh
 
 class TriangleStrip(object):
     """A heavily specialized oriented strip of faces.
@@ -304,6 +302,7 @@ class TriangleStrip(object):
             strip = list(self.vertices)
         return strip
 
+
 class Experiment(object):
     """A stripification experiment, essentially consisting of a set of
     adjacent strips.
@@ -357,7 +356,7 @@ class Experiment(object):
         # build adjacent strips
         num_faces = len(strip.faces)
         if num_faces >= 4:
-            face_index = num_faces >> 1 # quick / 2
+            face_index = num_faces >> 1  # quick / 2
             self.build_adjacent(strip, face_index)
             self.build_adjacent(strip, face_index + 1)
         elif num_faces == 3:
@@ -389,12 +388,13 @@ class Experiment(object):
                 other_vertex = strip.vertices[face_index + 2]
                 face_index = other_strip.build(other_vertex, other_face)
             self.strips.append(other_strip)
-            if face_index > (len(other_strip.faces) >> 1): # quick / 2
+            if face_index > (len(other_strip.faces) >> 1):  # quick / 2
                 self.build_adjacent(other_strip, face_index - 1)
             elif face_index < len(other_strip.faces) - 1:
                 self.build_adjacent(other_strip, face_index + 1)
             return True
         return False
+
 
 class ExperimentSelector(object):
 
@@ -418,6 +418,7 @@ class ExperimentSelector(object):
         """
         self.best_score = -1.0
         self.best_experiment = None
+
 
 class TriangleStripifier(object):
     """Implementation of a triangle stripifier.
@@ -543,6 +544,8 @@ class TriangleStripifier(object):
                  for strip in selector.best_experiment.strips))
             selector.clear()
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     import doctest
+
     doctest.testmod()

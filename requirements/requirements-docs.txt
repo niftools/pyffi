@@ -1,2 +1,2 @@
-sphinx>=2.0.0
+sphinx>=6.0.0
 niftools_sphinx_theme>=0.3.3

@@ -1,6 +1,25 @@
-"""Format classes and metaclasses for binary file formats described by a
+"""
+:mod:`pyffi.object_models.mex` --- Mex script fileformat parser
+===============================================================
+
+Format classes and metaclasses for binary file formats described by a
 mexscript file, and mexscript parser for converting the mexscript description
 into Python classes.
+
+Implementation
+--------------
+
+.. autoclass:: _MetaMexFileFormat
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: MexFileFormat
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Show examples for usage
 """
 
 # ***** BEGIN LICENSE BLOCK *****
@@ -45,6 +64,7 @@ import logging
 import pyffi.object_models
 import pyffi.object_models.simple_type
 
+
 class _MetaMexFileFormat(pyffi.object_models.MetaFileFormat):
     """Converts the mex script into an archive parser."""
 
@@ -57,12 +77,13 @@ class _MetaMexFileFormat(pyffi.object_models.MetaFileFormat):
             mexfile = cls.openfile(mexfilename, cls.mexfilepath)
             # XXX todo: parse the script
 
+
 class MexFileFormat(pyffi.object_models.FileFormat):
     """This class can be used as a base class for file formats
     described by a mexscript file.
     """
-    mexfilename = None #: Override.
-    mexfilepath = None #: Override.
+    mexfilename = None  #: Override.
+    mexfilepath = None  #: Override.
     logger = logging.getLogger("pyffi.object_models.mex")
 
     class FileInfo:
@@ -76,7 +97,7 @@ class MexFileFormat(pyffi.object_models.FileFormat):
 
         fileformat = None
         """Potentially, the format of the file."""
-        
+
         offset = None
         """Offset in the archive."""
 

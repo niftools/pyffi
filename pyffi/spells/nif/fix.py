@@ -122,10 +122,10 @@ Regression tests
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+import pyffi.spells.nif.check  # recycle checking spells for update spells
 from pyffi.formats.nif import NifFormat
 from pyffi.spells.nif import NifSpell
-import pyffi.spells.nif
-import pyffi.spells.nif.check # recycle checking spells for update spells
+
 
 class SpellDelTangentSpace(NifSpell):
     """Delete tangentspace if it is present."""
@@ -146,7 +146,7 @@ class SpellDelTangentSpace(NifSpell):
             for extra in branch.get_extra_datas():
                 if isinstance(extra, NifFormat.NiBinaryExtraData):
                     if (extra.name ==
-                        b'Tangent space (binormal & tangent vectors)'):
+                            b'Tangent space (binormal & tangent vectors)'):
                         self.toaster.msg("removing tangent space block")
                         branch.remove_extra_data(extra)
                         self.changed = True
@@ -154,6 +154,7 @@ class SpellDelTangentSpace(NifSpell):
             return False
         # recurse further
         return True
+
 
 class SpellAddTangentSpace(NifSpell):
     """Add tangentspace if none is present."""
@@ -174,7 +175,7 @@ class SpellAddTangentSpace(NifSpell):
             for extra in branch.get_extra_datas():
                 if isinstance(extra, NifFormat.NiBinaryExtraData):
                     if (extra.name ==
-                        b'Tangent space (binormal & tangent vectors)'):
+                            b'Tangent space (binormal & tangent vectors)'):
                         # tangent space found, done!
                         return False
             # no tangent space found
@@ -186,6 +187,7 @@ class SpellAddTangentSpace(NifSpell):
         else:
             # recurse further
             return True
+
 
 class SpellFFVT3RSkinPartition(NifSpell):
     """Create or update skin partition, with settings that work for Freedom
@@ -217,6 +219,7 @@ class SpellFFVT3RSkinPartition(NifSpell):
             # recurse further
             return True
 
+
 class SpellParseTexturePath(NifSpell):
     """Base class for spells which must parse all texture paths, with
     hook for texture path substitution.
@@ -241,7 +244,6 @@ class SpellParseTexturePath(NifSpell):
             return True
         else:
             return False
-        
 
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch, texturing properties and source
@@ -251,18 +253,19 @@ class SpellParseTexturePath(NifSpell):
                                    NifFormat.NiSourceTexture,
                                    NifFormat.BSLightingShaderProperty,
                                    NifFormat.BSShaderTextureSet))
-    
+
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiSourceTexture):
             branch.file_name = self.substitute(branch.file_name)
             return False
 
         elif isinstance(branch, NifFormat.BSShaderTextureSet):
-            for n, tex in enumerate (branch.textures):
+            for n, tex in enumerate(branch.textures):
                 branch.textures[n] = self.substitute(tex)
             return False
         else:
             return True
+
 
 class SpellFixTexturePath(SpellParseTexturePath):
     r"""Fix the texture path. Transforms 0x0a into \n and 0x0d into
@@ -275,12 +278,12 @@ class SpellFixTexturePath(SpellParseTexturePath):
     """
 
     SPELLNAME = "fix_texturepath"
-    
+
     def substitute(self, old_path):
         new_path = old_path
         new_path = new_path.replace(b'\n', b'\\n')
         new_path = new_path.replace(b'\r', b'\\r')
-        new_path = new_path.replace(b'/',  b'\\')
+        new_path = new_path.replace(b'/', b'\\')
         # baphometal found some nifs that use double slashes
         # this causes textures not to show, so here we convert them
         # back to single slashes
@@ -295,6 +298,7 @@ class SpellFixTexturePath(SpellParseTexturePath):
                              % new_path.decode("utf8", "ignore"))
             self.changed = True
         return new_path
+
 
 # the next spell solves issue #2065018, MiddleWolfRug01.NIF
 class SpellDetachHavokTriStripsData(NifSpell):
@@ -329,19 +333,20 @@ class SpellDetachHavokTriStripsData(NifSpell):
         return isinstance(branch, (NifFormat.NiAVObject,
                                    NifFormat.bhkCollisionObject,
                                    NifFormat.bhkRefObject))
-    
+
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.bhkNiTriStripsShape):
             for i, data in enumerate(branch.strips_data):
                 if data in [otherbranch.data
                             for otherbranch in self.nitristrips]:
-                        # detach!
-                        self.toaster.msg("detaching havok data")
-                        branch.strips_data[i] = NifFormat.NiTriStripsData().deepcopy(data)
-                        self.changed = True
+                    # detach!
+                    self.toaster.msg("detaching havok data")
+                    branch.strips_data[i] = NifFormat.NiTriStripsData().deepcopy(data)
+                    self.changed = True
             return False
         else:
             return True
+
 
 class SpellClampMaterialAlpha(NifSpell):
     """Clamp corrupted material alpha values."""
@@ -357,7 +362,7 @@ class SpellClampMaterialAlpha(NifSpell):
         # only inspect the NiAVObject branch, and material properties
         return isinstance(branch, (NifFormat.NiAVObject,
                                    NifFormat.NiMaterialProperty))
-    
+
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiMaterialProperty):
             # check if alpha exceeds usual values
@@ -379,6 +384,7 @@ class SpellClampMaterialAlpha(NifSpell):
             # keep recursing into children
             return True
 
+
 class SpellSendGeometriesToBindPosition(pyffi.spells.nif.SpellVisitSkeletonRoots):
     """Transform skinned geometries so similar bones have the same bone data,
     and hence, the same bind position, over all geometries.
@@ -390,6 +396,7 @@ class SpellSendGeometriesToBindPosition(pyffi.spells.nif.SpellVisitSkeletonRoots
         self.toaster.msg("sending geometries to bind position")
         branch.send_geometries_to_bind_position()
         self.changed = True
+
 
 class SpellSendDetachedGeometriesToNodePosition(pyffi.spells.nif.SpellVisitSkeletonRoots):
     """Transform geometries so each set of geometries that shares bones
@@ -403,6 +410,7 @@ class SpellSendDetachedGeometriesToNodePosition(pyffi.spells.nif.SpellVisitSkele
         branch.send_detached_geometries_to_node_position()
         self.changed = True
 
+
 class SpellSendBonesToBindPosition(pyffi.spells.nif.SpellVisitSkeletonRoots):
     """Transform bones so bone data agrees with bone transforms,
     and hence, all bones are in bind position.
@@ -414,6 +422,7 @@ class SpellSendBonesToBindPosition(pyffi.spells.nif.SpellVisitSkeletonRoots):
         self.toaster.msg("sending bones to bind position")
         branch.send_bones_to_bind_position()
         self.changed = True
+
 
 class SpellMergeSkeletonRoots(NifSpell):
     """Merges skeleton roots in the NIF file so that no skeleton root has
@@ -459,7 +468,7 @@ class SpellMergeSkeletonRoots(NifSpell):
     def branchinspect(self, branch):
         # only inspect the NiNode branch
         return isinstance(branch, NifFormat.NiNode)
-    
+
     def branchentry(self, branch):
         if branch in self.skelrootlist:
             result, failed = branch.merge_skeleton_roots()
@@ -473,10 +482,12 @@ class SpellMergeSkeletonRoots(NifSpell):
         else:
             return False
 
+
 class SpellApplySkinDeformation(NifSpell):
     """Apply skin deformation to nif."""
     # TODO
     pass
+
 
 class SpellScale(NifSpell):
     """Scale a model."""
@@ -512,15 +523,18 @@ class SpellScale(NifSpell):
         # continue recursion
         return True
 
+
 class SpellFixCenterRadius(pyffi.spells.nif.check.SpellCheckCenterRadius):
     """Recalculate geometry centers and radii."""
     SPELLNAME = "fix_centerradius"
     READONLY = False
 
+
 class SpellFixSkinCenterRadius(pyffi.spells.nif.check.SpellCheckSkinCenterRadius):
     """Recalculate skin centers and radii."""
     SPELLNAME = "fix_skincenterradius"
     READONLY = False
+
 
 class SpellFixMopp(pyffi.spells.nif.check.SpellCheckMopp):
     """Recalculate mopp data from collision geometry."""
@@ -538,6 +552,7 @@ class SpellFixMopp(pyffi.spells.nif.check.SpellCheckMopp):
             self.toaster.msg("updating mopp")
             branch.update_mopp()
             self.changed = True
+
 
 class SpellCleanStringPalette(NifSpell):
     """Remove unused strings from string palette."""
@@ -570,7 +585,7 @@ class SpellCleanStringPalette(NifSpell):
         >>> seq.string_palette = NifFormat.NiStringPalette()
         >>> block = seq.add_controlled_block()
         >>> block.string_palette = seq.string_palette
-        >>> block.set_variable_1("there")
+        >>> block.set_controller_id("there")
         >>> block.set_node_name("hello")
         >>> block.string_palette.palette.add_string("test")
         12
@@ -581,7 +596,7 @@ class SpellCleanStringPalette(NifSpell):
         False
         >>> seq.string_palette.palette.get_all_strings()
         [b'hello', b'there']
-        >>> block.get_variable_1()
+        >>> block.get_controller_id()
         b'there'
         >>> block.get_node_name()
         b'hello'
@@ -618,8 +633,8 @@ class SpellCleanStringPalette(NifSpell):
                     block.node_name = self.substitute(block.get_node_name())
                     block.property_type = self.substitute(block.get_property_type())
                     block.controller_type = self.substitute(block.get_controller_type())
-                    block.variable_1 = self.substitute(block.get_variable_1())
-                    block.variable_2 = self.substitute(block.get_variable_2())
+                    block.controller_id = self.substitute(block.get_controller_id())
+                    block.interpolator_id = self.substitute(block.get_interpolator_id())
                     # ensure single string palette for all controlled blocks
                     block.string_palette = string_palette
                 # ensure single string palette for all controller sequences
@@ -632,14 +647,15 @@ class SpellCleanStringPalette(NifSpell):
                     block.set_node_name(block.node_name)
                     block.set_property_type(block.property_type)
                     block.set_controller_type(block.controller_type)
-                    block.set_variable_1(block.variable_1)
-                    block.set_variable_2(block.variable_2)
+                    block.set_controller_id(block.controller_id)
+                    block.set_interpolator_id(block.interpolator_id)
             self.changed = True
             # do not recurse further
             return False
         else:
             # keep looking for managers or sequences
             return True
+
 
 class SpellFixFallout3StringOffsets(NifSpell):
     """Fix Oblivion style kf files to work with Fallout 3, by
@@ -652,10 +668,10 @@ class SpellFixFallout3StringOffsets(NifSpell):
     def datainspect(self):
         # only run the spell if it looks like an Oblivion kf
         return (
-            self.data.version == 0x14000005
-            and self.inspectblocktype(NifFormat.NiStringPalette)
-            and self.inspectblocktype(NifFormat.NiControllerSequence)
-            )
+                self.data.version == 0x14000005
+                and self.inspectblocktype(NifFormat.NiStringPalette)
+                and self.inspectblocktype(NifFormat.NiControllerSequence)
+        )
 
     def branchinspect(self, branch):
         # only inspect branches where NiControllerSequence can occur
@@ -671,7 +687,7 @@ class SpellFixFallout3StringOffsets(NifSpell):
         >>> seq.string_palette = NifFormat.NiStringPalette()
         >>> block = seq.add_controlled_block()
         >>> block.string_palette = seq.string_palette
-        >>> block.set_variable_1("there")
+        >>> block.set_controller_id("there")
         >>> block.set_node_name("hello")
         >>> block.string_palette.palette.add_string("test")
         12
@@ -681,9 +697,9 @@ class SpellFixFallout3StringOffsets(NifSpell):
         -1
         >>> block.controller_type_offset
         -1
-        >>> block.variable_1_offset
+        >>> block.controller_id_offset
         0
-        >>> block.variable_2_offset
+        >>> block.interpolator_id_offset
         -1
         >>> block.get_node_name()
         b'hello'
@@ -691,9 +707,9 @@ class SpellFixFallout3StringOffsets(NifSpell):
         b''
         >>> block.get_controller_type()
         b''
-        >>> block.get_variable_1()
+        >>> block.get_controller_id()
         b'there'
-        >>> block.get_variable_2()
+        >>> block.get_interpolator_id()
         b''
         >>> SpellFixFallout3StringOffsets().branchentry(seq)
         pyffi.toaster:INFO:updating empty links
@@ -707,9 +723,9 @@ class SpellFixFallout3StringOffsets(NifSpell):
         16
         >>> block.controller_type_offset
         16
-        >>> block.variable_1_offset
+        >>> block.controller_id_offset
         0
-        >>> block.variable_2_offset
+        >>> block.interpolator_id_offset
         16
         >>> block.get_node_name()
         b'hello'
@@ -719,13 +735,13 @@ class SpellFixFallout3StringOffsets(NifSpell):
         >>> block.get_controller_type()
         pyffi.nif.stringpalette:WARNING:StringPalette: no string starts at offset 16 (string is b'', preceeding character is b't')
         b''
-        >>> block.get_variable_1()
+        >>> block.get_controller_id()
         b'there'
-        >>> block.get_variable_2()
+        >>> block.get_interpolator_id()
         pyffi.nif.stringpalette:WARNING:StringPalette: no string starts at offset 16 (string is b'', preceeding character is b't')
         b''
         """
-        if isinstance(branch,NifFormat.NiControllerSequence):
+        if isinstance(branch, NifFormat.NiControllerSequence):
             self.toaster.msg("updating empty links")
             # use the first string palette as reference
             string_palette = branch.string_palette
@@ -740,8 +756,8 @@ class SpellFixFallout3StringOffsets(NifSpell):
                 return False
             for block in branch.controlled_blocks:
                 for attr in (
-                    "node_name", "property_type", "controller_type",
-                    "variable_1", "variable_2"):
+                        "node_name", "property_type", "controller_type",
+                        "controller_id", "interpolator_id"):
                     attr_offset = attr + "_offset"
                     offset = getattr(block, attr_offset)
                     if offset == -1:
@@ -753,6 +769,7 @@ class SpellFixFallout3StringOffsets(NifSpell):
             return False
         else:
             return True
+
 
 class SpellDelUnusedRoots(pyffi.spells.nif.NifSpell):
     """Remove root branches that shouldn't be root branches and are
@@ -798,6 +815,7 @@ class SpellDelUnusedRoots(pyffi.spells.nif.NifSpell):
             self.changed = True
         return False
 
+
 class SpellFixBhkSubShapes(NifSpell):
     """Fix bad subshape vertex counts in bhkPackedNiTriStripsShape blocks."""
 
@@ -833,9 +851,9 @@ class SpellFixBhkSubShapes(NifSpell):
                     # calculate new number of vertices
                     # if everything were to be fixed with this shape
                     sub_shape_num_vertices = (
-                        sub_shape.num_vertices
-                        + branch.data.num_vertices
-                        - num_verts_in_sub_shapes)
+                            sub_shape.num_vertices
+                            + branch.data.num_vertices
+                            - num_verts_in_sub_shapes)
                     if sub_shape_num_vertices > 0:
                         # we can do everything in the last shape
                         # so do it
@@ -851,6 +869,7 @@ class SpellFixBhkSubShapes(NifSpell):
             return False
         # recurse further
         return True
+
 
 class SpellFixEmptySkeletonRoots(NifSpell):
     """Fix empty skeleton roots in an as sane as possible way."""

@@ -1,4 +1,24 @@
-"""Defines the base class for simple types."""
+"""
+:mod:`pyffi.object_models.simple_type` --- Abstract classes for defining simple types
+=====================================================================================
+
+Defines the base class for simple types.
+
+Implementation
+--------------
+
+.. autoclass:: _MetaSimpleType
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: SimpleType
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Show examples for usage
+"""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -41,6 +61,7 @@
 
 from pyffi.object_models.any_type import AnyType
 
+
 class _MetaSimpleType(type):
     """This metaclass binds the get_value and set_value methods to the
     value property. We need a metaclass for this because properties are
@@ -48,12 +69,14 @@ class _MetaSimpleType(type):
     http://stackoverflow.com/questions/237432/python-properties-and-inheritance
     http://requires-thinking.blogspot.com/2006/03/note-to-self-python-properties-are-non.html
     """
+
     def __init__(cls, name, bases, dct):
         # call base class constructor
         super(_MetaSimpleType, cls).__init__(name, bases, dct)
         # add value property
         cls.value = property(cls.get_value, cls.set_value,
                              None, cls.value.__doc__)
+
 
 class SimpleType(AnyType, metaclass=_MetaSimpleType):
     """Base class from which all simple types are derived. Simple

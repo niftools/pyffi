@@ -1,4 +1,3 @@
-import nose
 from nose.tools import assert_equals, assert_is_none, assert_false, assert_true
 
 from pyffi.object_models.simple_type import SimpleType

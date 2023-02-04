@@ -1,6 +1,7 @@
-from tests.utils import BaseNifFileTestCase
 from nose.tools import assert_equals, assert_is
+
 from pyffi.spells.nif.optimize import SpellDelUnusedBones
+from tests.utils import BaseNifFileTestCase
 
 
 class TestDeleteUnusedBonesOptimisationNif(BaseNifFileTestCase):

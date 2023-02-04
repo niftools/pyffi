@@ -6,6 +6,24 @@
 
    The documentation of this module is very incomplete.
 
+.. toctree::
+   :maxdepth: 2
+   :titlesonly:
+
+   mex/index
+   xml/index
+   niftoolsxml/index
+   xsd/index
+
+   any_type
+   array_type
+   basic
+   binary_type
+   common
+   editable
+   expression
+   simple_type
+
 This module bundles all file format object models. An object model
 is a group of classes whose instances can hold the information
 contained in a file whose format is described in a particular way
@@ -75,10 +93,8 @@ contained in a file whose format is described in a particular way
 # ***** END LICENSE BLOCK *****
 
 import codecs
-import logging
-import os.path # os.path.altsep
-import re # compile
-import sys # version_info
+import os.path  # os.path.altsep
+import re  # compile
 
 import pyffi.utils
 import pyffi.utils.graph
@@ -151,7 +167,7 @@ class FileFormat(object):
 
     _RE_NAME_SEP = re.compile('[_\W]+')
     """Matches seperators for splitting names."""
-    
+
     _RE_NAME_DIGITS = re.compile('([0-9]+)|([a-zA-Z]+)')
     """Matches digits or characters for splitting names."""
 
@@ -377,6 +393,7 @@ class FileFormat(object):
             finally:
                 stream.close()
 
+
 class ArchiveFileFormat(FileFormat):
     """This class is the base class for all archive file formats. It
     implements incremental reading and writing of archive files.
@@ -393,7 +410,7 @@ class ArchiveFileFormat(FileFormat):
         def __init__(self, name=None, mode=None, fileobj=None):
             """Sets _stream and _mode."""
             # at least:
-            #self._stream = fileobj if fileobj else open(name, mode)
+            # self._stream = fileobj if fileobj else open(name, mode)
             raise NotImplementedError
 
         def get_members(self):
@@ -404,7 +421,7 @@ class ArchiveFileFormat(FileFormat):
 
         def close(self):
             # at least:
-            #self._stream.close()
+            # self._stream.close()
             raise NotImplementedError
 
         def read(self, stream):
@@ -418,6 +435,7 @@ class ArchiveFileFormat(FileFormat):
             self.__init__(mode='w', fileobj=stream)
             # set all members to the new stream
             self.set_members(members)
+
 
 class ArchiveMember(object):
     stream = None

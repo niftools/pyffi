@@ -2,7 +2,9 @@
 
 import os
 import os.path
+
 from nose.tools import assert_equal, assert_almost_equal, raises
+
 from tests.scripts.nif import call_niftoaster
 
 nif_dir = "tests/spells/nif/files/"
@@ -49,47 +51,47 @@ def test_check_skip_only():
     toaster = call_niftoaster(
         *("--raise --skip texture --skip skin --only fix_t --only center check_nop {0}".format(nif_dir).split()))
     assert_equal(sorted(toaster.files_done), [
-            nif_dir + 'test_centerradius.nif',
-            nif_dir + 'test_fix_tangentspace.nif'])
+        nif_dir + 'test_centerradius.nif',
+        nif_dir + 'test_fix_tangentspace.nif'])
 
     assert_equal(sorted(toaster.files_skipped), [
-            nif_dir + 'invalid.nif',
-            nif_dir + 'nds.nif',
-            nif_dir + 'neosteam.nif',
-            nif_dir + 'test.nif',
-            nif_dir + 'test_check_tangentspace1.nif',
-            nif_dir + 'test_check_tangentspace2.nif',
-            nif_dir + 'test_check_tangentspace3.nif',
-            nif_dir + 'test_check_tangentspace4.nif',
-            nif_dir + 'test_convexverticesshape.nif',
-            nif_dir + 'test_dump_tex.nif',
-            nif_dir + 'test_fix_clampmaterialalpha.nif',
-            nif_dir + 'test_fix_cleanstringpalette.nif',
-            nif_dir + 'test_fix_detachhavoktristripsdata.nif',
-            nif_dir + 'test_fix_disableparallax.nif',
-            nif_dir + 'test_fix_ffvt3rskinpartition.nif',
-            nif_dir + 'test_fix_mergeskeletonroots.nif',
-            nif_dir + 'test_fix_texturepath.nif',
-            nif_dir + 'test_grid_128x128.nif',
-            nif_dir + 'test_grid_64x64.nif',
-            nif_dir + 'test_mopp.nif',
-            nif_dir + 'test_opt_collision_complex_mopp.nif',
-            nif_dir + 'test_opt_collision_mopp.nif',
-            nif_dir + 'test_opt_collision_packed.nif',
-            nif_dir + 'test_opt_collision_to_boxshape.nif',
-            nif_dir + 'test_opt_collision_to_boxshape_notabox.nif',
-            nif_dir + 'test_opt_collision_unpacked.nif',
-            nif_dir + 'test_opt_delunusedbones.nif',
-            nif_dir + 'test_opt_dupgeomdata.nif',
-            nif_dir + 'test_opt_dupverts.nif',
-            nif_dir + 'test_opt_emptyproperties.nif',
-            nif_dir + 'test_opt_grid_layout.nif',
-            nif_dir + 'test_opt_mergeduplicates.nif',
-            nif_dir + 'test_opt_vertex_cache.nif',
-            nif_dir + 'test_opt_zeroscale.nif',
-            nif_dir + 'test_skincenterradius.nif',
-            nif_dir + 'test_vertexcolor.nif',
-            ])
+        nif_dir + 'invalid.nif',
+        nif_dir + 'nds.nif',
+        nif_dir + 'neosteam.nif',
+        nif_dir + 'test.nif',
+        nif_dir + 'test_check_tangentspace1.nif',
+        nif_dir + 'test_check_tangentspace2.nif',
+        nif_dir + 'test_check_tangentspace3.nif',
+        nif_dir + 'test_check_tangentspace4.nif',
+        nif_dir + 'test_convexverticesshape.nif',
+        nif_dir + 'test_dump_tex.nif',
+        nif_dir + 'test_fix_clampmaterialalpha.nif',
+        nif_dir + 'test_fix_cleanstringpalette.nif',
+        nif_dir + 'test_fix_detachhavoktristripsdata.nif',
+        nif_dir + 'test_fix_disableparallax.nif',
+        nif_dir + 'test_fix_ffvt3rskinpartition.nif',
+        nif_dir + 'test_fix_mergeskeletonroots.nif',
+        nif_dir + 'test_fix_texturepath.nif',
+        nif_dir + 'test_grid_128x128.nif',
+        nif_dir + 'test_grid_64x64.nif',
+        nif_dir + 'test_mopp.nif',
+        nif_dir + 'test_opt_collision_complex_mopp.nif',
+        nif_dir + 'test_opt_collision_mopp.nif',
+        nif_dir + 'test_opt_collision_packed.nif',
+        nif_dir + 'test_opt_collision_to_boxshape.nif',
+        nif_dir + 'test_opt_collision_to_boxshape_notabox.nif',
+        nif_dir + 'test_opt_collision_unpacked.nif',
+        nif_dir + 'test_opt_delunusedbones.nif',
+        nif_dir + 'test_opt_dupgeomdata.nif',
+        nif_dir + 'test_opt_dupverts.nif',
+        nif_dir + 'test_opt_emptyproperties.nif',
+        nif_dir + 'test_opt_grid_layout.nif',
+        nif_dir + 'test_opt_mergeduplicates.nif',
+        nif_dir + 'test_opt_vertex_cache.nif',
+        nif_dir + 'test_opt_zeroscale.nif',
+        nif_dir + 'test_skincenterradius.nif',
+        nif_dir + 'test_vertexcolor.nif',
+    ])
     assert_equal(toaster.files_failed, set([]))
 
 
@@ -101,7 +103,7 @@ def test_prefix_suffix():
     os.remove(nif_dir + "pre_test_suf.nif")
 
 
-#TODO Move to spell test
+# TODO Move to spell test
 def test_check_bhkbodycenter():
     """Test body centre spell"""
     testfile = nif_dir + "test_fix_detachhavoktristripsdata.nif"
@@ -128,6 +130,7 @@ def test_check_centerradius():
     assert_equal(orig_center, (-1.0, 0.0, 0.0))
     assert_almost_equal(orig_radius, 10.0)
     assert_almost_equal(calc_radius, 17.32050890)
+
 
 """
 The check_skincenterradius spell

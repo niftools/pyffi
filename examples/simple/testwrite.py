@@ -1,4 +1,5 @@
 from simple import SimpleFormat
+
 x = SimpleFormat.Data()
 x.example.num_integers = 5
 x.example.integers.update_size()

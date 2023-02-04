@@ -47,6 +47,7 @@ from pyffi.spells.cgf import CgfSpell
 # XXX do something about this...
 from pyffi.utils.mathutils import *
 
+
 class SpellReadWrite(CgfSpell):
     """Like the original read-write spell, but with additional file size
     check."""
@@ -81,13 +82,14 @@ class SpellReadWrite(CgfSpell):
         # spell is finished: prevent recursing into the tree
         return False
 
+
 class SpellCheckTangentSpace(CgfSpell):
     """This spell checks the tangent space calculation.
     Only useful for debugging.
     """
 
     SPELLNAME = "check_tangentspace"
-    SENSITIVITY = 0.1 # admissible float error (relative to one)
+    SENSITIVITY = 0.1  # admissible float error (relative to one)
 
     def datainspect(self):
         return self.inspectblocktype(CgfFormat.MeshChunk)
@@ -96,7 +98,7 @@ class SpellCheckTangentSpace(CgfSpell):
         return isinstance(branch, (CgfFormat.MeshChunk, CgfFormat.NodeChunk))
 
     def branchentry(self, branch):
-        if not isinstance(branch, CgfFormat.MeshChunk):            
+        if not isinstance(branch, CgfFormat.MeshChunk):
             # keep recursing
             return True
 
@@ -113,8 +115,8 @@ class SpellCheckTangentSpace(CgfSpell):
         self.toaster.msgblockbegin("validating and checking old with new")
 
         for norm, oldtangent, newtangent in zip(branch.normals_data.normals,
-                                                 oldtangents, newtangents):
-            #self.toaster.msg("*** %s ***" % (norm,))
+                                                oldtangents, newtangents):
+            # self.toaster.msg("*** %s ***" % (norm,))
             # check old
             norm = (norm.x, norm.y, norm.z)
             tan = tuple(x / 32767.0
@@ -149,14 +151,14 @@ class SpellCheckTangentSpace(CgfSpell):
                 self.toaster.logger.warn("%s %s" % (tan, bin))
                 self.toaster.logger.warn("(error is %f)"
                                          % abs(crossnorm - 1))
-                cross = vecscalarMul(cross, 1.0/crossnorm)
+                cross = vecscalarMul(cross, 1.0 / crossnorm)
             if vecDistance(norm, cross) > self.SENSITIVITY:
                 self.toaster.logger.warn(
                     "norm not cross product of tangent and binormal")
-                #self.toaster.logger.warn("norm                 = %s" % (norm,))
-                #self.toaster.logger.warn("tan                  = %s" % (tan,))
-                #self.toaster.logger.warn("bin                  = %s" % (bin,))
-                #self.toaster.logger.warn("tan bin cross prod   = %s" % (cross,))
+                # self.toaster.logger.warn("norm                 = %s" % (norm,))
+                # self.toaster.logger.warn("tan                  = %s" % (tan,))
+                # self.toaster.logger.warn("bin                  = %s" % (bin,))
+                # self.toaster.logger.warn("tan bin cross prod   = %s" % (cross,))
                 self.toaster.logger.warn(
                     "(error is %f)" % vecDistance(norm, cross))
 
@@ -178,6 +180,7 @@ class SpellCheckTangentSpace(CgfSpell):
                 self.toaster.logger.warn("%s %s" % (ntan, nbin))
 
         self.toaster.msgblockend()
+
 
 class SpellCheckHasVertexColors(CgfSpell):
     """This spell checks if a model has vertex colors.

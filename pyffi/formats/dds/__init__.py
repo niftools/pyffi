@@ -104,15 +104,16 @@ Get list of versions
 #
 # ***** END LICENSE BLOCK *****
 
-import struct
 import os
 import re
+import struct
 
-import pyffi.object_models.xml
-import pyffi.object_models.common
-from pyffi.object_models.xml.basic import BasicBase
 import pyffi.object_models
+import pyffi.object_models.common
+import pyffi.object_models.xml
+from pyffi.object_models.basic import BasicBase
 from pyffi.utils.graph import EdgeFilter
+
 
 class DdsFormat(pyffi.object_models.xml.FileFormat):
     """This class implements the DDS format."""
@@ -140,6 +141,7 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
 
     class HeaderString(BasicBase):
         """Basic type which implements the header of a DDS file."""
+
         def __init__(self, **kwargs):
             BasicBase.__init__(self, **kwargs)
 
@@ -198,6 +200,7 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
 
     class Data(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual dds data."""
+
         def __init__(self, version=0x09000000):
             self.version = version
             self.header = DdsFormat.Header()
@@ -221,9 +224,9 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
                     raise ValueError("Not a DDS file.")
                 size = struct.unpack("<I", stream.read(4))
                 if size == 124:
-                    self.version = 0x09000000 # DX9
+                    self.version = 0x09000000  # DX9
                 elif size == 144:
-                    self.version = 0x0A000000 # DX10
+                    self.version = 0x0A000000  # DX10
             finally:
                 stream.seek(pos)
 
@@ -243,7 +246,6 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
             finally:
                 stream.seek(pos)
 
-
         def read(self, stream, verbose=0):
             """Read a dds file.
 
@@ -261,7 +263,7 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
             if stream.read(1):
                 raise ValueError(
                     'end of file not reached: corrupt dds file?')
-            
+
         def write(self, stream, verbose=0):
             """Write a dds file.
 

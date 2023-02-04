@@ -49,8 +49,8 @@ import pyffi.spells
 import pyffi.spells.cgf
 import pyffi.spells.cgf.check
 import pyffi.spells.cgf.dump
-import pyffi.formats.cgf
 import pyffi.spells.check
+
 
 class CgfToaster(pyffi.spells.cgf.CgfToaster):
     """Class for toasting cgf files, using any of the available spells."""
@@ -75,6 +75,7 @@ class CgfToaster(pyffi.spells.cgf.CgfToaster):
 * find out time spent on a particular test:
 
     python -m cProfile -s cumulative cgftoaster.py -j 1 dump"""
+
 
 # if script is called...
 if __name__ == "__main__":

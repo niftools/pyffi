@@ -108,11 +108,11 @@ NotImplementedError
 #
 # ***** END LICENSE BLOCK *****
 
-import struct
 import os
 import re
 
 import pyffi.object_models.xsd
+
 
 class DaeFormat(pyffi.object_models.xsd.FileFormat):
     """This class implements the DAE format."""
@@ -185,4 +185,3 @@ class DaeFormat(pyffi.object_models.xsd.FileFormat):
 
     # implementation of dae-specific basic types
     # TODO
-

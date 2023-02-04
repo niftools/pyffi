@@ -37,8 +37,6 @@
 #
 # ***** END LICENSE BLOCK *****
 
-import os
-import sys
 
 def mean(vec):
     """Sample mean.
@@ -49,6 +47,7 @@ def mean(vec):
 
     return float(sum(vec)) / len(vec)
 
+
 def sd(vec):
     """Sample standard deviation.
 
@@ -57,6 +56,7 @@ def sd(vec):
     """
     m = mean(vec)
     return (float(sum((v - m) ** 2 for v in vec)) / (len(vec) - 1)) ** 0.5
+
 
 def median(vec):
     """
@@ -74,6 +74,7 @@ def median(vec):
     else:
         return 0.5 * (vec[mid] + vec[mid + 1])
 
+
 def mad(vec):
     """Median absolute deviation.
 
@@ -82,6 +83,7 @@ def mad(vec):
     """
     m = median(vec)
     return median(abs(x - m) for x in vec)
+
 
 def iqr(vec):
     """Interquartile range.
@@ -101,6 +103,7 @@ def iqr(vec):
         right = vec[mid + 1:]
     return median(right) - median(left)
 
+
 def confint(vec, robust=False):
     """Confidence interval for the population mean at 5% significance."""
     if not robust:
@@ -111,6 +114,8 @@ def confint(vec, robust=False):
         bound = 1.96 * 1.349 * iqr(vec) / (len(vec) ** 0.5)
     return center - bound, center + bound
 
+
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()

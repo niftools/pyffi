@@ -213,26 +213,25 @@ Create a CGF file from scratch
 
 import itertools
 import logging
-import struct
 import os
 import re
-import warnings
+import struct
 
-
-
-import pyffi.object_models.common
 import pyffi.object_models
+import pyffi.object_models.common
 import pyffi.object_models.xml
 import pyffi.utils.mathutils
 import pyffi.utils.tangentspace
-from pyffi.object_models.xml.basic import BasicBase
+from pyffi.object_models.basic import BasicBase
 from pyffi.utils.graph import EdgeFilter
+
 
 class _MetaCgfFormat(pyffi.object_models.xml.MetaFileFormat):
     """Metaclass which constructs the chunk map during class creation."""
+
     def __init__(cls, name, bases, dct):
         super(_MetaCgfFormat, cls).__init__(name, bases, dct)
-        
+
         # map chunk type integers to chunk type classes
         cls.CHUNK_MAP = dict(
             (getattr(cls.ChunkType, chunk_name),
@@ -240,13 +239,14 @@ class _MetaCgfFormat(pyffi.object_models.xml.MetaFileFormat):
             for chunk_name in cls.ChunkType._enumkeys
             if chunk_name != "ANY")
 
+
 class CgfFormat(pyffi.object_models.xml.FileFormat, metaclass=_MetaCgfFormat):
     """Stores all information about the cgf file format."""
     xml_file_name = 'cgf.xml'
     # where to look for cgf.xml and in what order: CGFXMLPATH env var,
     # or module directory
     xml_file_path = [os.getenv('CGFXMLPATH'), os.path.dirname(__file__)]
-    EPSILON = 0.0001 # used for comparing floats
+    EPSILON = 0.0001  # used for comparing floats
     # regular expression for file name extension matching on cgf files
     RE_FILENAME = re.compile(r'^.*\.(cgf|cga|chr|caf)$', re.IGNORECASE)
 
@@ -271,7 +271,7 @@ class CgfFormat(pyffi.object_models.xml.FileFormat, metaclass=_MetaCgfFormat):
     String = pyffi.object_models.common.ZString
     SizedString = pyffi.object_models.common.SizedString
 
-     # implementation of cgf-specific basic types
+    # implementation of cgf-specific basic types
 
     class String16(pyffi.object_models.common.FixedString):
         """String of fixed length 16."""
@@ -296,6 +296,7 @@ class CgfFormat(pyffi.object_models.xml.FileFormat, metaclass=_MetaCgfFormat):
     class FileSignature(BasicBase):
         """The CryTek file signature with which every
         cgf file starts."""
+
         def __init__(self, **kwargs):
             super(CgfFormat.FileSignature, self).__init__(**kwargs)
 
@@ -359,6 +360,7 @@ class CgfFormat(pyffi.object_models.xml.FileFormat, metaclass=_MetaCgfFormat):
         _is_template = True
         _has_links = True
         _has_refs = True
+
         def __init__(self, **kwargs):
             super(CgfFormat.Ref, self).__init__(**kwargs)
             self._template = kwargs.get('template', type(None))
@@ -383,7 +385,7 @@ class CgfFormat(pyffi.object_models.xml.FileFormat, metaclass=_MetaCgfFormat):
                 if not isinstance(value, self._template):
                     raise TypeError(
                         'expected an instance of %s but got instance of %s'
-                        %(self._template, value.__class__))
+                        % (self._template, value.__class__))
                 self._value = value
 
         def read(self, stream, data):
@@ -392,7 +394,7 @@ class CgfFormat(pyffi.object_models.xml.FileFormat, metaclass=_MetaCgfFormat):
             :param stream: The stream to read from.
             :type stream: file
             """
-            self._value = None # fix_links will set this field
+            self._value = None  # fix_links will set this field
             block_index, = struct.unpack('<i', stream.read(4))
             data._link_stack.append(block_index)
 
@@ -467,8 +469,8 @@ but got instance of %s""" % (self._template, block.__class__))
         def __str__(self):
             # don't recurse
             if self._value != None:
-                return '%s instance at 0x%08X'\
-                       % (self._value.__class__, id(self._value))
+                return '%s instance at 0x%08X' \
+                    % (self._value.__class__, id(self._value))
             else:
                 return 'None'
 
@@ -495,8 +497,8 @@ but got instance of %s""" % (self._template, block.__class__))
         def __str__(self):
             # avoid infinite recursion
             if self._value != None:
-                return '%s instance at 0x%08X'\
-                       % (self._value.__class__, id(self._value))
+                return '%s instance at 0x%08X' \
+                    % (self._value.__class__, id(self._value))
             else:
                 return 'None'
 
@@ -559,7 +561,7 @@ but got instance of %s""" % (self._template, block.__class__))
             # create new header
             self.header = CgfFormat.Header()
             self.header.type = filetype
-            self.header.version = 0x744 # no other chunk table versions
+            self.header.version = 0x744  # no other chunk table versions
             # empty list of chunks
             self.chunks = []
             # empty list of versions (one per chunk)
@@ -613,7 +615,7 @@ but got instance of %s""" % (self._template, block.__class__))
 
             # test the data
             if (signat[:6] != "CryTek".encode("ascii")
-                and signat[:6] != "NCAion".encode("ascii")):
+                    and signat[:6] != "NCAion".encode("ascii")):
                 raise ValueError(
                     "Invalid signature (got '%s' instead of 'CryTek' or 'NCAion')"
                     % signat[:6])
@@ -668,7 +670,7 @@ but got instance of %s""" % (self._template, block.__class__))
                     self.chunks[i] = newbranch
                 else:
                     chunk.replace_global_node(oldbranch, newbranch,
-                                            edge_filter=edge_filter)
+                                              edge_filter=edge_filter)
 
         def get_detail_child_nodes(self, edge_filter=EdgeFilter()):
             yield self.header
@@ -709,8 +711,8 @@ but got instance of %s""" % (self._template, block.__class__))
             :param stream: The stream from which to read.
             :type stream: ``file``
             """
-            validate = True # whether we validate on reading
-            
+            validate = True  # whether we validate on reading
+
             logger = logging.getLogger("pyffi.cgf.data")
             self.inspect(stream)
 
@@ -739,27 +741,27 @@ but got instance of %s""" % (self._template, block.__class__))
                         chunk_sizes.append(stream.tell() - chunkhdr.offset)
 
             # read the chunks
-            self._link_stack = [] # list of chunk identifiers, as added to the stack
-            self._block_dct = {} # maps chunk index to actual chunk
-            self.chunks = [] # records all chunks as read from cgf file in proper order
-            self.versions = [] # records all chunk versions as read from cgf file
+            self._link_stack = []  # list of chunk identifiers, as added to the stack
+            self._block_dct = {}  # maps chunk index to actual chunk
+            self.chunks = []  # records all chunks as read from cgf file in proper order
+            self.versions = []  # records all chunk versions as read from cgf file
             for chunknum, chunkhdr in enumerate(self.chunk_table.chunk_headers):
                 # check that id is unique
                 if chunkhdr.id in self._block_dct:
-                    raise ValueError('chunk id %i not unique'%chunkhdr.id)
+                    raise ValueError('chunk id %i not unique' % chunkhdr.id)
 
                 # get chunk type
                 for chunk_type in chunk_types:
                     if getattr(CgfFormat.ChunkType, chunk_type) == chunkhdr.type:
                         break
                 else:
-                    raise ValueError('unknown chunk type 0x%08X'%chunkhdr.type)
+                    raise ValueError('unknown chunk type 0x%08X' % chunkhdr.type)
                 try:
                     chunk = getattr(CgfFormat, '%sChunk' % chunk_type)()
                 except AttributeError:
                     raise ValueError(
                         'undecoded chunk type 0x%08X (%sChunk)'
-                        %(chunkhdr.type, chunk_type))
+                        % (chunkhdr.type, chunk_type))
                 # check the chunk version
                 if not self.game in chunk.get_games():
                     logger.error(
@@ -781,34 +783,34 @@ but got instance of %s""" % (self._template, block.__class__))
                 # in far cry, most chunks start with a copy of chunkhdr
                 # in crysis, more chunks start with chunkhdr
                 # caf files are special: they don't have headers on controllers
-                if not(self.user_version == CgfFormat.UVER_FARCRY
-                       and chunkhdr.type in [
-                           CgfFormat.ChunkType.SourceInfo,
-                           CgfFormat.ChunkType.BoneNameList,
-                           CgfFormat.ChunkType.BoneLightBinding,
-                           CgfFormat.ChunkType.BoneInitialPos,
-                           CgfFormat.ChunkType.MeshMorphTarget]) \
-                    and not(self.user_version == CgfFormat.UVER_CRYSIS
-                            and chunkhdr.type in [
-                                CgfFormat.ChunkType.BoneNameList,
-                                CgfFormat.ChunkType.BoneInitialPos]) \
-                    and not(is_caf
-                            and chunkhdr.type in [
-                                CgfFormat.ChunkType.Controller]) \
-                    and not((self.game == "Aion") and chunkhdr.type in [
-                        CgfFormat.ChunkType.MeshPhysicsData,
-                        CgfFormat.ChunkType.MtlName]):
+                if not (self.user_version == CgfFormat.UVER_FARCRY
+                        and chunkhdr.type in [
+                            CgfFormat.ChunkType.SourceInfo,
+                            CgfFormat.ChunkType.BoneNameList,
+                            CgfFormat.ChunkType.BoneLightBinding,
+                            CgfFormat.ChunkType.BoneInitialPos,
+                            CgfFormat.ChunkType.MeshMorphTarget]) \
+                        and not (self.user_version == CgfFormat.UVER_CRYSIS
+                                 and chunkhdr.type in [
+                                     CgfFormat.ChunkType.BoneNameList,
+                                     CgfFormat.ChunkType.BoneInitialPos]) \
+                        and not (is_caf
+                                 and chunkhdr.type in [
+                                     CgfFormat.ChunkType.Controller]) \
+                        and not ((self.game == "Aion") and chunkhdr.type in [
+                    CgfFormat.ChunkType.MeshPhysicsData,
+                    CgfFormat.ChunkType.MtlName]):
                     chunkhdr_copy = CgfFormat.ChunkHeader()
                     chunkhdr_copy.read(stream, self)
                     # check that the copy is valid
                     # note: chunkhdr_copy.offset != chunkhdr.offset check removed
                     # as many crysis cgf files have this wrong
                     if chunkhdr_copy.type != chunkhdr.type \
-                       or chunkhdr_copy.version != chunkhdr.version \
-                       or chunkhdr_copy.id != chunkhdr.id:
+                            or chunkhdr_copy.version != chunkhdr.version \
+                            or chunkhdr_copy.id != chunkhdr.id:
                         raise ValueError(
                             'chunk starts with invalid header:\n\
-expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
+expected\n%sbut got\n%s' % (chunkhdr, chunkhdr_copy))
                 else:
                     chunkhdr_copy = None
 
@@ -838,15 +840,15 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
                         logger.error("""\
 get_size returns wrong size when reading %s at 0x%08X
 actual bytes read is %i, get_size yields %i (expected %i bytes)"""
-                                    % (chunk.__class__.__name__,
-                                       chunkhdr.offset,
-                                       size,
-                                       stream.tell() - chunkhdr.offset,
-                                       chunk_sizes[chunknum]))
+                                     % (chunk.__class__.__name__,
+                                        chunkhdr.offset,
+                                        size,
+                                        stream.tell() - chunkhdr.offset,
+                                        chunk_sizes[chunknum]))
                     # check for padding bytes
                     if chunk_sizes[chunknum] & 3 == 0:
                         padlen = ((4 - size & 3) & 3)
-                        #assert(stream.read(padlen) == '\x00' * padlen)
+                        # assert(stream.read(padlen) == '\x00' * padlen)
                         size += padlen
                     # check size
                     if size != chunk_sizes[chunknum]:
@@ -862,7 +864,7 @@ chunk size mismatch when reading %s at 0x%08X
                 # (quick hackish trick with version)
                 self.version = chunkversion
                 try:
-                    #print(chunk.__class__)
+                    # print(chunk.__class__)
                     chunk.fix_links(self)
                 finally:
                     self.version = self.header.version
@@ -891,7 +893,7 @@ chunk size mismatch when reading %s at 0x%08X
 
             # write header
             hdr_pos = stream.tell()
-            self.header.offset = -1 # is set at the end
+            self.header.offset = -1  # is set at the end
             self.header.write(stream, self)
 
             # chunk id is simply its index in the chunks list
@@ -902,7 +904,7 @@ chunk size mismatch when reading %s at 0x%08X
             self.chunk_table = CgfFormat.ChunkTable()
             self.chunk_table.num_chunks = len(self.chunks)
             self.chunk_table.chunk_headers.update_size()
-            #print(self.chunk_table) # DEBUG
+            # print(self.chunk_table) # DEBUG
 
             # crysis: write chunk table now
             if self.user_version == CgfFormat.UVER_CRYSIS:
@@ -911,7 +913,8 @@ chunk size mismatch when reading %s at 0x%08X
 
             for chunkhdr, chunk, chunkversion in zip(self.chunk_table.chunk_headers,
                                                      self.chunks, self.versions):
-                logger.debug("Writing %s chunk version 0x%08X at 0x%08X" % (chunk.__class__.__name__, chunkhdr.version, stream.tell()))
+                logger.debug("Writing %s chunk version 0x%08X at 0x%08X" % (
+                    chunk.__class__.__name__, chunkhdr.version, stream.tell()))
 
                 # set up chunk header
                 chunkhdr.type = getattr(
@@ -920,21 +923,21 @@ chunk size mismatch when reading %s at 0x%08X
                 chunkhdr.offset = stream.tell()
                 chunkhdr.id = self._block_index_dct[chunk]
                 # write chunk header
-                if not(self.user_version == CgfFormat.UVER_FARCRY
-                       and chunkhdr.type in [
-                           CgfFormat.ChunkType.SourceInfo,
-                           CgfFormat.ChunkType.BoneNameList,
-                           CgfFormat.ChunkType.BoneLightBinding,
-                           CgfFormat.ChunkType.BoneInitialPos,
-                           CgfFormat.ChunkType.MeshMorphTarget]) \
-                    and not(self.user_version == CgfFormat.UVER_CRYSIS
-                            and chunkhdr.type in [
-                                CgfFormat.ChunkType.BoneNameList,
-                                CgfFormat.ChunkType.BoneInitialPos]) \
-                    and not(is_caf
-                            and chunkhdr.type in [
-                                CgfFormat.ChunkType.Controller]):
-                    #print(chunkhdr) # DEBUG
+                if not (self.user_version == CgfFormat.UVER_FARCRY
+                        and chunkhdr.type in [
+                            CgfFormat.ChunkType.SourceInfo,
+                            CgfFormat.ChunkType.BoneNameList,
+                            CgfFormat.ChunkType.BoneLightBinding,
+                            CgfFormat.ChunkType.BoneInitialPos,
+                            CgfFormat.ChunkType.MeshMorphTarget]) \
+                        and not (self.user_version == CgfFormat.UVER_CRYSIS
+                                 and chunkhdr.type in [
+                                     CgfFormat.ChunkType.BoneNameList,
+                                     CgfFormat.ChunkType.BoneInitialPos]) \
+                        and not (is_caf
+                                 and chunkhdr.type in [
+                                     CgfFormat.ChunkType.Controller]):
+                    # print(chunkhdr) # DEBUG
                     chunkhdr.write(stream, self)
                 # write chunk (with version hack)
                 self.version = chunkversion
@@ -981,7 +984,7 @@ chunk size mismatch when reading %s at 0x%08X
     # extensions of generated structures
 
     class Chunk:
-        def tree(self, block_type = None, follow_all = True):
+        def tree(self, block_type=None, follow_all=True):
             """A generator for parsing all blocks in the tree (starting from and
             including C{self}).
 
@@ -993,11 +996,11 @@ chunk size mismatch when reading %s at 0x%08X
             elif isinstance(self, block_type):
                 yield self
             elif not follow_all:
-                return # don't recurse further
+                return  # don't recurse further
 
             # yield tree attached to each child
             for child in self.get_refs():
-                for block in child.tree(block_type = block_type, follow_all = follow_all):
+                for block in child.tree(block_type=block_type, follow_all=follow_all):
                     yield block
 
         def apply_scale(self, scale):
@@ -1044,7 +1047,7 @@ chunk size mismatch when reading %s at 0x%08X
                 [self.m_11, self.m_12, self.m_13],
                 [self.m_21, self.m_22, self.m_23],
                 [self.m_31, self.m_32, self.m_33]
-                ]
+            ]
 
         def as_tuple(self):
             """Return matrix as 3x3 tuple."""
@@ -1052,14 +1055,14 @@ chunk size mismatch when reading %s at 0x%08X
                 (self.m_11, self.m_12, self.m_13),
                 (self.m_21, self.m_22, self.m_23),
                 (self.m_31, self.m_32, self.m_33)
-                )
+            )
 
         def __str__(self):
-            return(
-                "[ %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f ]\n"
-                % (self.m_11, self.m_12, self.m_13,
-                   self.m_21, self.m_22, self.m_23,
-                   self.m_31, self.m_32, self.m_33))
+            return (
+                    "[ %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f ]\n"
+                    % (self.m_11, self.m_12, self.m_13,
+                       self.m_21, self.m_22, self.m_23,
+                       self.m_31, self.m_32, self.m_33))
 
         def set_identity(self):
             """Set to identity matrix."""
@@ -1075,15 +1078,15 @@ chunk size mismatch when reading %s at 0x%08X
 
         def is_identity(self):
             """Return ``True`` if the matrix is close to identity."""
-            if  (abs(self.m_11 - 1.0) > CgfFormat.EPSILON
-                 or abs(self.m_12) > CgfFormat.EPSILON
-                 or abs(self.m_13) > CgfFormat.EPSILON
-                 or abs(self.m_21) > CgfFormat.EPSILON
-                 or abs(self.m_22 - 1.0) > CgfFormat.EPSILON
-                 or abs(self.m_23) > CgfFormat.EPSILON
-                 or abs(self.m_31) > CgfFormat.EPSILON
-                 or abs(self.m_32) > CgfFormat.EPSILON
-                 or abs(self.m_33 - 1.0) > CgfFormat.EPSILON):
+            if (abs(self.m_11 - 1.0) > CgfFormat.EPSILON
+                    or abs(self.m_12) > CgfFormat.EPSILON
+                    or abs(self.m_13) > CgfFormat.EPSILON
+                    or abs(self.m_21) > CgfFormat.EPSILON
+                    or abs(self.m_22 - 1.0) > CgfFormat.EPSILON
+                    or abs(self.m_23) > CgfFormat.EPSILON
+                    or abs(self.m_31) > CgfFormat.EPSILON
+                    or abs(self.m_32) > CgfFormat.EPSILON
+                    or abs(self.m_33 - 1.0) > CgfFormat.EPSILON):
                 return False
             else:
                 return True
@@ -1145,19 +1148,19 @@ chunk size mismatch when reading %s at 0x%08X
                 return False
             scale = self.get_scale()
             if abs(scale.x - 1.0) > 0.01 \
-               or abs(scale.y - 1.0) > 0.01 \
-               or abs(scale.z - 1.0) > 0.01:
+                    or abs(scale.y - 1.0) > 0.01 \
+                    or abs(scale.z - 1.0) > 0.01:
                 return False
             return True
 
         def get_determinant(self):
             """Return determinant."""
-            return (self.m_11*self.m_22*self.m_33
-                    +self.m_12*self.m_23*self.m_31
-                    +self.m_13*self.m_21*self.m_32
-                    -self.m_31*self.m_22*self.m_13
-                    -self.m_21*self.m_12*self.m_33
-                    -self.m_11*self.m_32*self.m_23)
+            return (self.m_11 * self.m_22 * self.m_33
+                    + self.m_12 * self.m_23 * self.m_31
+                    + self.m_13 * self.m_21 * self.m_32
+                    - self.m_31 * self.m_22 * self.m_13
+                    - self.m_21 * self.m_12 * self.m_33
+                    - self.m_11 * self.m_32 * self.m_23)
 
         def get_scale(self):
             """Gets the scale (assuming is_scale_rotation is true!)."""
@@ -1224,31 +1227,30 @@ chunk size mismatch when reading %s at 0x%08X
 
             if trace > CgfFormat.EPSILON:
                 s = (trace ** 0.5) * 2
-                quat.x = -( rot.m_32 - rot.m_23 ) / s
-                quat.y = -( rot.m_13 - rot.m_31 ) / s
-                quat.z = -( rot.m_21 - rot.m_12 ) / s
+                quat.x = -(rot.m_32 - rot.m_23) / s
+                quat.y = -(rot.m_13 - rot.m_31) / s
+                quat.z = -(rot.m_21 - rot.m_12) / s
                 quat.w = 0.25 * s
             elif rot.m_11 > max((rot.m_22, rot.m_33)):
-                s  = (( 1.0 + rot.m_11 - rot.m_22 - rot.m_33 ) ** 0.5) * 2
+                s = ((1.0 + rot.m_11 - rot.m_22 - rot.m_33) ** 0.5) * 2
                 quat.x = 0.25 * s
-                quat.y = (rot.m_21 + rot.m_12 ) / s
-                quat.z = (rot.m_13 + rot.m_31 ) / s
-                quat.w = -(rot.m_32 - rot.m_23 ) / s
+                quat.y = (rot.m_21 + rot.m_12) / s
+                quat.z = (rot.m_13 + rot.m_31) / s
+                quat.w = -(rot.m_32 - rot.m_23) / s
             elif rot.m_22 > rot.m_33:
-                s  = (( 1.0 + rot.m_22 - rot.m_11 - rot.m_33 ) ** 0.5) * 2
-                quat.x = (rot.m_21 + rot.m_12 ) / s
+                s = ((1.0 + rot.m_22 - rot.m_11 - rot.m_33) ** 0.5) * 2
+                quat.x = (rot.m_21 + rot.m_12) / s
                 quat.y = 0.25 * s
-                quat.z = (rot.m_32 + rot.m_23 ) / s
-                quat.w = -(rot.m_13 - rot.m_31 ) / s
+                quat.z = (rot.m_32 + rot.m_23) / s
+                quat.w = -(rot.m_13 - rot.m_31) / s
             else:
-                s  = (( 1.0 + rot.m_33 - rot.m_11 - rot.m_22 ) ** 0.5) * 2
-                quat.x = (rot.m_13 + rot.m_31 ) / s
-                quat.y = (rot.m_32 + rot.m_23 ) / s
+                s = ((1.0 + rot.m_33 - rot.m_11 - rot.m_22) ** 0.5) * 2
+                quat.x = (rot.m_13 + rot.m_31) / s
+                quat.y = (rot.m_32 + rot.m_23) / s
                 quat.z = 0.25 * s
-                quat.w = -(rot.m_21 - rot.m_12 ) / s
+                quat.w = -(rot.m_21 - rot.m_12) / s
 
             return scale, quat
-
 
         def get_inverse(self):
             """Get inverse (assuming is_scale_rotation is true!)."""
@@ -1296,7 +1298,7 @@ chunk size mismatch when reading %s at 0x%08X
                 return mat
             else:
                 raise TypeError(
-                    "do not know how to multiply Matrix33 with %s"%rhs.__class__)
+                    "do not know how to multiply Matrix33 with %s" % rhs.__class__)
 
         def __div__(self, rhs):
             if isinstance(rhs, (float, int)):
@@ -1313,28 +1315,28 @@ chunk size mismatch when reading %s at 0x%08X
                 return mat
             else:
                 raise TypeError(
-                    "do not know how to divide Matrix33 by %s"%rhs.__class__)
+                    "do not know how to divide Matrix33 by %s" % rhs.__class__)
 
         def __rmul__(self, lhs):
             if isinstance(lhs, (float, int)):
-                return self * lhs # commutes
+                return self * lhs  # commutes
             else:
                 raise TypeError(
-                    "do not know how to multiply %s with Matrix33"%lhs.__class__)
+                    "do not know how to multiply %s with Matrix33" % lhs.__class__)
 
         def __eq__(self, mat):
             if not isinstance(mat, CgfFormat.Matrix33):
                 raise TypeError(
-                    "do not know how to compare Matrix33 and %s"%mat.__class__)
+                    "do not know how to compare Matrix33 and %s" % mat.__class__)
             if (abs(self.m_11 - mat.m_11) > CgfFormat.EPSILON
-                or abs(self.m_12 - mat.m_12) > CgfFormat.EPSILON
-                or abs(self.m_13 - mat.m_13) > CgfFormat.EPSILON
-                or abs(self.m_21 - mat.m_21) > CgfFormat.EPSILON
-                or abs(self.m_22 - mat.m_22) > CgfFormat.EPSILON
-                or abs(self.m_23 - mat.m_23) > CgfFormat.EPSILON
-                or abs(self.m_31 - mat.m_31) > CgfFormat.EPSILON
-                or abs(self.m_32 - mat.m_32) > CgfFormat.EPSILON
-                or abs(self.m_33 - mat.m_33) > CgfFormat.EPSILON):
+                    or abs(self.m_12 - mat.m_12) > CgfFormat.EPSILON
+                    or abs(self.m_13 - mat.m_13) > CgfFormat.EPSILON
+                    or abs(self.m_21 - mat.m_21) > CgfFormat.EPSILON
+                    or abs(self.m_22 - mat.m_22) > CgfFormat.EPSILON
+                    or abs(self.m_23 - mat.m_23) > CgfFormat.EPSILON
+                    or abs(self.m_31 - mat.m_31) > CgfFormat.EPSILON
+                    or abs(self.m_32 - mat.m_32) > CgfFormat.EPSILON
+                    or abs(self.m_33 - mat.m_33) > CgfFormat.EPSILON):
                 return False
             return True
 
@@ -1349,7 +1351,7 @@ chunk size mismatch when reading %s at 0x%08X
                 [self.m_21, self.m_22, self.m_23, self.m_24],
                 [self.m_31, self.m_32, self.m_33, self.m_34],
                 [self.m_41, self.m_42, self.m_43, self.m_44]
-                ]
+            ]
 
         def as_tuple(self):
             """Return matrix as 4x4 tuple."""
@@ -1358,7 +1360,7 @@ chunk size mismatch when reading %s at 0x%08X
                 (self.m_21, self.m_22, self.m_23, self.m_24),
                 (self.m_31, self.m_32, self.m_33, self.m_34),
                 (self.m_41, self.m_42, self.m_43, self.m_44)
-                )
+            )
 
         def set_rows(self, row0, row1, row2, row3):
             """Set matrix from rows."""
@@ -1368,15 +1370,15 @@ chunk size mismatch when reading %s at 0x%08X
             self.m_41, self.m_42, self.m_43, self.m_44 = row3
 
         def __str__(self):
-            return(
-                '[ %6.3f %6.3f %6.3f %6.3f ]\n'
-                '[ %6.3f %6.3f %6.3f %6.3f ]\n'
-                '[ %6.3f %6.3f %6.3f %6.3f ]\n'
-                '[ %6.3f %6.3f %6.3f %6.3f ]\n'
-                % (self.m_11, self.m_12, self.m_13, self.m_14,
-                   self.m_21, self.m_22, self.m_23, self.m_24,
-                   self.m_31, self.m_32, self.m_33, self.m_34,
-                   self.m_41, self.m_42, self.m_43, self.m_44))
+            return (
+                    '[ %6.3f %6.3f %6.3f %6.3f ]\n'
+                    '[ %6.3f %6.3f %6.3f %6.3f ]\n'
+                    '[ %6.3f %6.3f %6.3f %6.3f ]\n'
+                    '[ %6.3f %6.3f %6.3f %6.3f ]\n'
+                    % (self.m_11, self.m_12, self.m_13, self.m_14,
+                       self.m_21, self.m_22, self.m_23, self.m_24,
+                       self.m_31, self.m_32, self.m_33, self.m_34,
+                       self.m_41, self.m_42, self.m_43, self.m_44))
 
         def set_identity(self):
             """Set to identity matrix."""
@@ -1400,21 +1402,21 @@ chunk size mismatch when reading %s at 0x%08X
         def is_identity(self):
             """Return ``True`` if the matrix is close to identity."""
             if (abs(self.m_11 - 1.0) > CgfFormat.EPSILON
-                or abs(self.m_12) > CgfFormat.EPSILON
-                or abs(self.m_13) > CgfFormat.EPSILON
-                or abs(self.m_14) > CgfFormat.EPSILON
-                or abs(self.m_21) > CgfFormat.EPSILON
-                or abs(self.m_22 - 1.0) > CgfFormat.EPSILON
-                or abs(self.m_23) > CgfFormat.EPSILON
-                or abs(self.m_24) > CgfFormat.EPSILON
-                or abs(self.m_31) > CgfFormat.EPSILON
-                or abs(self.m_32) > CgfFormat.EPSILON
-                or abs(self.m_33 - 1.0) > CgfFormat.EPSILON
-                or abs(self.m_34) > CgfFormat.EPSILON
-                or abs(self.m_41) > CgfFormat.EPSILON
-                or abs(self.m_42) > CgfFormat.EPSILON
-                or abs(self.m_43) > CgfFormat.EPSILON
-                or abs(self.m_44 - 1.0) > CgfFormat.EPSILON):
+                    or abs(self.m_12) > CgfFormat.EPSILON
+                    or abs(self.m_13) > CgfFormat.EPSILON
+                    or abs(self.m_14) > CgfFormat.EPSILON
+                    or abs(self.m_21) > CgfFormat.EPSILON
+                    or abs(self.m_22 - 1.0) > CgfFormat.EPSILON
+                    or abs(self.m_23) > CgfFormat.EPSILON
+                    or abs(self.m_24) > CgfFormat.EPSILON
+                    or abs(self.m_31) > CgfFormat.EPSILON
+                    or abs(self.m_32) > CgfFormat.EPSILON
+                    or abs(self.m_33 - 1.0) > CgfFormat.EPSILON
+                    or abs(self.m_34) > CgfFormat.EPSILON
+                    or abs(self.m_41) > CgfFormat.EPSILON
+                    or abs(self.m_42) > CgfFormat.EPSILON
+                    or abs(self.m_43) > CgfFormat.EPSILON
+                    or abs(self.m_44 - 1.0) > CgfFormat.EPSILON):
                 return False
             else:
                 return True
@@ -1537,6 +1539,7 @@ chunk size mismatch when reading %s at 0x%08X
 
         def get_inverse(self, fast=True):
             """Calculates inverse (fast assumes is_scale_rotation_translation is True)."""
+
             def adjoint(m, ii, jj):
                 result = []
                 for i, row in enumerate(m):
@@ -1546,9 +1549,10 @@ chunk size mismatch when reading %s at 0x%08X
                         if j == jj: continue
                         result[-1].append(x)
                 return result
+
             def determinant(m):
                 if len(m) == 2:
-                    return m[0][0]*m[1][1] - m[1][0]*m[0][1]
+                    return m[0][0] * m[1][1] - m[1][0] * m[0][1]
                 result = 0.0
                 for i in range(len(m)):
                     det = determinant(adjoint(m, i, 0))
@@ -1575,10 +1579,10 @@ chunk size mismatch when reading %s at 0x%08X
                 nn = [[0.0 for i in range(4)] for j in range(4)]
                 det = determinant(m)
                 if abs(det) < CgfFormat.EPSILON:
-                    raise ZeroDivisionError('cannot invert matrix:\n%s'%self)
+                    raise ZeroDivisionError('cannot invert matrix:\n%s' % self)
                 for i in range(4):
                     for j in range(4):
-                        if (i+j) & 1:
+                        if (i + j) & 1:
                             nn[j][i] = -determinant(adjoint(m, i, j)) / det
                         else:
                             nn[j][i] = determinant(adjoint(m, i, j)) / det
@@ -1612,25 +1616,25 @@ chunk size mismatch when reading %s at 0x%08X
                 raise TypeError("matrix*vector not supported; please use left multiplication (vector*matrix)")
             elif isinstance(x, CgfFormat.Matrix44):
                 m = CgfFormat.Matrix44()
-                m.m_11 = self.m_11 * x.m_11  +  self.m_12 * x.m_21  +  self.m_13 * x.m_31  +  self.m_14 * x.m_41
-                m.m_12 = self.m_11 * x.m_12  +  self.m_12 * x.m_22  +  self.m_13 * x.m_32  +  self.m_14 * x.m_42
-                m.m_13 = self.m_11 * x.m_13  +  self.m_12 * x.m_23  +  self.m_13 * x.m_33  +  self.m_14 * x.m_43
-                m.m_14 = self.m_11 * x.m_14  +  self.m_12 * x.m_24  +  self.m_13 * x.m_34  +  self.m_14 * x.m_44
-                m.m_21 = self.m_21 * x.m_11  +  self.m_22 * x.m_21  +  self.m_23 * x.m_31  +  self.m_24 * x.m_41
-                m.m_22 = self.m_21 * x.m_12  +  self.m_22 * x.m_22  +  self.m_23 * x.m_32  +  self.m_24 * x.m_42
-                m.m_23 = self.m_21 * x.m_13  +  self.m_22 * x.m_23  +  self.m_23 * x.m_33  +  self.m_24 * x.m_43
-                m.m_24 = self.m_21 * x.m_14  +  self.m_22 * x.m_24  +  self.m_23 * x.m_34  +  self.m_24 * x.m_44
-                m.m_31 = self.m_31 * x.m_11  +  self.m_32 * x.m_21  +  self.m_33 * x.m_31  +  self.m_34 * x.m_41
-                m.m_32 = self.m_31 * x.m_12  +  self.m_32 * x.m_22  +  self.m_33 * x.m_32  +  self.m_34 * x.m_42
-                m.m_33 = self.m_31 * x.m_13  +  self.m_32 * x.m_23  +  self.m_33 * x.m_33  +  self.m_34 * x.m_43
-                m.m_34 = self.m_31 * x.m_14  +  self.m_32 * x.m_24  +  self.m_33 * x.m_34  +  self.m_34 * x.m_44
-                m.m_41 = self.m_41 * x.m_11  +  self.m_42 * x.m_21  +  self.m_43 * x.m_31  +  self.m_44 * x.m_41
-                m.m_42 = self.m_41 * x.m_12  +  self.m_42 * x.m_22  +  self.m_43 * x.m_32  +  self.m_44 * x.m_42
-                m.m_43 = self.m_41 * x.m_13  +  self.m_42 * x.m_23  +  self.m_43 * x.m_33  +  self.m_44 * x.m_43
-                m.m_44 = self.m_41 * x.m_14  +  self.m_42 * x.m_24  +  self.m_43 * x.m_34  +  self.m_44 * x.m_44
+                m.m_11 = self.m_11 * x.m_11 + self.m_12 * x.m_21 + self.m_13 * x.m_31 + self.m_14 * x.m_41
+                m.m_12 = self.m_11 * x.m_12 + self.m_12 * x.m_22 + self.m_13 * x.m_32 + self.m_14 * x.m_42
+                m.m_13 = self.m_11 * x.m_13 + self.m_12 * x.m_23 + self.m_13 * x.m_33 + self.m_14 * x.m_43
+                m.m_14 = self.m_11 * x.m_14 + self.m_12 * x.m_24 + self.m_13 * x.m_34 + self.m_14 * x.m_44
+                m.m_21 = self.m_21 * x.m_11 + self.m_22 * x.m_21 + self.m_23 * x.m_31 + self.m_24 * x.m_41
+                m.m_22 = self.m_21 * x.m_12 + self.m_22 * x.m_22 + self.m_23 * x.m_32 + self.m_24 * x.m_42
+                m.m_23 = self.m_21 * x.m_13 + self.m_22 * x.m_23 + self.m_23 * x.m_33 + self.m_24 * x.m_43
+                m.m_24 = self.m_21 * x.m_14 + self.m_22 * x.m_24 + self.m_23 * x.m_34 + self.m_24 * x.m_44
+                m.m_31 = self.m_31 * x.m_11 + self.m_32 * x.m_21 + self.m_33 * x.m_31 + self.m_34 * x.m_41
+                m.m_32 = self.m_31 * x.m_12 + self.m_32 * x.m_22 + self.m_33 * x.m_32 + self.m_34 * x.m_42
+                m.m_33 = self.m_31 * x.m_13 + self.m_32 * x.m_23 + self.m_33 * x.m_33 + self.m_34 * x.m_43
+                m.m_34 = self.m_31 * x.m_14 + self.m_32 * x.m_24 + self.m_33 * x.m_34 + self.m_34 * x.m_44
+                m.m_41 = self.m_41 * x.m_11 + self.m_42 * x.m_21 + self.m_43 * x.m_31 + self.m_44 * x.m_41
+                m.m_42 = self.m_41 * x.m_12 + self.m_42 * x.m_22 + self.m_43 * x.m_32 + self.m_44 * x.m_42
+                m.m_43 = self.m_41 * x.m_13 + self.m_42 * x.m_23 + self.m_43 * x.m_33 + self.m_44 * x.m_43
+                m.m_44 = self.m_41 * x.m_14 + self.m_42 * x.m_24 + self.m_43 * x.m_34 + self.m_44 * x.m_44
                 return m
             else:
-                raise TypeError("do not know how to multiply Matrix44 with %s"%x.__class__)
+                raise TypeError("do not know how to multiply Matrix44 with %s" % x.__class__)
 
         def __div__(self, x):
             if isinstance(x, (float, int)):
@@ -1653,19 +1657,19 @@ chunk size mismatch when reading %s at 0x%08X
                 m.m_44 = self.m_44 / x
                 return m
             else:
-                raise TypeError("do not know how to divide Matrix44 by %s"%x.__class__)
+                raise TypeError("do not know how to divide Matrix44 by %s" % x.__class__)
 
         def __rmul__(self, x):
             if isinstance(x, (float, int)):
                 return self * x
             else:
-                raise TypeError("do not know how to multiply %s with Matrix44"%x.__class__)
+                raise TypeError("do not know how to multiply %s with Matrix44" % x.__class__)
 
         def __eq__(self, m):
             if isinstance(m, type(None)):
                 return False
             if not isinstance(m, CgfFormat.Matrix44):
-                raise TypeError("do not know how to compare Matrix44 and %s"%m.__class__)
+                raise TypeError("do not know how to compare Matrix44 and %s" % m.__class__)
             if abs(self.m_11 - m.m_11) > CgfFormat.EPSILON: return False
             if abs(self.m_12 - m.m_12) > CgfFormat.EPSILON: return False
             if abs(self.m_13 - m.m_13) > CgfFormat.EPSILON: return False
@@ -1727,7 +1731,7 @@ chunk size mismatch when reading %s at 0x%08X
                 m.m_44 = self.m_44 + x
                 return m
             else:
-                raise TypeError("do not know how to add Matrix44 and %s"%x.__class__)
+                raise TypeError("do not know how to add Matrix44 and %s" % x.__class__)
 
         def __sub__(self, x):
             if isinstance(x, (CgfFormat.Matrix44)):
@@ -1844,7 +1848,7 @@ chunk size mismatch when reading %s at 0x%08X
             elif self.indices_data:
                 inds = self.indices_data.indices
                 for i in range(0, len(inds), 3):
-                   yield inds[i], inds[i+1], inds[i+2]
+                    yield inds[i], inds[i + 1], inds[i + 2]
 
         def get_material_indices(self):
             """Generator for all materials (per triangle)."""
@@ -1863,7 +1867,7 @@ chunk size mismatch when reading %s at 0x%08X
                     yield uv.u, uv.v
             elif self.uvs_data:
                 for uv in self.uvs_data.uvs:
-                    yield uv.u, 1.0 - uv.v # OpenGL fix!
+                    yield uv.u, 1.0 - uv.v  # OpenGL fix!
 
         def get_uv_triangles(self):
             """Generator for all uv triangles."""
@@ -1874,7 +1878,7 @@ chunk size mismatch when reading %s at 0x%08X
                 # Crysis: UV triangles coincide with triangles
                 inds = self.indices_data.indices
                 for i in range(0, len(inds), 3):
-                   yield inds[i], inds[i+1], inds[i+2]
+                    yield inds[i], inds[i + 1], inds[i + 2]
 
         ### DEPRECATED: USE set_geometry INSTEAD ###
         def set_vertices_normals(self, vertices, normals):
@@ -1910,8 +1914,8 @@ chunk size mismatch when reading %s at 0x%08X
 
             # set vertex coordinates and normals for Crysis
             for cryvert, crynorm, vert, norm in zip(self.vertices_data.vertices,
-                                                     self.normals_data.normals,
-                                                     vertices, normals):
+                                                    self.normals_data.normals,
+                                                    vertices, normals):
                 cryvert.x = vert[0]
                 cryvert.y = vert[1]
                 cryvert.z = vert[2]
@@ -1921,9 +1925,9 @@ chunk size mismatch when reading %s at 0x%08X
 
         ### STILL WIP!!! ###
         def set_geometry(self,
-                        verticeslist = None, normalslist = None,
-                        triangleslist = None, matlist = None,
-                        uvslist = None, colorslist = None):
+                         verticeslist=None, normalslist=None,
+                         triangleslist=None, matlist=None,
+                         uvslist=None, colorslist=None):
             """Set geometry data.
 
             >>> from pyffi.formats.cgf import CgfFormat
@@ -2519,10 +2523,10 @@ chunk size mismatch when reading %s at 0x%08X
             firstvertexindex = 0
             firstindicesindex = 0
             for vertices, normals, triangles, mat, uvs, colors, meshsubset in zip(
-                verticeslist, normalslist,
-                triangleslist, matlist,
-                uvslist, colorslist,
-                self.mesh_subsets.mesh_subsets):
+                    verticeslist, normalslist,
+                    triangleslist, matlist,
+                    uvslist, colorslist,
+                    self.mesh_subsets.mesh_subsets):
 
                 # set Crysis mesh subset info
                 meshsubset.first_index = firstindicesindex
@@ -2547,8 +2551,7 @@ chunk size mismatch when reading %s at 0x%08X
 
                 # set vertex coordinates and normals for Crysis
                 for cryvert, crynorm, vert, norm in zip(
-                    self.vertices_data.vertices, self.normals_data.normals, vertices, normals):
-                    
+                        self.vertices_data.vertices, self.normals_data.normals, vertices, normals):
                     cryvert.x = vert[0]
                     cryvert.y = vert[1]
                     cryvert.z = vert[2]
@@ -2581,7 +2584,7 @@ chunk size mismatch when reading %s at 0x%08X
                     # set Crysis uv info
                     for cryuv, uv in zip(self.uvs_data.uvs, uvs):
                         cryuv.u = uv[0]
-                        cryuv.v = 1.0 - uv[1] # OpenGL fix
+                        cryuv.v = 1.0 - uv[1]  # OpenGL fix
 
                 if not colors is None:
                     # set Far Cry color info
@@ -2627,17 +2630,17 @@ chunk size mismatch when reading %s at 0x%08X
 
             # set Crysis tangents info
             tangents, binormals, orientations = pyffi.utils.tangentspace.getTangentSpace(
-                vertices = list((vert.x, vert.y, vert.z)
-                                for vert in self.vertices_data.vertices),
-                normals = list((norm.x, norm.y, norm.z)
-                                for norm in self.normals_data.normals),
-                uvs = list((uv.u, uv.v)
-                           for uv in self.uvs_data.uvs),
-                triangles = list(self.get_triangles()),
-                orientation = True)
+                vertices=list((vert.x, vert.y, vert.z)
+                              for vert in self.vertices_data.vertices),
+                normals=list((norm.x, norm.y, norm.z)
+                             for norm in self.normals_data.normals),
+                uvs=list((uv.u, uv.v)
+                         for uv in self.uvs_data.uvs),
+                triangles=list(self.get_triangles()),
+                orientation=True)
 
             for crytangent, tan, bin, orient in zip(self.tangents_data.tangents,
-                                                     tangents, binormals, orientations):
+                                                    tangents, binormals, orientations):
                 if orient > 0:
                     tangent_w = 32767
                 else:
@@ -2690,11 +2693,11 @@ chunk size mismatch when reading %s at 0x%08X
             if (script_begin != -1):
                 if (name.count("/") != 1):
                     # must have exactly one script
-                    raise ValueError("%s malformed, has multiple ""/"""%name)
-                mtlscript = name[script_begin+1:]
+                    raise ValueError("%s malformed, has multiple ""/""" % name)
+                mtlscript = name[script_begin + 1:]
             else:
                 mtlscript = ""
-            if (shader_begin != -1): # if a shader was specified
+            if (shader_begin != -1):  # if a shader was specified
                 mtl_end = shader_begin
                 # must have exactly one shader
                 if (name.count("(") != 1):
@@ -2702,20 +2705,20 @@ chunk size mismatch when reading %s at 0x%08X
                     # like in jungle_camp_sleeping_barack
                     # here we handle that case
                     if name[shader_begin + 1] == "(" \
-                       and name[shader_begin + 1:].count("(") == 1:
+                            and name[shader_begin + 1:].count("(") == 1:
                         shader_begin += 1
                     else:
-                        raise ValueError("%s malformed, has multiple ""("""%name)
+                        raise ValueError("%s malformed, has multiple ""(""" % name)
                 if (name.count(")") != 1):
-                    raise ValueError("%s malformed, has multiple "")"""%name)
+                    raise ValueError("%s malformed, has multiple "")""" % name)
                 # shader name should non-empty
                 if shader_begin > shader_end:
-                    raise ValueError("%s malformed, ""("" comes after "")"""%name)
+                    raise ValueError("%s malformed, ""("" comes after "")""" % name)
                 # script must be immediately followed by the material
                 if (script_begin != -1) and (shader_end + 1 != script_begin):
-                    raise ValueError("%s malformed, shader not followed by script"%name)
+                    raise ValueError("%s malformed, shader not followed by script" % name)
                 mtlname = name[:mtl_end]
-                mtlshader = name[shader_begin+1:shader_end]
+                mtlshader = name[shader_begin + 1:shader_end]
             else:
                 if script_begin != -1:
                     mtlname = name[:script_begin]
@@ -2758,7 +2761,7 @@ chunk size mismatch when reading %s at 0x%08X
         def get_global_display(self):
             """Return a name for the block."""
             idx = max(self.source_file.rfind("\\"), self.source_file.rfind("/"))
-            return self.source_file[idx+1:]
+            return self.source_file[idx + 1:]
 
     class TimingChunk:
         def get_global_display(self):
@@ -2773,12 +2776,12 @@ chunk size mismatch when reading %s at 0x%08X
             return (self.x, self.y, self.z)
 
         def norm(self):
-            return (self.x*self.x + self.y*self.y + self.z*self.z) ** 0.5
+            return (self.x * self.x + self.y * self.y + self.z * self.z) ** 0.5
 
         def normalize(self):
             norm = self.norm()
             if norm < CgfFormat.EPSILON:
-                raise ZeroDivisionError('cannot normalize vector %s'%self)
+                raise ZeroDivisionError('cannot normalize vector %s' % self)
             self.x /= norm
             self.y /= norm
             self.z /= norm
@@ -2791,7 +2794,7 @@ chunk size mismatch when reading %s at 0x%08X
             return v
 
         def __str__(self):
-            return "[ %6.3f %6.3f %6.3f ]"%(self.x, self.y, self.z)
+            return "[ %6.3f %6.3f %6.3f ]" % (self.x, self.y, self.z)
 
         def __mul__(self, x):
             if isinstance(x, (float, int)):
@@ -2811,7 +2814,7 @@ chunk size mismatch when reading %s at 0x%08X
             elif isinstance(x, CgfFormat.Matrix44):
                 return self * x.get_matrix_33() + x.get_translation()
             else:
-                raise TypeError("do not know how to multiply Vector3 with %s"%x.__class__)
+                raise TypeError("do not know how to multiply Vector3 with %s" % x.__class__)
 
         def __rmul__(self, x):
             if isinstance(x, (float, int)):
@@ -2821,7 +2824,7 @@ chunk size mismatch when reading %s at 0x%08X
                 v.z = x * self.z
                 return v
             else:
-                raise TypeError("do not know how to multiply %s and Vector3"%x.__class__)
+                raise TypeError("do not know how to multiply %s and Vector3" % x.__class__)
 
         def __div__(self, x):
             if isinstance(x, (float, int)):
@@ -2831,7 +2834,7 @@ chunk size mismatch when reading %s at 0x%08X
                 v.z = self.z / x
                 return v
             else:
-                raise TypeError("do not know how to divide Vector3 and %s"%x.__class__)
+                raise TypeError("do not know how to divide Vector3 and %s" % x.__class__)
 
         def __add__(self, x):
             if isinstance(x, (float, int)):
@@ -2847,7 +2850,7 @@ chunk size mismatch when reading %s at 0x%08X
                 v.z = self.z + x.z
                 return v
             else:
-                raise TypeError("do not know how to add Vector3 and %s"%x.__class__)
+                raise TypeError("do not know how to add Vector3 and %s" % x.__class__)
 
         def __radd__(self, x):
             if isinstance(x, (float, int)):
@@ -2857,7 +2860,7 @@ chunk size mismatch when reading %s at 0x%08X
                 v.z = x + self.z
                 return v
             else:
-                raise TypeError("do not know how to add %s and Vector3"%x.__class__)
+                raise TypeError("do not know how to add %s and Vector3" % x.__class__)
 
         def __sub__(self, x):
             if isinstance(x, (float, int)):
@@ -2873,7 +2876,7 @@ chunk size mismatch when reading %s at 0x%08X
                 v.z = self.z - x.z
                 return v
             else:
-                raise TypeError("do not know how to substract Vector3 and %s"%x.__class__)
+                raise TypeError("do not know how to substract Vector3 and %s" % x.__class__)
 
         def __rsub__(self, x):
             if isinstance(x, (float, int)):
@@ -2883,7 +2886,7 @@ chunk size mismatch when reading %s at 0x%08X
                 v.z = x - self.z
                 return v
             else:
-                raise TypeError("do not know how to substract %s and Vector3"%x.__class__)
+                raise TypeError("do not know how to substract %s and Vector3" % x.__class__)
 
         def __neg__(self):
             v = CgfFormat.Vector3()
@@ -2896,18 +2899,18 @@ chunk size mismatch when reading %s at 0x%08X
         def crossproduct(self, x):
             if isinstance(x, CgfFormat.Vector3):
                 v = CgfFormat.Vector3()
-                v.x = self.y*x.z - self.z*x.y
-                v.y = self.z*x.x - self.x*x.z
-                v.z = self.x*x.y - self.y*x.x
+                v.x = self.y * x.z - self.z * x.y
+                v.y = self.z * x.x - self.x * x.z
+                v.z = self.x * x.y - self.y * x.x
                 return v
             else:
-                raise TypeError("do not know how to calculate crossproduct of Vector3 and %s"%x.__class__)
+                raise TypeError("do not know how to calculate crossproduct of Vector3 and %s" % x.__class__)
 
         def __eq__(self, x):
             if isinstance(x, type(None)):
                 return False
             if not isinstance(x, CgfFormat.Vector3):
-                raise TypeError("do not know how to compare Vector3 and %s"%x.__class__)
+                raise TypeError("do not know how to compare Vector3 and %s" % x.__class__)
             if abs(self.x - x.x) > CgfFormat.EPSILON: return False
             if abs(self.y - x.y) > CgfFormat.EPSILON: return False
             if abs(self.z - x.z) > CgfFormat.EPSILON: return False

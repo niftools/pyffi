@@ -1,4 +1,104 @@
-"""Implements common basic types in XML file format descriptions."""
+"""
+:mod:`pyffi.object_models.common` --- Common data types in XML fileformat
+=========================================================================
+
+Implements common basic types in XML file format descriptions.
+
+Implementation
+--------------
+
+.. autoclass:: Int
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: UInt
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: Int64
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: UInt64
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: Byte
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: UByte
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: Short
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: UShort
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: ULittle32
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: Bool
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: Char
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: Float
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: HFloat
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: NormByte
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: ZString
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: FixedString
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: SizedString
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: UndecodedData
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Show examples for usage
+"""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -37,18 +137,19 @@
 #
 # ***** END LICENSE BLOCK *****
 
-import struct
 import logging
+import struct
 
-from pyffi.object_models.xml.basic import BasicBase
-from pyffi.object_models.editable import EditableSpinBox
+from pyffi.object_models.basic import BasicBase
+from pyffi.object_models.editable import EditableBoolComboBox
 from pyffi.object_models.editable import EditableFloatSpinBox
 from pyffi.object_models.editable import EditableLineEdit
-from pyffi.object_models.editable import EditableBoolComboBox
+from pyffi.object_models.editable import EditableSpinBox
 
 # TODO get rid of these
 _b = b''
 _b00 = b'\x00'
+
 
 def _as_bytes(value):
     """Helper function which converts a string to bytes (this is useful for
@@ -72,6 +173,7 @@ def _as_bytes(value):
     else:
         raise TypeError("expected str")
 
+
 def _as_str(value):
     """Helper function to convert bytes back to str. This is used in
     the __str__ functions for simple string types. If you want a custom
@@ -83,6 +185,7 @@ def _as_str(value):
         return value
     else:
         raise TypeError("expected bytes")
+
 
 class Int(BasicBase, EditableSpinBox):
     """Basic implementation of a 32-bit signed integer type. Also serves as a
@@ -119,10 +222,10 @@ class Int(BasicBase, EditableSpinBox):
     '0x44332211'
     """
 
-    _min = -0x80000000 #: Minimum value.
+    _min = -0x80000000  #: Minimum value.
     _max = 0x7fffffff  #: Maximum value.
-    _struct = 'i'      #: Character used to represent type in struct.
-    _size = 4          #: Number of bytes.
+    _struct = 'i'  #: Character used to represent type in struct.
+    _size = 4  #: Number of bytes.
 
     def __init__(self, **kwargs):
         """Initialize the integer."""
@@ -146,13 +249,13 @@ class Int(BasicBase, EditableSpinBox):
             val = int(value)
         except ValueError:
             try:
-                val = int(value, 16) # for '0x...' strings
+                val = int(value, 16)  # for '0x...' strings
             except ValueError:
                 try:
-                    val = getattr(self, value) # for enums
+                    val = getattr(self, value)  # for enums
                 except AttributeError:
                     raise ValueError(
-                        "cannot convert value '%s' to integer"%value)
+                        "cannot convert value '%s' to integer" % value)
         if val < self._min or val > self._max:
             raise ValueError('value out of range (%i)' % val)
         self._value = val
@@ -176,6 +279,12 @@ class Int(BasicBase, EditableSpinBox):
 
     def __str__(self):
         return str(self.get_value())
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {{'min': {self._min}, 'max': {self._max}, 'struct': {self._struct}, 'size': {self._size}, 'val': {self._value}}}>"
+
+    def __int__(self):
+        return int(self.get_value())
 
     @classmethod
     def get_size(cls, data=None):
@@ -206,12 +315,14 @@ class Int(BasicBase, EditableSpinBox):
         """
         return self._max
 
+
 class UInt(Int):
     """Implementation of a 32-bit unsigned integer type."""
     _min = 0
     _max = 0xffffffff
     _struct = 'I'
     _size = 4
+
 
 class Int64(Int):
     """Implementation of a 64-bit signed integer type."""
@@ -220,12 +331,14 @@ class Int64(Int):
     _struct = 'q'
     _size = 8
 
+
 class UInt64(Int):
     """Implementation of a 64-bit unsigned integer type."""
     _min = 0
     _max = 0xffffffffffffffff
     _struct = 'Q'
     _size = 8
+
 
 class Byte(Int):
     """Implementation of a 8-bit signed integer type."""
@@ -234,12 +347,14 @@ class Byte(Int):
     _struct = 'b'
     _size = 1
 
+
 class UByte(Int):
     """Implementation of a 8-bit unsigned integer type."""
     _min = 0
     _max = 0xff
     _struct = 'B'
     _size = 1
+
 
 class Short(Int):
     """Implementation of a 16-bit signed integer type."""
@@ -248,6 +363,7 @@ class Short(Int):
     _struct = 'h'
     _size = 2
 
+
 class UShort(UInt):
     """Implementation of a 16-bit unsigned integer type."""
     _min = 0
@@ -255,18 +371,19 @@ class UShort(UInt):
     _struct = 'H'
     _size = 2
 
+
 class ULittle32(UInt):
     """Little endian 32 bit unsigned integer (ignores specified data
     byte order).
     """
+
     def read(self, stream, data):
         """Read value from stream.
 
         :param stream: The stream to read from.
         :type stream: file
         """
-        self._value = struct.unpack('<' + self._struct,
-                                    stream.read(self._size))[0]
+        self._value = struct.unpack('<' + self._struct, stream.read(self._size))[0]
 
     def write(self, stream, data):
         """Write value to stream.
@@ -275,6 +392,7 @@ class ULittle32(UInt):
         :type stream: file
         """
         stream.write(struct.pack('<' + self._struct, self._value))
+
 
 class Bool(UByte, EditableBoolComboBox):
     """Simple bool implementation."""
@@ -293,6 +411,7 @@ class Bool(UByte, EditableBoolComboBox):
         :type value: bool
         """
         self._value = 1 if value else 0
+
 
 class Char(BasicBase, EditableLineEdit):
     """Implementation of an (unencoded) 8-bit character."""
@@ -315,8 +434,8 @@ class Char(BasicBase, EditableLineEdit):
         :param value: The value to assign (bytes of length 1).
         :type value: bytes
         """
-        assert(isinstance(value, bytes))
-        assert(len(value) == 1)
+        assert (isinstance(value, bytes))
+        assert (len(value) == 1)
         self._value = value
 
     def read(self, stream, data):
@@ -338,6 +457,9 @@ class Char(BasicBase, EditableLineEdit):
     def __str__(self):
         return _as_str(self._value)
 
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {{'val': {self._value}}}>"
+
     def get_size(self, data=None):
         """Return number of bytes this type occupies in a file.
 
@@ -351,6 +473,7 @@ class Char(BasicBase, EditableLineEdit):
         :return: An immutable object that can be used as a hash.
         """
         self.get_value()
+
 
 class Float(BasicBase, EditableFloatSpinBox):
     """Implementation of a 32-bit float."""
@@ -412,7 +535,122 @@ class Float(BasicBase, EditableFloatSpinBox):
 
         :return: An immutable object that can be used as a hash.
         """
-        return int(self.get_value()*200)
+        return int(self.get_value() * 200)
+
+    def __float__(self):
+        return float(self.get_value())
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {{'val': {self._value}}}>"
+
+
+class HFloat(Float, EditableFloatSpinBox):
+    """Implementation of a 16-bit float."""
+
+    def __init__(self, **kwargs):
+        """Initialize the float."""
+        super(HFloat, self).__init__(**kwargs)
+        self._value = 0
+
+    def read(self, stream, data):
+        """Read value from stream.
+
+        :param stream: The stream to read from.
+        :type stream: file
+        """
+        self._value = struct.unpack(data._byte_order + 'e',
+                                    stream.read(2))[0]
+
+    def write(self, stream, data):
+        """Write value to stream.
+
+        :param stream: The stream to write to.
+        :type stream: file
+        """
+        try:
+            stream.write(struct.pack(data._byte_order + 'e',
+                                     self._value))
+        except OverflowError:
+            logger = logging.getLogger("pyffi.object_models")
+            logger.warn("float value overflow, writing NaN")
+            stream.write(struct.pack(data._byte_order + 'H',
+                                     0x7fc00000))
+
+    def get_size(self, data=None):
+        """Return number of bytes this type occupies in a file.
+
+        :return: Number of bytes.
+        """
+        return 2
+
+
+class NormByte(Float, EditableFloatSpinBox):  # TODO: This shit
+    """Implementation of an 8-bit float in the range -1.0:1.0, stored as a byte."""
+    _min = -0x1
+    _max = 0x1
+    _struct = 'B'
+    _size = 1
+
+    def __init__(self, **kwargs):
+        super(NormByte, self).__init__(**kwargs)
+        self._value = 0.0
+
+    def get_value(self):
+        return self._value
+
+    def set_value(self, value):
+        val = float(value)
+        if val < self._min or val > self._max:
+            raise ValueError('value out of range (%i - %i): %i', self._min, self._max, val)
+        self._value = val
+
+    def read(self, stream, data):
+        """Read value from stream.
+
+        :param stream: The stream to read from.
+        :param data:
+        :type stream: file
+        """
+        self._value = struct.unpack(data._byte_order + self._struct, stream.read(self._size))[0]
+
+    def write(self, stream, data):
+        """Write value to stream.
+
+        :param stream: The stream to write to.
+        :param data:
+        :type stream: file
+        """
+        stream.write(struct.pack(data._byte_order + self._struct, self._value))
+
+    @classmethod
+    def get_size(cls, data=None):
+        """Return number of bytes this type occupies in a file.
+
+        :return: Number of bytes.
+        """
+        return cls._size
+
+    def get_hash(self, data=None):
+        """Return a hash value for this value.
+
+        :return: An immutable object that can be used as a hash.
+        """
+        return self.get_value()
+
+    def get_editor_minimum(self):
+        """Minimum possible value.
+
+        :return: Minimum possible value.
+        """
+        return self._min
+
+    def get_editor_maximum(self):
+        """Maximum possible value.
+
+        :return: Maximum possible value.
+        """
+        return self._max
+
 
 class ZString(BasicBase, EditableLineEdit):
     """String of variable length (null terminated).
@@ -434,7 +672,7 @@ class ZString(BasicBase, EditableLineEdit):
     >>> str(m)
     'Hi There!'
     """
-    _maxlen = 1000 #: The maximum length.
+    _maxlen = 1000  #: The maximum length.
 
     def __init__(self, **kwargs):
         """Initialize the string."""
@@ -443,6 +681,9 @@ class ZString(BasicBase, EditableLineEdit):
 
     def __str__(self):
         return _as_str(self._value)
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {{'val': {str(self._value)}}}>"
 
     def get_value(self):
         """Return the string.
@@ -506,6 +747,7 @@ class ZString(BasicBase, EditableLineEdit):
         """
         return self._value
 
+
 class FixedString(BasicBase, EditableLineEdit):
     """String of fixed length. Default length is 0, so you must override
     this class and set the _len class variable.
@@ -538,6 +780,9 @@ class FixedString(BasicBase, EditableLineEdit):
 
     def __str__(self):
         return _as_str(self._value)
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {{'val': {str(self._value)}}}>"
 
     def get_value(self):
         """Return the string.
@@ -591,6 +836,7 @@ class FixedString(BasicBase, EditableLineEdit):
         """
         return self._value
 
+
 class SizedString(BasicBase, EditableLineEdit):
     """Basic type for strings. The type starts with an unsigned int which
     describes the length of the string.
@@ -641,6 +887,9 @@ class SizedString(BasicBase, EditableLineEdit):
     def __str__(self):
         return _as_str(self._value)
 
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {{'val': {str(self._value)}}}>"
+
     def get_size(self, data=None):
         """Return number of bytes this type occupies in a file.
 
@@ -678,8 +927,10 @@ class SizedString(BasicBase, EditableLineEdit):
                                  len(self._value)))
         stream.write(self._value)
 
+
 class UndecodedData(BasicBase):
     """Basic type for undecoded data trailing at the end of a file."""
+
     def __init__(self, **kwargs):
         BasicBase.__init__(self, **kwargs)
         self._value = b''
@@ -703,6 +954,9 @@ class UndecodedData(BasicBase):
 
     def __str__(self):
         return '<UNDECODED DATA>'
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {{'val': {self._value}}}>"
 
     def get_size(self, data=None):
         """Return number of bytes the data occupies in a file.
@@ -734,4 +988,3 @@ class UndecodedData(BasicBase):
         :type stream: file
         """
         stream.write(self._value)
-

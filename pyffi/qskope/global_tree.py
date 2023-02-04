@@ -38,8 +38,8 @@
 # --------------------------------------------------------------------------
 
 
-
 from pyffi.utils.graph import GlobalNode, EdgeType, EdgeFilter
+
 
 class GlobalTreeItemData(object):
     """Stores all data used in the detail view.
@@ -47,6 +47,7 @@ class GlobalTreeItemData(object):
     :ivar node: The node of the item.
     :type node: :class:`DetailNode`
     """
+
     def __init__(self, node=None):
         if not isinstance(node, GlobalNode):
             raise TypeError("node must be GlobalNode instance")
@@ -61,6 +62,7 @@ class GlobalTreeItemData(object):
     @property
     def typename(self):
         return self.node.__class__.__name__
+
 
 class GlobalTreeItem(object):
     """Stores all internal information to vizualize L{GlobalNode}s in a
@@ -79,6 +81,7 @@ class GlobalTreeItem(object):
         may form cycles (or not, this is format dependent).
     :type edge_type: ``int``
     """
+
     def __init__(self, data=None, parent=None, row=0, edge_type=EdgeType(),
                  edge_filter=EdgeFilter()):
         """Initialize the node tree hierarchy from the given data."""

@@ -1,6 +1,35 @@
-"""This module provides a base class and a metaclass for parsing an XSD
+"""
+:mod:`pyffi.object_models.xsd` --- XSD fileformat parser
+=============================================================
+
+This module provides a base class and a metaclass for parsing an XSD
 schema and providing an interface for writing XML files that follow this
 schema.
+
+Implementation
+--------------
+
+.. autoclass:: Tree
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: MetaFileFormat
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: Type
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: FileFormat
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Show examples for usage
 """
 
 # ***** BEGIN LICENSE BLOCK *****
@@ -46,6 +75,7 @@ import weakref
 import xml.etree.cElementTree
 
 import pyffi.object_models
+
 
 class Tree(object):
     """Converts an xsd element tree into a tree of nodes that contain
@@ -183,18 +213,18 @@ class Tree(object):
             # now set attributes for this node
             if self.name:
                 # could have self._type or not, but should not have a self.ref
-                assert(not self.ref) # debug
+                assert (not self.ref)  # debug
                 self.pyname = fileformat.name_attribute(self.name)
                 node = self
             elif self.ref:
                 # no name and no type should be defined
-                assert(not self.name) # debug
-                assert(not self.type_) # debug
+                assert (not self.name)  # debug
+                assert (not self.type_)  # debug
                 self.pyname = fileformat.name_attribute(self.ref)
                 # resolve reference
                 for child in self.schema.children:
                     if (isinstance(child, self.__class__)
-                        and child.name == self.ref):
+                            and child.name == self.ref):
                         node = child
                         break
                 else:
@@ -419,7 +449,7 @@ class Tree(object):
 
     class Selector(Node):
         pass
-        
+
     class Sequence(Node):
         pass
 
@@ -489,6 +519,7 @@ class Tree(object):
             setattr(cls, class_name, class_)
             return class_(element, parent)
 
+
 class MetaFileFormat(pyffi.object_models.MetaFileFormat):
     """The MetaFileFormat metaclass transforms the XSD description of a
     xml format into a bunch of classes which can be directly used to
@@ -525,7 +556,7 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
                 # create nodes for every element in the XSD tree
                 schema = Tree.node_factory(
                     # XXX cElementTree python bug when running nosetests
-                    #xml.etree.cElementTree.parse(xsdfile).getroot(), None)
+                    # xml.etree.cElementTree.parse(xsdfile).getroot(), None)
                     xml.etree.ElementTree.parse(xsdfile).getroot(), None)
             finally:
                 xsdfile.close()
@@ -537,6 +568,7 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
             cls.logger.debug("Parsing finished in %.3f seconds."
                              % (time.time() - start))
 
+
 class Type(object):
     _node = None
 
@@ -546,20 +578,21 @@ class Type(object):
         # TODO initialize all attributes
         self._node.instantiate(self)
 
+
 class FileFormat(pyffi.object_models.FileFormat, metaclass=MetaFileFormat):
     """This class can be used as a base class for file formats. It implements
     a number of useful functions such as walking over directory trees and a
     default attribute naming function.
     """
-    xsdFileName = None #: Override.
-    xsdFilePath = None #: Override.
+    xsdFileName = None  #: Override.
+    xsdFilePath = None  #: Override.
     logger = logging.getLogger("pyffi.object_models.xsd")
 
     @classmethod
     def name_parts(cls, name):
         # introduces extra splits for some names
-        name = name.replace("NMTOKEN", "NM_TOKEN") # name token
-        name = name.replace("IDREF", "ID_REF") # identifier reference
+        name = name.replace("NMTOKEN", "NM_TOKEN")  # name token
+        name = name.replace("IDREF", "ID_REF")  # identifier reference
         # do the split
         return pyffi.object_models.FileFormat.name_parts(name)
 

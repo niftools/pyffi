@@ -47,6 +47,7 @@
 import pyffi.spells
 from pyffi.formats.cgf import CgfFormat
 
+
 class CgfSpell(pyffi.spells.Spell):
     """Base class for spells for cgf files."""
 
@@ -77,6 +78,6 @@ class CgfSpell(pyffi.spells.Spell):
         """
         return (block_type in self.data.chunk_table.get_chunk_types())
 
+
 class CgfToaster(pyffi.spells.Toaster):
     FILEFORMAT = CgfFormat
-

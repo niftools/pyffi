@@ -38,8 +38,8 @@
 # --------------------------------------------------------------------------
 
 
-
 from pyffi.utils.graph import DetailNode, EdgeType, EdgeFilter
+
 
 class DetailTreeItemData(object):
     """Stores all data used in the detail view.
@@ -49,6 +49,7 @@ class DetailTreeItemData(object):
     :ivar name: The name of the node (this is usually not stored in the node).
     :type name: ``str``
     """
+
     def __init__(self, node=None, name=None):
         if not isinstance(node, DetailNode):
             raise TypeError("node must be DetailNode instance")
@@ -67,6 +68,7 @@ class DetailTreeItemData(object):
     def typename(self):
         return self.node.__class__.__name__
 
+
 class DetailTreeItem(object):
     """Stores all internal information to vizualize :class:`DetailNode`\ s in a
     tree view.
@@ -82,6 +84,7 @@ class DetailTreeItem(object):
     :ivar edge_type: The type of edge from the parent of this node to itself.
     :type edge_type: :class:`EdgeType`
     """
+
     def __init__(self, data=None, parent=None, row=0, edge_type=EdgeType(),
                  edge_filter=EdgeFilter()):
         """Initialize the node tree hierarchy from the given data."""

@@ -1,4 +1,24 @@
-"""Implements base class for struct types."""
+"""
+:mod:`pyffi.object_models.xml.struct_` --- Structured Types
+===========================================================
+
+Implements base class for struct types.
+
+Implementation
+--------------
+
+.. autoclass:: StructBase
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: _MetaStructBase
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Show examples for usage
+"""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -43,9 +63,10 @@
 import logging
 from functools import partial
 
-
-from pyffi.utils.graph import DetailNode, GlobalNode, EdgeFilter
 import pyffi.object_models.common
+from pyffi.object_models.basic import BasicBase
+from pyffi.utils.graph import GlobalNode, EdgeFilter
+
 
 class _MetaStructBase(type):
     """This metaclass checks for the presence of _attrs and _is_template
@@ -53,6 +74,7 @@ class _MetaStructBase(type):
     <attrname> property is generated which gets and sets basic types,
     and gets other types (struct and array). Used as metaclass of
     StructBase."""
+
     def __init__(cls, name, bases, dct):
         super(_MetaStructBase, cls).__init__(name, bases, dct)
         # does the type contain a Ref or a Ptr?
@@ -66,14 +88,14 @@ class _MetaStructBase(type):
             # and issubclass must take a type as first argument
             # hence this hack
             if not isinstance(attr.type_, str) and \
-                issubclass(attr.type_, BasicBase) and attr.arr1 is None:
+                    issubclass(attr.type_, BasicBase) and attr.arr1 is None:
                 # get and set basic attributes
                 setattr(cls, attr.name, property(
                     partial(StructBase.get_basic_attribute, name=attr.name),
                     partial(StructBase.set_basic_attribute, name=attr.name),
                     doc=attr.doc))
             elif not isinstance(attr.type_, str) and \
-                issubclass(attr.type_, StructBase) and attr.arr1 is None:
+                    issubclass(attr.type_, StructBase) and attr.arr1 is None:
                 # get and set struct attributes
                 setattr(cls, attr.name, property(
                     partial(StructBase.get_attribute, name=attr.name),
@@ -93,13 +115,13 @@ class _MetaStructBase(type):
 
             # check for links and refs and strings
             if not cls._has_links:
-                if attr.type_ != type(None): # templates!
+                if attr.type_ != type(None):  # templates!
                     # attr.type_ basestring means forward declaration
                     # we cannot know if it has links, so assume yes
                     if (isinstance(attr.type_, str)
-                        or attr.type_._has_links):
+                            or attr.type_._has_links):
                         cls._has_links = True
-                #else:
+                # else:
                 #    cls._has_links = True
                 # or false... we can't know at this point... might be necessary
                 # to uncomment this if template types contain refs
@@ -109,9 +131,9 @@ class _MetaStructBase(type):
                     # attr.type_ basestring means forward declaration
                     # we cannot know if it has refs, so assume yes
                     if (isinstance(attr.type_, str)
-                        or attr.type_._has_refs):
+                            or attr.type_._has_refs):
                         cls._has_refs = True
-                #else:
+                # else:
                 #    cls._has_refs = True # dito, see comment above
 
             if not cls._has_strings:
@@ -119,7 +141,7 @@ class _MetaStructBase(type):
                     # attr.type_ basestring means forward declaration
                     # we cannot know if it has strings, so assume yes
                     if (isinstance(attr.type_, str)
-                        or attr.type_._has_strings):
+                            or attr.type_._has_strings):
                         cls._has_strings = True
                 else:
                     # enabled because there is a template key type that has
@@ -135,7 +157,8 @@ class _MetaStructBase(type):
         cls._names = cls._get_names()
 
     def __repr__(cls):
-        return "<struct '%s'>"%(cls.__name__)
+        return "<struct '%s'>" % (cls.__name__)
+
 
 class StructBase(GlobalNode, metaclass=_MetaStructBase):
     """Base class from which all file struct types are derived.
@@ -157,7 +180,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
 
     See the pyffi.XmlHandler class for a more advanced example.
 
-    >>> from pyffi.object_models.xml.basic import BasicBase
+    >>> from pyffi.object_models.basic import BasicBase
     >>> from pyffi.object_models.xml.expression import Expression
     >>> from pyffi.object_models.xml import StructAttribute as Attr
     >>> class SimpleFormat(object):
@@ -228,7 +251,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
     logger = logging.getLogger("pyffi.nif.data.struct")
 
     # initialize all attributes
-    def __init__(self, template = None, argument = None, parent = None):
+    def __init__(self, template=None, argument=None, parent=None):
         """The constructor takes a tempate: any attribute whose type,
         or template type, is type(None) - which corresponds to
         TEMPLATE in the xml description - will be replaced by this
@@ -246,7 +269,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
         # initialize argument
         self.arg = argument
         # save parent (note: disabled for performance)
-        #self._parent = weakref.ref(parent) if parent else None
+        # self._parent = weakref.ref(parent) if parent else None
         # initialize item list
         # this list is used for instance by qskope to display the structure
         # in a tree view
@@ -262,33 +285,33 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
 
             # things that can only be determined at runtime (rt_xxx)
             rt_type = attr.type_ if attr.type_ != type(None) \
-                      else template
+                else template
             rt_template = attr.template if attr.template != type(None) \
-                          else template
+                else template
             rt_arg = attr.arg if isinstance(attr.arg, (int, type(None))) \
-                     else getattr(self, attr.arg)
+                else getattr(self, attr.arg)
 
             # instantiate the class, handling arrays at the same time
             if attr.arr1 == None:
                 attr_instance = rt_type(
-                    template = rt_template, argument = rt_arg,
-                    parent = self)
+                    template=rt_template, argument=rt_arg,
+                    parent=self)
                 if attr.default != None:
                     attr_instance.set_value(attr.default)
             elif attr.arr2 == None:
                 attr_instance = Array(
-                    element_type = rt_type,
-                    element_type_template = rt_template,
-                    element_type_argument = rt_arg,
-                    count1 = attr.arr1,
-                    parent = self)
+                    element_type=rt_type,
+                    element_type_template=rt_template,
+                    element_type_argument=rt_arg,
+                    count1=attr.arr1,
+                    parent=self)
             else:
                 attr_instance = Array(
-                    element_type = rt_type,
-                    element_type_template = rt_template,
-                    element_type_argument = rt_arg,
-                    count1 = attr.arr1, count2 = attr.arr2,
-                    parent = self)
+                    element_type=rt_type,
+                    element_type_template=rt_template,
+                    element_type_argument=rt_arg,
+                    count1=attr.arr1, count2=attr.arr2,
+                    parent=self)
 
             # assign attribute value
             setattr(self, "_%s_value_" % attr.name, attr_instance)
@@ -336,7 +359,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
             elif attr_str_lines:
                 text += '* %s : %s\n' % (attr.name, attr_str_lines[0])
             else:
-                #print(getattr(self, "_%s_value_" % attr.name))
+                # print(getattr(self, "_%s_value_" % attr.name))
                 text += '* %s : <None>\n' % attr.name
         return text
 
@@ -352,7 +375,10 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
             else:
                 offset = stream.tell()
                 hex_ver = "0x%08X" % offset
-                self.logger.debug("* {0}.{1} = {2} : type {3} at {4} offset {5} - ".format(self.__class__.__name__, attr.name, str(out), attr.type_, hex_ver, offset ))  # debug
+                self.logger.debug(
+                    "* {0}.{1} = {2} : type {3} at {4} offset {5} - ".format(self.__class__.__name__, attr.name,
+                                                                             str(out), attr.type_, hex_ver,
+                                                                             offset))  # debug
 
     def read(self, stream, data):
         """Read structure from stream."""
@@ -372,7 +398,6 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
             self._log_struct(stream, attr)
             attr_value.read(stream, data)
 
-
     def write(self, stream, data):
         """Write structure to stream."""
         # write all attributes
@@ -382,7 +407,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
                 continue
             # get attribute argument (can only be done at runtime)
             rt_arg = attr.arg if isinstance(attr.arg, (int, type(None))) \
-                     else getattr(self, attr.arg)
+                else getattr(self, attr.arg)
             # write the attribute
             attr_value = getattr(self, "_%s_value_" % attr.name)
             attr_value.arg = rt_arg
@@ -494,7 +519,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
         for base in cls.__bases__:
             try:
                 attrs.extend(base._get_attribute_list())
-            except AttributeError: # when base class is "object"
+            except AttributeError:  # when base class is "object"
                 pass
         attrs.extend(cls._attrs)
         return attrs
@@ -508,7 +533,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
         for base in cls.__bases__:
             try:
                 names.extend(base._get_names())
-            except AttributeError: # when base class is "object"
+            except AttributeError:  # when base class is "object"
                 pass
         for attr in cls._attrs:
             if attr.name in names:
@@ -536,7 +561,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
             user_version = None
         names = set()
         for attr in self._attribute_list:
-            #print(attr.name, version, attr.ver1, attr.ver2) # debug
+            # print(attr.name, version, attr.ver1, attr.ver2) # debug
 
             # check version
             if version is not None:
@@ -544,30 +569,30 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
                     continue
                 if attr.ver2 is not None and version > attr.ver2:
                     continue
-            #print("version check passed") # debug
+            # print("version check passed") # debug
 
             # check user version
             if (attr.userver is not None and user_version is not None
-                and user_version != attr.userver):
+                    and user_version != attr.userver):
                 continue
-            #print("user version check passed") # debug
+            # print("user version check passed") # debug
 
             # check conditions
             if attr.cond is not None and not attr.cond.eval(self):
                 continue
 
             if (version is not None and user_version is not None
-                and attr.vercond is not None):
+                    and attr.vercond is not None):
                 if not attr.vercond.eval(data):
                     continue
 
-            #print("condition passed") # debug
+            # print("condition passed") # debug
 
             # skip dupiclate names
 
             if attr.name in names:
                 continue
-            #print("duplicate check passed") # debug
+            # print("duplicate check passed") # debug
 
             names.add(attr.name)
             # passed all tests
@@ -634,7 +659,6 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
         """Yield names of the children of this structure."""
         return (name for name in self._names)
 
-
     # GlobalNode
 
     def get_global_display(self):
@@ -647,5 +671,5 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
         for branch in self.get_refs():
             yield branch
 
-from pyffi.object_models.xml.basic import BasicBase
+
 from pyffi.object_models.xml.array import Array

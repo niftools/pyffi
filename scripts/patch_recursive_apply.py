@@ -40,7 +40,6 @@
 # ***** END LICENSE BLOCK *****
 
 import argparse
-import shutil
 import os
 import os.path
 import subprocess
@@ -54,7 +53,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument(
     'patch_cmd', metavar="CMD", type=str,
     help="use CMD to apply a patch between files; this command must "
-    "accept at least 3 arguments: 'CMD oldfile newfile patchfile ...'")
+         "accept at least 3 arguments: 'CMD oldfile newfile patchfile ...'")
 parser.add_argument(
     'in_folder', type=str,
     help="folder containing original files")
@@ -65,6 +64,7 @@ parser.add_argument(
     'patch_folder', type=str,
     help="folder containing patch files")
 args, unknown_args = parser.parse_known_args()
+
 
 # actual script
 
@@ -81,6 +81,7 @@ def patch_cmd(in_file, out_file, patch_file):
         command = [args.patch_cmd, in_file, out_file, patch_file] + unknown_args
         print("applying %s" % patch_file)
         subprocess.call(command)
+
 
 for dirpath, dirnames, filenames in os.walk(args.in_folder):
     for filename in filenames:

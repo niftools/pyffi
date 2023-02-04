@@ -1,8 +1,8 @@
 """Tests for the modify_delbranches spell and its friends"""
+from nose.tools import assert_equals
+
 from tests.scripts.nif import call_niftoaster
 from tests.utils import BaseNifFileTestCase
-
-from nose.tools import assert_equals
 
 
 class TestModifyDelBranchesNif(BaseNifFileTestCase):

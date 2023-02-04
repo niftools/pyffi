@@ -1,4 +1,44 @@
-"""Defines base class for arrays of data."""
+"""
+:mod:`pyffi.object_models.array_type` --- Abstract classes for data stored as an array
+======================================================================================
+
+Defines base class for arrays of data.
+
+Implementation
+--------------
+
+.. autoclass:: ValidatedList
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: AnyArray
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: MetaUniformArray
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: UniformArray
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: MetaUniformSimpleArray
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: UniformSimpleArray
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Example of usage
+"""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -40,15 +80,16 @@
 # --------------------------------------------------------------------------
 
 
-
-from pyffi.object_models.any_type import AnyType
 import pyffi.object_models.simple_type
+from pyffi.object_models.any_type import AnyType
 from pyffi.utils.graph import EdgeFilter
+
 
 class ValidatedList(list):
     """Abstract base class for lists whose items can be validated (for
     instance, for type checks).
     """
+
     def __init__(self, *args, **kwargs):
         """Initialize empty list."""
         list.__init__(self, *args, **kwargs)
@@ -86,6 +127,7 @@ class ValidatedList(list):
         self.validate(item)
         list.insert(self, index, item)
 
+
 class AnyArray(ValidatedList, AnyType):
     """Abstract base class for all array types.
 
@@ -98,7 +140,7 @@ class AnyArray(ValidatedList, AnyType):
     def is_interchangeable(self, other):
         """Check if array's are interchangeable."""
         # compare classes
-        if not(self.__class__ is other.__class__):
+        if not (self.__class__ is other.__class__):
             return False
         # compare lengths
         if list.__len__(self) != list.__len__(other):
@@ -135,11 +177,13 @@ class AnyArray(ValidatedList, AnyType):
     def get_detail_child_names(self, edge_filter=EdgeFilter()):
         return ("[%i]" % i for i in range(list.__len__(self)))
 
+
 class MetaUniformArray(type):
     """Metaclass for L{UniformArray}. Checks that
     L{ItemType<UniformArray.ItemType>} is an
     L{AnyType<pyffi.object_models.any_type.AnyType>} subclass.
     """
+
     def __init__(cls, name, bases, dct):
         """Initialize array type."""
         # create the class
@@ -147,6 +191,7 @@ class MetaUniformArray(type):
         # check type of elements
         if not issubclass(cls.ItemType, AnyType):
             raise TypeError("array ItemType must be an AnyType subclass")
+
 
 class UniformArray(AnyArray, metaclass=MetaUniformArray):
     """Wrapper for array with elements of the same type; this type must be
@@ -187,11 +232,13 @@ class UniformArray(AnyArray, metaclass=MetaUniformArray):
                             % (item.__class__.__name__,
                                cls.ItemType.__name__))
 
+
 class MetaUniformSimpleArray(type):
     """Metaclass for L{UniformSimpleArray}. Checks that
     L{ItemType<UniformSimpleArray.ItemType>} is an
     L{SimpleType<pyffi.object_models.simple_type.SimpleType>} subclass.
     """
+
     def __init__(cls, name, bases, dct):
         """Initialize array type."""
         # create the class
@@ -200,6 +247,7 @@ class MetaUniformSimpleArray(type):
         if not issubclass(cls.ItemType,
                           pyffi.object_models.simple_type.SimpleType):
             raise TypeError("array ItemType must be a SimpleType subclass")
+
 
 class UniformSimpleArray(AnyArray, metaclass=MetaUniformSimpleArray):
     """Base class for array's with direct access to values of simple items."""

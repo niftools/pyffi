@@ -40,8 +40,9 @@ StructBase, Array, and BasicBase instances."""
 
 from PyQt4 import QtCore
 
-from pyffi.utils.graph import EdgeFilter, GlobalNode
 from pyffi.qskope.detail_tree import DetailTreeItem, DetailTreeItemData
+from pyffi.utils.graph import EdgeFilter, GlobalNode
+
 
 # implementation references:
 # http://doc.trolltech.com/4.3/model-view-programming.html
@@ -51,8 +52,8 @@ class DetailModel(QtCore.QAbstractItemModel):
     such as StructBase, Array, and BasicBase instances."""
     # column definitions
     NUM_COLUMNS = 3
-    COL_NAME  = 0
-    COL_TYPE  = 1
+    COL_NAME = 0
+    COL_TYPE = 1
     COL_VALUE = 2
 
 #    def __init__(self, parent = None, block = None, refnumber_dict = None):
@@ -143,7 +144,7 @@ class DetailModel(QtCore.QAbstractItemModel):
     def headerData(self, section, orientation, role):
         """Return header data."""
         if (orientation == QtCore.Qt.Horizontal
-            and role == QtCore.Qt.DisplayRole):
+                and role == QtCore.Qt.DisplayRole):
             if section == self.COL_TYPE:
                 return "Type"
             elif section == self.COL_NAME:
@@ -225,7 +226,7 @@ class DetailModel(QtCore.QAbstractItemModel):
             node.set_editor_value(pyvalue)
             # tell everyone that the data has changed
             self.emit(QtCore.SIGNAL('dataChanged(QModelIndex, QModelIndex)'),
-                                    index, index)
+                      index, index)
             return True
         # all other cases: failed
         return False

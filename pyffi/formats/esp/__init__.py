@@ -93,14 +93,12 @@ Create an ESP file from scratch and write to file
 #
 # ***** END LICENSE BLOCK *****
 
-import struct
 import os
 import re
 
-import pyffi.object_models.xml
-import pyffi.object_models.common
-from pyffi.object_models.xml.basic import BasicBase
 import pyffi.object_models
+import pyffi.object_models.common
+import pyffi.object_models.xml
 from pyffi.utils.graph import EdgeFilter
 
 
@@ -128,6 +126,7 @@ class EspFormat(pyffi.object_models.xml.FileFormat):
     float = pyffi.object_models.common.Float
     uint64 = pyffi.object_models.common.UInt64
     ZString = pyffi.object_models.common.ZString
+
     class RecordType(pyffi.object_models.common.FixedString):
         _len = 4
 
@@ -168,13 +167,14 @@ class EspFormat(pyffi.object_models.xml.FileFormat):
             records.append(record)
             record.read(stream, data)
             if size is not None:
-                size -= stream.tell() - pos #slower: record.get_size()
+                size -= stream.tell() - pos  # slower: record.get_size()
             else:
                 num_records -= 1
         return records
 
     class Data(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual esp data."""
+
         def __init__(self):
             self.tes4 = EspFormat.TES4()
             self.records = []
@@ -210,7 +210,6 @@ class EspFormat(pyffi.object_models.xml.FileFormat):
             finally:
                 stream.seek(pos)
 
-
         def read(self, stream):
             """Read a esp file.
 
@@ -229,10 +228,10 @@ class EspFormat(pyffi.object_models.xml.FileFormat):
 
             # check if we are at the end of the file
             if stream.read(1):
-                #raise ValueError(
+                # raise ValueError(
                 print(
                     'end of file not reached: corrupt esp file?')
-            
+
         def write(self, stream):
             """Write a esp file.
 

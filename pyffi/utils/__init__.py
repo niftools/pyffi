@@ -42,24 +42,27 @@
 # ***** END LICENSE BLOCK *****
 
 import os
+import re
 from distutils.cmd import Command
 
+sci_not = re.compile("([-+]?\d+\.?\d*)[Ee]([-+]?\d+)?")
 
-class BuildDoc(Command): # pragma: no cover
+
+class BuildDoc(Command):  # pragma: no cover
     """
     Distutils command to stop setup.py from throwing errors
     if sphinx is not installed
     """
-    
+
     description = 'Sphinx is not installed'
     user_options = []
-    
+
     def initialize_options(self):
         self.source_dir = self.build_dir = None
         self.project = ''
         self.version = ''
         self.release = ''
-    
+
     def finalize_options(self):
         return
 
@@ -103,7 +106,8 @@ def walk(top, topdown=True, onerror=None, re_filename=None):
 # for c in [chr(i) for i in range(32,128)]:
 #     table += c
 # table += "."*128
-chartable = '................................ !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.................................................................................................................................'.encode("ascii")
+chartable = '................................ !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.................................................................................................................................'.encode(
+    "ascii")
 
 
 def hex_dump(f, num_lines=8):
@@ -112,8 +116,8 @@ def hex_dump(f, num_lines=8):
     dumpstr = ""
 
     pos = f.tell()
-    if pos > num_lines*8:
-        f.seek((pos-num_lines*8) & 0xfffffff0)
+    if pos > num_lines * 8:
+        f.seek((pos - num_lines * 8) & 0xfffffff0)
     else:
         f.seek(0)
     dumppos = f.tell()
@@ -169,6 +173,25 @@ def unique_map(hash_generator):
     return hash_map, hash_map_inverse
 
 
+def get_single(val):
+    if isinstance(val, str):
+        return val
+    try:
+        iter(val)
+        return val[0]
+    except TypeError:
+        return val
+
+
+def parse_scientific_notation(string: str):
+    match = sci_not.match(string)
+    if match:
+        val = float(match[1])
+        exp = pow(10, int(match[2]))
+        return val * exp
+
+
 if __name__ == '__main__':
     import doctest
+
     doctest.testmod()

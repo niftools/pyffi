@@ -72,12 +72,13 @@ parser = OptionParser(
     usage=
     "Usage: %prog source_folder destination_folder\n\n"
     + __doc__
-    )
+)
 (options, args) = parser.parse_args()
 if len(args) != 2:
     parser.print_help()
     exit()
 unpack_folder, out_folder = args
+
 
 # actual script
 
@@ -89,6 +90,7 @@ def pack(arcroot):
         dirdata.write(dirfile)
     with open(os.path.join(out_folder, arcroot) + '.img', 'wb') as imgfile:
         dirdata.pack(imgfile, folder)
+
 
 for arcname in os.listdir(unpack_folder):
     if os.path.isdir(os.path.join(unpack_folder, arcname)):

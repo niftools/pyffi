@@ -1,4 +1,24 @@
-"""Implements class for arrays."""
+"""
+:mod:`pyffi.object_models.xml.array` --- Array classes
+======================================================
+
+Implements class for arrays.
+
+Implementation
+--------------
+
+.. autoclass:: Array
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. autoclass:: _ListWrap
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+.. todo:: Show examples for usage
+"""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -43,6 +63,7 @@
 import logging
 import weakref
 
+from pyffi.object_models.basic import BasicBase
 from pyffi.utils.graph import DetailNode, EdgeFilter
 
 
@@ -406,5 +427,4 @@ class Array(_ListWrap):
                     yield elem
 
 
-from pyffi.object_models.xml.basic import BasicBase
 from pyffi.object_models.xml.struct_ import StructBase

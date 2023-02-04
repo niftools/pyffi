@@ -39,31 +39,30 @@
 
 from PyQt4 import QtGui, QtCore
 
-import pyffi.qskope.global_model
-import pyffi.qskope.detail_model
-import pyffi.qskope.detail_delegate
-
 import pyffi
-from pyffi.formats.nif import NifFormat
+import pyffi.qskope.detail_delegate
+import pyffi.qskope.detail_model
+import pyffi.qskope.global_model
+from pyffi.formats.bsa import BsaFormat
 from pyffi.formats.cgf import CgfFormat
-from pyffi.formats.kfm import KfmFormat
 from pyffi.formats.dds import DdsFormat
-from pyffi.formats.tga import TgaFormat
 from pyffi.formats.egm import EgmFormat
 from pyffi.formats.egt import EgtFormat
 from pyffi.formats.esp import EspFormat
-from pyffi.formats.tri import TriFormat
-from pyffi.formats.bsa import BsaFormat
+from pyffi.formats.kfm import KfmFormat
+from pyffi.formats.nif import NifFormat
 from pyffi.formats.psk import PskFormat
 from pyffi.formats.rockstar.dir_ import DirFormat
+from pyffi.formats.tga import TgaFormat
+from pyffi.formats.tri import TriFormat
 
-from pyffi.object_models import FileFormat
 
 # implementation details:
 # http://doc.trolltech.com/4.3/qmainwindow.html#details
 class QSkope(QtGui.QMainWindow):
     """Main QSkope window."""
-    def __init__(self, parent = None):
+
+    def __init__(self, parent=None):
         """Initialize the main window."""
         QtGui.QMainWindow.__init__(self, parent)
 
@@ -170,16 +169,15 @@ class QSkope(QtGui.QMainWindow):
 
     def closeEvent(self, event):
         """Called when the application is closed. Saves the settings."""
-        settings = self.getSettings(versioned = True)
+        settings = self.getSettings(versioned=True)
         settings.setValue("MainWindow/geometry", self.saveGeometry())
         QtGui.QMainWindow.closeEvent(self, event)
-
 
     #
     # various helper functions
     #
 
-    def openFile(self, filename = None):
+    def openFile(self, filename=None):
         """Open a file, and set up the view."""
         # inform user about file being read
         self.statusBar().showMessage("Reading %s ..." % filename)
@@ -195,7 +193,7 @@ class QSkope(QtGui.QMainWindow):
                 self.data = Format.Data()
                 try:
                     self.data.read(stream)
-                except ValueError as err: #ValueError:
+                except ValueError as err:  # ValueError:
                     # failed, try next format
                     print(str(err))
                     continue
@@ -237,7 +235,7 @@ class QSkope(QtGui.QMainWindow):
             except UnboundLocalError:
                 pass
 
-    def saveFile(self, filename = None):
+    def saveFile(self, filename=None):
         """Save changes to disk."""
         # TODO support dds saving as well
         # TODO support tga saving as well
@@ -265,7 +263,7 @@ class QSkope(QtGui.QMainWindow):
             stream.close()
 
     @staticmethod
-    def getSettings(versioned = False):
+    def getSettings(versioned=False):
         """Return the QSkope settings."""
         if not versioned:
             return QtCore.QSettings("PyFFI", "QSkope")
@@ -296,7 +294,7 @@ class QSkope(QtGui.QMainWindow):
         # (displays an extra file dialog)
         filename = QtGui.QFileDialog.getOpenFileName(self, "Open File")
         if filename:
-            self.openFile(filename = filename)
+            self.openFile(filename=filename)
 
     def saveAsAction(self):
         """Save a file."""
@@ -312,7 +310,7 @@ class QSkope(QtGui.QMainWindow):
         # wrapper around saveFile
         # (gets file name automatically from stored file name)
         if self.fileName:
-            self.saveFile(filename = self.fileName)
+            self.saveFile(filename=self.fileName)
 
     def aboutQSkopeAction(self):
         """Display an information window about QSkope."""

@@ -1,8 +1,7 @@
+from pyffi.spells import Toaster
+from tests import test_logger
 from tests.scripts.nif import call_niftoaster
 from tests.utils import BaseNifFileTestCase
-from tests import test_logger
-
-from pyffi.spells import Toaster
 
 
 class TestToasterOptimisationNif(BaseNifFileTestCase):
@@ -38,6 +37,7 @@ class TestToasterOptimisationNif(BaseNifFileTestCase):
     def test_simulate_user_optimisation(self):
         Toaster.toast.__globals__['input'] = input_func
         call_niftoaster("optimize", "--raise", "--verbose=1", self.dest_file)
+
 
 inputs = ["yes it is", "n", "y"]  # list of inputs of this test
 

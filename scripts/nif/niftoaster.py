@@ -50,8 +50,8 @@ import pyffi.spells.nif
 import pyffi.spells.nif.check
 import pyffi.spells.nif.dump
 import pyffi.spells.nif.fix
-import pyffi.spells.nif.optimize
 import pyffi.spells.nif.modify
+import pyffi.spells.nif.optimize
 
 
 class NifToaster(pyffi.spells.nif.NifToaster):
@@ -100,7 +100,7 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.optimize.SpellCleanRefLists,
         pyffi.spells.nif.optimize.SpellMergeDuplicates,
         pyffi.spells.nif.optimize.SpellOptimizeGeometry,
-        #pyffi.spells.nif.optimize.SpellOptimizeSplit,
+        # pyffi.spells.nif.optimize.SpellOptimizeSplit,
         pyffi.spells.nif.optimize.SpellOptimize,
         pyffi.spells.nif.optimize.SpellDelUnusedBones,
         pyffi.spells.nif.optimize.SpellDelZeroScale,
@@ -138,7 +138,7 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.optimize.SpellOptimizeAnimation,
         pyffi.spells.nif.check.SpellCheckMaterialEmissiveValue,
         pyffi.spells.nif.modify.SpellMirrorAnimation
-        ]
+    ]
     ALIASDICT = {
         "texdump": "dump_tex",
         "read": "check_read",
@@ -148,7 +148,7 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         "exportpixeldata": "dump_pixeldata",
         "scale": "fix_scale",
         "opt_cleanfarnif": "modify_cleanfarnif",
-        }
+    }
     EXAMPLES = """* check if PyFFI can read all files in current directory
   (python version of nifskope's xml checker):
 
@@ -186,6 +186,7 @@ recursively, for Freedom Force vs. The 3rd Reich
     python niftoaster.py -a 100 fix_scale "c:\\zoo2"
 """
 
+
 # if script is called...
 if __name__ == "__main__":
     # set up logger
@@ -198,4 +199,3 @@ if __name__ == "__main__":
     logger.addHandler(loghandler)
     # call toaster
     NifToaster().cli()
-

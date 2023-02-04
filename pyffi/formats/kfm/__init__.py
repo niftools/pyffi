@@ -142,7 +142,7 @@ import pyffi.object_models
 import pyffi.object_models.common
 import pyffi.object_models.xml
 import pyffi.object_models.xml.struct_
-from pyffi.object_models.xml.basic import BasicBase
+from pyffi.object_models.basic import BasicBase
 from pyffi.utils.graph import EdgeFilter
 
 
@@ -247,7 +247,7 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             :return: Number of bytes.
             """
             return len(self.version_string(data.version)) \
-                   + (1 if not self._doseol else 2)
+                + (1 if not self._doseol else 2)
 
         # DetailNode
 

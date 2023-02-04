@@ -48,10 +48,11 @@ from functools import reduce
 
 from pyffi.utils.tristrip import OrientedStrip
 
+
 class VertexScore:
     """Vertex score calculation."""
     # constants used for scoring algorithm
-    CACHE_SIZE = 32 # higher values yield virtually no improvement
+    CACHE_SIZE = 32  # higher values yield virtually no improvement
     """The size of the modeled cache."""
 
     CACHE_DECAY_POWER = 1.5
@@ -164,6 +165,7 @@ class VertexScore:
             min(len(vertex_info.triangle_indices),
                 self.MAX_TRIANGLES_PER_VERTEX)]
 
+
 class VertexInfo:
     """Stores information about a vertex."""
 
@@ -175,18 +177,20 @@ class VertexInfo:
         self.triangle_indices = ([] if triangle_indices is None
                                  else triangle_indices)
 
+
 class TriangleInfo:
     def __init__(self, score=0, vertex_indices=None):
         self.score = score
         self.vertex_indices = ([] if vertex_indices is None
                                else vertex_indices)
 
+
 class Mesh:
     """Simple mesh implementation which keeps track of which triangles
     are used by which vertex, and vertex cache positions.
     """
 
-    _DEBUG = False # to enable debugging of the algorithm
+    _DEBUG = False  # to enable debugging of the algorithm
 
     def __init__(self, triangles, vertex_score=None):
         """Initialize mesh from given set of triangles.
@@ -280,10 +284,10 @@ class Mesh:
                     self.triangle_infos[triangle_index].score)
                 best_triangle_info = self.triangle_infos[best_triangle_index]
                 if (self._DEBUG and
-                    globally_optimal_score - best_triangle_info.score > 0.01):
-                        print(globally_optimal_score,
-                              globally_optimal_score - best_triangle_info.score,
-                              len(updated_triangles))
+                        globally_optimal_score - best_triangle_info.score > 0.01):
+                    print(globally_optimal_score,
+                          globally_optimal_score - best_triangle_info.score,
+                          len(updated_triangles))
             # mark as added
             self.triangle_infos[best_triangle_index] = None
             # append to ordered list of triangles
@@ -333,6 +337,7 @@ class Mesh:
         # return result
         return triangles
 
+
 def get_cache_optimized_triangles(triangles):
     """Calculate cache optimized triangles, and return the result as
     a reordered set of triangles or strip of stitched triangles.
@@ -342,6 +347,7 @@ def get_cache_optimized_triangles(triangles):
     """
     mesh = Mesh(triangles)
     return mesh.get_cache_optimized_triangles()
+
 
 def get_unique_triangles(triangles):
     """Yield unique triangles.
@@ -365,6 +371,7 @@ def get_unique_triangles(triangles):
         if verts not in _added_triangles:
             yield verts
             _added_triangles.add(verts)
+
 
 def stable_stripify(triangles, stitchstrips=False):
     """Stitch all triangles together into a strip without changing the
@@ -401,7 +408,7 @@ def stable_stripify(triangles, stitchstrips=False):
             added = False
             for v0, v1, v2 in indices:
                 for ov0, ov1, ov2 in indices:
-                    if strip[v1] == tri[ov1] and  strip[v2] == tri[ov0]:
+                    if strip[v1] == tri[ov1] and strip[v2] == tri[ov0]:
                         strip = [strip[v0], strip[v1], strip[v2], tri[ov2]]
                         added = True
                         break
@@ -419,12 +426,12 @@ def stable_stripify(triangles, stitchstrips=False):
             added = False
             for ov0, ov1, ov2 in indices:
                 if len(strip) & 1:
-                    if strip[-2] == tri[ov1] and  strip[-1] == tri[ov0]:
+                    if strip[-2] == tri[ov1] and strip[-1] == tri[ov0]:
                         strip.append(tri[ov2])
                         added = True
                         break
                 else:
-                    if strip[-2] == tri[ov0] and  strip[-1] == tri[ov1]:
+                    if strip[-2] == tri[ov0] and strip[-1] == tri[ov1]:
                         strip.append(tri[ov2])
                         added = True
                         break
@@ -443,11 +450,13 @@ def stable_stripify(triangles, stitchstrips=False):
                         (OrientedStrip(strip) for strip in strips))
         return [list(result)]
 
+
 def stripify(triangles, stitchstrips=False):
     """Stripify triangles, optimizing for the vertex cache."""
     return stable_stripify(
         get_cache_optimized_triangles(triangles),
         stitchstrips=stitchstrips)
+
 
 def get_cache_optimized_vertex_map(strips):
     """Map vertices so triangles/strips have consequetive indices.
@@ -475,6 +484,7 @@ def get_cache_optimized_vertex_map(strips):
                 new_vertex += 1
     return vertex_map
 
+
 def average_transform_to_vertex_ratio(strips, cache_size=16):
     """Calculate number of transforms per vertex for a given cache size
     and triangles/strips. See
@@ -501,6 +511,8 @@ def average_transform_to_vertex_ratio(strips, cache_size=16):
         # no vertices...
         return 1
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     import doctest
+
     doctest.testmod()

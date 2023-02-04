@@ -145,13 +145,14 @@ Precision
 #
 # ***** END LICENSE BLOCK *****
 
+import operator
+
 from pyffi.utils.mathutils import *
 
-import operator
 
 # adapted from
 # http://en.literateprograms.org/Quickhull_(Python,_arrays)
-def qdome2d(vertices, base, normal, precision = 0.0001):
+def qdome2d(vertices, base, normal, precision=0.0001):
     """Build a convex dome from C{vertices} on top of the two C{base} vertices,
     in the plane with normal C{normal}. This is a helper function for
     L{qhull2d}, and should usually not be called directly.
@@ -165,24 +166,25 @@ def qdome2d(vertices, base, normal, precision = 0.0001):
     :return: A list of vertices that make up a fan of the dome."""
 
     vert0, vert1 = base
-    outer = [ (dist, vert)
-          for dist, vert
-          in zip( ( vecDotProduct(vecCrossProduct(normal,
+    outer = [(dist, vert)
+             for dist, vert
+             in zip((vecDotProduct(vecCrossProduct(normal,
                                                    vecSub(vert1, vert0)),
                                    vecSub(vert, vert0))
-                     for vert in vertices ),
-                   vertices )
-          if dist > precision ]
+                     for vert in vertices),
+                    vertices)
+             if dist > precision]
 
     if outer:
         pivot = max(outer)[1]
         outer_verts = list(map(operator.itemgetter(1), outer))
         return qdome2d(outer_verts, [vert0, pivot], normal, precision) \
-               + qdome2d(outer_verts, [pivot, vert1], normal, precision)[1:]
+            + qdome2d(outer_verts, [pivot, vert1], normal, precision)[1:]
     else:
         return base
 
-def qhull2d(vertices, normal, precision = 0.0001):
+
+def qhull2d(vertices, normal, precision=0.0001):
     """Simple implementation of the 2d quickhull algorithm in 3 dimensions for
     vertices viewed from the direction of C{normal}.
     Returns a fan of vertices that make up the surface. Called by
@@ -223,11 +225,12 @@ def qhull2d(vertices, normal, precision = 0.0001):
     if len(base) >= 2:
         vert0, vert1 = base[:2]
         return qdome2d(vertices, [vert0, vert1], normal, precision) \
-               + qdome2d(vertices, [vert1, vert0], normal, precision)[1:-1]
+            + qdome2d(vertices, [vert1, vert0], normal, precision)[1:-1]
     else:
         return base
 
-def basesimplex3d(vertices, precision = 0.0001):
+
+def basesimplex3d(vertices, precision=0.0001):
     """Find four extreme points, to be used as a starting base for the
     quick hull algorithm L{qhull3d}.
 
@@ -271,14 +274,14 @@ def basesimplex3d(vertices, precision = 0.0001):
     vert1 = max(vertices, key=operator.itemgetter(*extents))
     # check if all vertices coincide
     if vecDistance(vert0, vert1) < precision:
-        return [ vert0 ]
+        return [vert0]
     # as a third extreme point select that one which maximizes the distance
     # from the vert0 - vert1 axis
     vert2 = max(vertices,
                 key=lambda vert: vecDistanceAxis((vert0, vert1), vert))
-    #check if all vertices are colinear
+    # check if all vertices are colinear
     if vecDistanceAxis((vert0, vert1), vert2) < precision:
-        return [ vert0, vert1 ]
+        return [vert0, vert1]
     # as a fourth extreme point select one which maximizes the distance from
     # the v0, v1, v2 triangle
     vert3 = max(vertices,
@@ -287,14 +290,15 @@ def basesimplex3d(vertices, precision = 0.0001):
     # ensure positive orientation and check if all vertices are coplanar
     orientation = vecDistanceTriangle((vert0, vert1, vert2), vert3)
     if orientation > precision:
-        return [ vert0, vert1, vert2, vert3 ]
+        return [vert0, vert1, vert2, vert3]
     elif orientation < -precision:
-        return [ vert1, vert0, vert2, vert3 ]
+        return [vert1, vert0, vert2, vert3]
     else:
         # coplanar
-        return [ vert0, vert1, vert2 ]
+        return [vert0, vert1, vert2]
 
-def qhull3d(vertices, precision = 0.0001, verbose = False):
+
+def qhull3d(vertices, precision=0.0001, verbose=False):
     """Return the triangles making up the convex hull of C{vertices}.
     Considers distances less than C{precision} to be zero (useful to simplify
     the hull of a complex mesh, at the expense of exactness of the hull).
@@ -317,16 +321,16 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
     if len(hull_vertices) == 3:
         # coplanar
         hull_vertices = qhull2d(vertices, vecNormal(*hull_vertices), precision)
-        return hull_vertices, [ (0, i+1, i+2)
-                                for i in range(len(hull_vertices) - 2) ]
+        return hull_vertices, [(0, i + 1, i + 2)
+                               for i in range(len(hull_vertices) - 2)]
     elif len(hull_vertices) <= 2:
         # colinear or singular
         # no triangles for these cases
         return hull_vertices, []
 
     # construct list of triangles of this simplex
-    hull_triangles = set([ operator.itemgetter(i,j,k)(hull_vertices)
-                         for i, j, k in ((1,0,2), (0,1,3), (0,3,2), (3,1,2)) ])
+    hull_triangles = set([operator.itemgetter(i, j, k)(hull_vertices)
+                          for i, j, k in ((1, 0, 2), (0, 1, 3), (0, 3, 2), (3, 1, 2))])
 
     if verbose:
         print("starting set", hull_vertices)
@@ -335,12 +339,12 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
     outer_vertices = {}
     for triangle in hull_triangles:
         outer = \
-            [ (dist, vert)
-              for dist, vert
-              in zip( ( vecDistanceTriangle(triangle, vert)
-                         for vert in vertices ),
-                       vertices )
-              if dist > precision ]
+            [(dist, vert)
+             for dist, vert
+             in zip((vecDistanceTriangle(triangle, vert)
+                     for vert in vertices),
+                    vertices)
+             if dist > precision]
         if outer:
             outer_vertices[triangle] = outer
 
@@ -357,23 +361,23 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
         hull_vertices.append(pivot)
         # and update the list of triangles:
         # 1. calculate visibility of triangles to pivot point
-        visibility = [ vecDistanceTriangle(othertriangle, pivot) > precision
-                       for othertriangle in outer_vertices.keys() ]
+        visibility = [vecDistanceTriangle(othertriangle, pivot) > precision
+                      for othertriangle in outer_vertices.keys()]
         # 2. get list of visible triangles
-        visible_triangles = [ othertriangle
-                              for othertriangle, visible
-                              in zip(iter(outer_vertices.keys()), visibility)
-                              if visible ]
+        visible_triangles = [othertriangle
+                             for othertriangle, visible
+                             in zip(iter(outer_vertices.keys()), visibility)
+                             if visible]
         # 3. find all edges of visible triangles
         visible_edges = []
         for visible_triangle in visible_triangles:
-            visible_edges += [operator.itemgetter(i,j)(visible_triangle)
-                              for i, j in ((0,1),(1,2),(2,0))]
+            visible_edges += [operator.itemgetter(i, j)(visible_triangle)
+                              for i, j in ((0, 1), (1, 2), (2, 0))]
         if verbose:
             print("visible edges", visible_edges)
         # 4. construct horizon: edges that are not shared with another triangle
-        horizon_edges = [ edge for edge in visible_edges
-                          if not tuple(reversed(edge)) in visible_edges ]
+        horizon_edges = [edge for edge in visible_edges
+                         if not tuple(reversed(edge)) in visible_edges]
         # 5. remove visible triangles from list
         # this puts a hole inside the triangle list
         visible_outer = set()
@@ -387,14 +391,14 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
         # 6. close triangle list by adding cone from horizon to pivot
         # also update the outer triangle list as we go
         for edge in horizon_edges:
-            newtriangle = edge + ( pivot, )
+            newtriangle = edge + (pivot,)
             newouter = \
-                [ (dist, vert)
-                  for dist, vert in zip( ( vecDistanceTriangle(newtriangle,
-                                                                vert)
-                                            for vert in visible_outer ),
-                                          visible_outer )
-                  if dist > precision ]
+                [(dist, vert)
+                 for dist, vert in zip((vecDistanceTriangle(newtriangle,
+                                                            vert)
+                                        for vert in visible_outer),
+                                       visible_outer)
+                 if dist > precision]
             hull_triangles.add(newtriangle)
             if newouter:
                 outer_vertices[newtriangle] = newouter
@@ -404,10 +408,12 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
     # no triangle has outer vertices anymore
     # so the convex hull is complete!
     # remap the triangles to indices that point into hull_vertices
-    return hull_vertices, [ tuple(hull_vertices.index(vert)
-                                  for vert in triangle)
-                            for triangle in hull_triangles ]
+    return hull_vertices, [tuple(hull_vertices.index(vert)
+                                 for vert in triangle)
+                           for triangle in hull_triangles]
+
 
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()

@@ -1,51 +1,52 @@
-import os.path
-from os.path import dirname
 import doctest
 import logging
 import sys
 import unittest
 
 import pyffi
-import pyffi.object_models.common
-import pyffi.object_models
-import pyffi.object_models.xml
-import pyffi.object_models.mex
-import pyffi.object_models.any_type
-import pyffi.object_models.simple_type
-import pyffi.object_models.array_type
-import pyffi.object_models.binary_type
-import pyffi.object_models.xml.basic
-import pyffi.object_models.xml.bit_struct
-import pyffi.object_models.xml.enum
-import pyffi.object_models.xml.expression
-import pyffi.object_models.xml.struct_
-import pyffi.utils
-import pyffi.utils.tristrip
-import pyffi.utils.vertex_cache
-import pyffi.utils.mathutils
-import pyffi.utils.quickhull
-import pyffi.utils.inertia
-import pyffi.utils.tangentspace
-import pyffi.utils.mopp
-import pyffi.formats.nif
-import pyffi.formats.cgf
-import pyffi.formats.kfm
-import pyffi.formats.dds
-import pyffi.formats.tga
-import pyffi.formats.egm
-import pyffi.formats.esp
-import pyffi.formats.tri
 import pyffi.formats.bsa
+import pyffi.formats.cgf
+import pyffi.formats.dds
+import pyffi.formats.egm
 import pyffi.formats.egt
+import pyffi.formats.esp
+import pyffi.formats.kfm
+import pyffi.formats.nif
 import pyffi.formats.psk
 import pyffi.formats.rockstar.dir_
+import pyffi.formats.tga
+import pyffi.formats.tri
+import pyffi.object_models
+import pyffi.object_models.any_type
+import pyffi.object_models.array_type
+import pyffi.object_models.basic
+import pyffi.object_models.binary_type
+import pyffi.object_models.common
+import pyffi.object_models.expression
+import pyffi.object_models.mex
+import pyffi.object_models.simple_type
+import pyffi.object_models.xml
+import pyffi.object_models.xml.bit_struct
+import pyffi.object_models.xml.enum
+import pyffi.object_models.xml.struct_
+import pyffi.object_models.niftoolsxml
+import pyffi.object_models.niftoolsxml.bit_struct
+import pyffi.object_models.niftoolsxml.enum
+import pyffi.object_models.niftoolsxml.struct_
 import pyffi.spells
 import pyffi.spells.nif
-import pyffi.spells.nif.fix
-import pyffi.spells.nif.modify
 import pyffi.spells.nif.check
 import pyffi.spells.nif.dump
-
+import pyffi.spells.nif.fix
+import pyffi.spells.nif.modify
+import pyffi.utils
+import pyffi.utils.inertia
+import pyffi.utils.mathutils
+import pyffi.utils.mopp
+import pyffi.utils.quickhull
+import pyffi.utils.tangentspace
+import pyffi.utils.tristrip
+import pyffi.utils.vertex_cache
 # these two do not yet work on py3k
 from tests import test_logger
 
@@ -91,12 +92,12 @@ def create_suite():
 
     file_paths = {
 
-                  # Contain outstanding issues
-                  # 'spells/egm/optimize.txt',
-                  # 'formats/kfm/kfmtoaster.txt', #Not Implemented
-                  # various regression tests (outside documentation)
-                  # 'docs-sphinx/intro.rst', #outside of test dir...
-                  }
+        # Contain outstanding issues
+        # 'spells/egm/optimize.txt',
+        # 'formats/kfm/kfmtoaster.txt', #Not Implemented
+        # various regression tests (outside documentation)
+        # 'docs-sphinx/intro.rst', #outside of test dir...
+    }
 
     suite.addTest(doctest.DocFileSuite(*file_paths))
 

@@ -14,7 +14,7 @@ class TestCheckTangentSpaceCgf(BaseCgfFileTestCase):
 
     def test_non_interactive_check_tangentspace(self):
         """Check_tangentspace spell"""
-        call_cgftoaster("--raise", "check_tangentspace",  "--noninteractive", "--verbose=1", self.dest_file)
+        call_cgftoaster("--raise", "check_tangentspace", "--noninteractive", "--verbose=1", self.dest_file)
         """
         pyffi.toaster:INFO:=== tests/formats/cgf/monkey.cgf ===
         pyffi.toaster:INFO:  --- check_tangentspace ---
