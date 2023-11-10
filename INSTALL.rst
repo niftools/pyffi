@@ -2,7 +2,7 @@ Requirements
 ============
 
 To run PyFFI's graphical file editor QSkope, you need 
-`PyQt4 <http://www.riverbankcomputing.co.uk/software/pyqt/download>`_.
+`PyQt6 <http://www.riverbankcomputing.co.uk/software/pyqt/download>`_.
 
 Using the Windows installer
 ===========================

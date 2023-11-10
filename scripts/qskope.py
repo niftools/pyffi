@@ -41,11 +41,11 @@
 
 import logging
 
-# check if PyQt4 is installed
+# check if PyQt6 is installed
 try:
-    from PyQt4 import QtGui
+    from PyQt6 import QtWidgets
 except ImportError:
-    input("""PyQt4 not found. Please download and install from
+    input("""PyQt6 not found. Please download and install from
 
   http://www.riverbankcomputing.co.uk/software/pyqt/download""")
     raise
@@ -74,12 +74,12 @@ def main():
         parser.error("incorrect number of arguments (one at most)")
 
     # run the application
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     mainwindow = QSkope()
     if len(args) >= 1:
         mainwindow.openFile(filename = args[0])
     mainwindow.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 if __name__ == "__main__":
     # set up logger

@@ -37,7 +37,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
-from PyQt4 import QtGui, QtCore
+from PyQt6 import QtGui, QtCore , QtWidgets
 
 import pyffi.qskope.global_model
 import pyffi.qskope.detail_model
@@ -61,22 +61,22 @@ from pyffi.object_models import FileFormat
 
 # implementation details:
 # http://doc.trolltech.com/4.3/qmainwindow.html#details
-class QSkope(QtGui.QMainWindow):
+class QSkope(QtWidgets.QMainWindow):
     """Main QSkope window."""
     def __init__(self, parent = None):
         """Initialize the main window."""
-        QtGui.QMainWindow.__init__(self, parent)
+        QtWidgets.QMainWindow.__init__(self, parent)
 
         # set up the menu bar
         self.createActions()
         self.createMenus()
 
         # set up the global model view
-        self.globalWidget = QtGui.QTreeView()
+        self.globalWidget = QtWidgets.QTreeView()
         self.globalWidget.setAlternatingRowColors(True)
 
         # set up the detail model view
-        self.detailWidget = QtGui.QTreeView()
+        self.detailWidget = QtWidgets.QTreeView()
         self.detailDelegate = pyffi.qskope.detail_delegate.DetailDelegate()
         self.detailWidget.setItemDelegate(self.detailDelegate)
         self.detailWidget.setAlternatingRowColors(True)
@@ -84,12 +84,10 @@ class QSkope(QtGui.QMainWindow):
         # connect global with detail:
         # if object is selected in global view, then show its details in the
         # detail view
-        QtCore.QObject.connect(self.globalWidget,
-                               QtCore.SIGNAL("clicked(const QModelIndex &)"),
-                               self.setDetailModel)
+        self.globalWidget.clicked.connect(self.setDetailModel)
 
         # set up the central widget
-        self.splitter = QtGui.QSplitter()
+        self.splitter = QtWidgets.QSplitter()
         self.splitter.addWidget(self.globalWidget)
         self.splitter.addWidget(self.detailWidget)
         self.setCentralWidget(self.splitter)
@@ -114,42 +112,30 @@ class QSkope(QtGui.QMainWindow):
         # open a file
         self.openAct = QtGui.QAction("&Open", self)
         self.openAct.setShortcut("Ctrl+O")
-        QtCore.QObject.connect(self.openAct,
-                               QtCore.SIGNAL("triggered()"),
-                               self.openAction)
+        self.openAct.triggered.connect(self.openAction)
 
         # save a file
         self.saveAct = QtGui.QAction("&Save", self)
         self.saveAct.setShortcut("Ctrl+S")
-        QtCore.QObject.connect(self.saveAct,
-                               QtCore.SIGNAL("triggered()"),
-                               self.saveAction)
+        self.saveAct.triggered.connect(self.saveAction)
 
         # save a file as ...
         self.saveAsAct = QtGui.QAction("Save As...", self)
         self.saveAsAct.setShortcut("Ctrl+Shift+S")
-        QtCore.QObject.connect(self.saveAsAct,
-                               QtCore.SIGNAL("triggered()"),
-                               self.saveAsAction)
+        self.saveAsAct.triggered.connect(self.saveAsAction)
 
         # exit
         self.exitAct = QtGui.QAction("E&xit", self)
         self.exitAct.setShortcut("Ctrl+Q")
-        QtCore.QObject.connect(self.exitAct,
-                               QtCore.SIGNAL("triggered()"),
-                               QtGui.qApp.quit)
+        self.exitAct.triggered.connect(QtWidgets.QApplication.quit)
 
         # tell something about QSkope
         self.aboutQSkopeAct = QtGui.QAction("About QSkope", self)
-        QtCore.QObject.connect(self.aboutQSkopeAct,
-                               QtCore.SIGNAL("triggered()"),
-                               self.aboutQSkopeAction)
+        self.aboutQSkopeAct.triggered.connect(self.aboutQSkopeAction)
 
         # tell something about Qt
         self.aboutQtAct = QtGui.QAction("About Qt", self)
-        QtCore.QObject.connect(self.aboutQtAct,
-                               QtCore.SIGNAL("triggered()"),
-                               QtGui.qApp.aboutQt)
+        self.aboutQtAct.triggered.connect(QtWidgets.QApplication.aboutQt)
 
     # implementation details:
     # http://doc.trolltech.com/4.3/mainwindows-menus.html
@@ -172,7 +158,7 @@ class QSkope(QtGui.QMainWindow):
         """Called when the application is closed. Saves the settings."""
         settings = self.getSettings(versioned = True)
         settings.setValue("MainWindow/geometry", self.saveGeometry())
-        QtGui.QMainWindow.closeEvent(self, event)
+        QtWidgets.QMainWindow.closeEvent(self, event)
 
 
     #
@@ -294,7 +280,7 @@ class QSkope(QtGui.QMainWindow):
         """Open a file."""
         # wrapper around openFile
         # (displays an extra file dialog)
-        filename = QtGui.QFileDialog.getOpenFileName(self, "Open File")
+        filename = QtWidgets.QFileDialog.getOpenFileName(self, "Open File")
         if filename:
             self.openFile(filename = filename)
 
@@ -302,7 +288,7 @@ class QSkope(QtGui.QMainWindow):
         """Save a file."""
         # wrapper around saveAction
         # (displays an extra file dialog)
-        filename = QtGui.QFileDialog.getSaveFileName(self, "Save File")
+        filename = QtWidgets.QFileDialog.getSaveFileName(self, "Save File")
         if filename:
             self.fileName = filename
             self.saveAction()
@@ -317,7 +303,7 @@ class QSkope(QtGui.QMainWindow):
     def aboutQSkopeAction(self):
         """Display an information window about QSkope."""
         # create the box
-        mbox = QtGui.QMessageBox(self)
+        mbox = QtWidgets.QMessageBox(self)
         # set window title and window text
         mbox.setWindowTitle("About QSkope")
         mbox.setText("""
@@ -336,4 +322,4 @@ The most recent version of PyFFI can always be downloaded from the
 <a href="https://github.com/niftools/pyffi/releases">
 PyFFI Github Releases page</a>.""" % pyffi.__version__)
         # display the window
-        mbox.exec_()
+        mbox.exec()

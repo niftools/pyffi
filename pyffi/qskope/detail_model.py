@@ -38,7 +38,7 @@ StructBase, Array, and BasicBase instances."""
 #
 # ***** END LICENSE BLOCK *****
 
-from PyQt4 import QtCore
+from PyQt6 import QtCore
 
 from pyffi.utils.graph import EdgeFilter, GlobalNode
 from pyffi.qskope.detail_tree import DetailTreeItem, DetailTreeItemData
@@ -81,9 +81,9 @@ class DetailModel(QtCore.QAbstractItemModel):
         """Return flags for the given index: all indices are enabled and
         selectable."""
         if not index.isValid():
-            return QtCore.Qt.ItemFlags()
+            return QtCore.Qt.ItemFlag()
         # all items are enabled and selectable
-        flags = QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
+        flags = QtCore.Qt.ItemFlag.ItemIsEnabled | QtCore.Qt.ItemFlag.ItemIsSelectable
         # determine whether item value can be set
         if index.column() == self.COL_VALUE:
             try:
@@ -94,8 +94,8 @@ class DetailModel(QtCore.QAbstractItemModel):
             except NotImplementedError:
                 pass
             else:
-                flags |= QtCore.Qt.ItemIsEditable
-        return QtCore.Qt.ItemFlags(flags)
+                flags |= QtCore.Qt.ItemFlag.ItemIsEditable
+        return QtCore.Qt.ItemFlag(flags)
 
     def data(self, index, role):
         """Return the data of model index in a particular role. Only
@@ -103,7 +103,7 @@ class DetailModel(QtCore.QAbstractItemModel):
         """
         # check if the index is valid
         # check if the role is supported
-        if not index.isValid() or role != QtCore.Qt.DisplayRole:
+        if not index.isValid() or role != QtCore.Qt.ItemDataRole.DisplayRole:
             return None
         # get the data for display
         item = index.internalPointer()
@@ -142,8 +142,8 @@ class DetailModel(QtCore.QAbstractItemModel):
 
     def headerData(self, section, orientation, role):
         """Return header data."""
-        if (orientation == QtCore.Qt.Horizontal
-            and role == QtCore.Qt.DisplayRole):
+        if (orientation == QtCore.Qt.Orientation.Horizontal
+            and role == QtCore.Qt.ItemDataRole.DisplayRole):
             if section == self.COL_TYPE:
                 return "Type"
             elif section == self.COL_NAME:
@@ -194,9 +194,9 @@ class DetailModel(QtCore.QAbstractItemModel):
 
     def setData(self, index, value, role):
         """Set data of a given index from given QVariant value. Only
-        QtCore.Qt.EditRole is implemented.
+        QtCore.Qt.ItemDataRole.EditRole is implemented.
         """
-        if role == QtCore.Qt.EditRole:
+        if role == QtCore.Qt.ItemDataRole.EditRole:
             # fetch the current data, as a regular Python type
             node = index.internalPointer().data.node
             currentvalue = node.get_value()
@@ -224,8 +224,7 @@ class DetailModel(QtCore.QAbstractItemModel):
             # set the value (EditRole, so use set_editor_value, not set_value)
             node.set_editor_value(pyvalue)
             # tell everyone that the data has changed
-            self.emit(QtCore.SIGNAL('dataChanged(QModelIndex, QModelIndex)'),
-                                    index, index)
+            self.dataChanged.emit(index,index, [])
             return True
         # all other cases: failed
         return False

@@ -20,7 +20,7 @@ Python library for processing block structured binary files:
 * **Batteries included:** Many tools for files used by 3D games, such
   as optimizers, stripifier, tangent space calculator, 2d/3d hull
   algorithms, inertia calculator, as well as a general purpose file
-  editor QSkope (using `PyQt4
+  editor QSkope (using `PyQt6
   <http://www.riverbankcomputing.co.uk/software/pyqt/download>`_), are
   included.
 
