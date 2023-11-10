@@ -716,7 +716,7 @@ but got instance of %s""" % (self._template, block.__class__))
 
             # is it a caf file? these are missing chunk headers on controllers
             # (note: stream.name may not be a python string for some file
-            # implementations, notably PyQt4, so convert it explicitely)
+            # implementations, notably PyQt6, so convert it explicitely)
             is_caf = (str(stream.name)[-4:].lower() == ".caf")
 
             chunk_types = [

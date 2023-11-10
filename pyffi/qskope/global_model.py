@@ -38,9 +38,9 @@ built from StructBase instances possibly referring to one another."""
 #
 # ***** END LICENSE BLOCK *****
 
-from collections import MutableMapping
+from collections.abc import MutableMapping
 
-from PyQt4 import QtGui, QtCore
+from PyQt6 import QtCore
 
 from pyffi.utils.graph import EdgeFilter
 from pyffi.qskope.global_tree import GlobalTreeItemData, GlobalTreeItem
@@ -76,7 +76,7 @@ class GlobalModel(QtCore.QAbstractItemModel):
             # index becomes available
             self.free_indices.append(self.data[id(key)])
             # remove it
-            del self.data[id(key)] 
+            del self.data[id(key)]
 
         def clear(self):
             # all indices larger than the first element
@@ -107,7 +107,7 @@ class GlobalModel(QtCore.QAbstractItemModel):
         self.index_dict[item.data.node]
         for child_item in item.children:
             self.updateIndexDict(child_item)
-            
+
 
     def flags(self, index):
         """Return flags for the given index: all indices are enabled and
@@ -115,19 +115,19 @@ class GlobalModel(QtCore.QAbstractItemModel):
         # all items are selectable
         # they are enabled if their edge_type is active
         if not index.isValid():
-            return QtCore.Qt.ItemFlags()
+            return QtCore.Qt.ItemFlag()
         item = index.internalPointer()
         if item.edge_type.active:
-            flags = QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
+            flags = QtCore.Qt.ItemFlag.ItemIsEnabled | QtCore.Qt.ItemFlag.ItemIsSelectable
         else:
-            flags = QtCore.Qt.ItemIsSelectable
-        return QtCore.Qt.ItemFlags(flags)
+            flags = QtCore.Qt.ItemFlag.ItemIsSelectable
+        return QtCore.Qt.ItemFlag(flags)
 
     def data(self, index, role):
         """Return the data of model index in a particular role."""
         # check if the index is valid
         # check if the role is supported
-        if not index.isValid() or role != QtCore.Qt.DisplayRole:
+        if not index.isValid() or role != QtCore.Qt.ItemDataRole.DisplayRole:
             return None
         # get the data for display
         data = index.internalPointer().data
@@ -146,8 +146,8 @@ class GlobalModel(QtCore.QAbstractItemModel):
 
     def headerData(self, section, orientation, role):
         """Return header data."""
-        if (orientation == QtCore.Qt.Horizontal
-            and role == QtCore.Qt.DisplayRole):
+        if (orientation == QtCore.Qt.Orientation.Horizontal
+            and role == QtCore.Qt.ItemDataRole.DisplayRole):
             if section == self.COL_TYPE:
                 return "Type"
             elif section == self.COL_NAME:

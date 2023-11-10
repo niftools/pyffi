@@ -37,7 +37,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
-from PyQt4 import QtCore, QtGui
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 # each delegate type corresponds to a QtGui delegate type
 # (see _checkValidEditor for more details)
@@ -50,7 +50,7 @@ from pyffi.object_models.editable import EditableLineEdit     # -> QLineEdit
 # implementation details:
 # http://doc.trolltech.com/4.3/model-view-delegate.html
 # http://doc.trolltech.com/4.3/qitemdelegate.html#details
-class DetailDelegate(QtGui.QItemDelegate):
+class DetailDelegate(QtWidgets.QItemDelegate):
     """Defines an editor for data in the detail view."""
 
     def _checkValidEditor(self, data, editor):
@@ -78,19 +78,19 @@ class DetailDelegate(QtGui.QItemDelegate):
         # (some combo types may also derive from spin box such as bools,
         # in that case prefer the combo box representation)
         if isinstance(data, EditableComboBox):
-            isvalid = isinstance(editor, QtGui.QComboBox)
+            isvalid = isinstance(editor, QtWidgets.QComboBox)
         # check float spin box
         elif isinstance(data, EditableFloatSpinBox):
-            isvalid = isinstance(editor, QtGui.QDoubleSpinBox)
+            isvalid = isinstance(editor, QtWidgets.QDoubleSpinBox)
         # check spin box
         elif isinstance(data, EditableSpinBox):
-            isvalid = isinstance(editor, QtGui.QSpinBox)
+            isvalid = isinstance(editor, QtWidgets.QSpinBox)
         # check text editor
         elif isinstance(data, EditableTextEdit):
-            isvalid = isinstance(editor, QtGui.QTextEdit)
+            isvalid = isinstance(editor, QtWidgets.QTextEdit)
         # check line editor
         elif isinstance(data, EditableLineEdit):
-            isvalid = isinstance(editor, QtGui.QLineEdit)
+            isvalid = isinstance(editor, QtWidgets.QLineEdit)
         else:
             # data has no delegate class, which is classified as invalid
             isvalid = False
@@ -112,7 +112,7 @@ class DetailDelegate(QtGui.QItemDelegate):
         # (see _checkValidEditor for the correct delegate preference order)
         if isinstance(node, EditableComboBox):
             # a general purpose combo box
-            editor = QtGui.QComboBox(parent)
+            editor = QtWidgets.QComboBox(parent)
             for key in node.get_editor_keys():
                 editor.addItem(key)
         elif isinstance(node, EditableFloatSpinBox):
@@ -123,17 +123,17 @@ class DetailDelegate(QtGui.QItemDelegate):
             editor.setDecimals(node.get_editor_decimals())
         elif isinstance(node, EditableSpinBox):
             # an integer spin box
-            editor = QtGui.QSpinBox(parent)
+            editor = QtWidgets.QSpinBox(parent)
             editor.setMinimum(node.get_editor_minimum())
             # work around a qt "bug": maximum must be C type "int"
             # so cannot be larger than 0x7fffffff
             editor.setMaximum(min(node.get_editor_maximum(), 0x7fffffff))
         elif isinstance(node, EditableTextEdit):
             # a text editor
-            editor = QtGui.QTextEdit(parent)
+            editor = QtWidgets.QTextEdit(parent)
         elif isinstance(node, EditableLineEdit):
             # a line editor
-            editor = QtGui.QLineEdit(parent)
+            editor = QtWidgets.QLineEdit(parent)
         else:
             return None
         # check validity
@@ -195,5 +195,5 @@ class DetailDelegate(QtGui.QItemDelegate):
             return
         # set the model data
         # EditRole ensures that setData uses set_editor_value to set the data
-        model.setData(index, editorvalue, QtCore.Qt.EditRole)
+        model.setData(index, editorvalue, QtCore.Qt.ItemDataRole.EditRole)
 
