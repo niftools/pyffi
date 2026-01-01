@@ -345,7 +345,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
             if v_map[i] is not None:
                 v_map_inverse[v_map[i]] = i
             else:
-                self.toaster.logger.warn("unused vertex")
+                self.toaster.logger.warning("unused vertex")
         try:
             new_numvertices = max(v for v in v_map if v is not None) + 1
         except ValueError:
@@ -480,7 +480,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                 # remap of morph vertices works only if
                 # morph.num_vertices == len(v_map)
                 if morphdata.num_vertices != len(v_map):
-                    self.toaster.logger.warn(
+                    self.toaster.logger.warning(
                         "number of vertices in morph ({0}) does not match"
                         " number of vertices in shape ({1}):"
                         " resizing morph, graphical glitches might result"
@@ -747,7 +747,7 @@ class SpellReduceGeometry(SpellOptimizeGeometry):
     @classmethod
     def toastentry(cls, toaster):
         if not toaster.options["arg"]:
-            toaster.logger.warn(
+            toaster.logger.warning(
                 "must specify degree of reduction as argument "
                 "(e.g. 2 to reduce a little, 1 to reduce more, "
                 "0 to reduce even more, -0.1 is usually the highest "

@@ -487,7 +487,7 @@ class SpellScale(NifSpell):
     @classmethod
     def toastentry(cls, toaster):
         if not toaster.options["arg"]:
-            toaster.logger.warn(
+            toaster.logger.warning(
                 "must specify scale as argument (e.g. -a 10) "
                 "to apply spell")
             return False
@@ -577,7 +577,6 @@ class SpellCleanStringPalette(NifSpell):
         >>> seq.string_palette.palette.get_all_strings()
         [b'there', b'hello', b'test']
         >>> SpellCleanStringPalette().branchentry(seq)
-        pyffi.toaster:INFO:parsing string palette
         False
         >>> seq.string_palette.palette.get_all_strings()
         [b'hello', b'there']
@@ -696,10 +695,6 @@ class SpellFixFallout3StringOffsets(NifSpell):
         >>> block.get_variable_2()
         b''
         >>> SpellFixFallout3StringOffsets().branchentry(seq)
-        pyffi.toaster:INFO:updating empty links
-        pyffi.toaster:INFO:updated 'property_type_offset' for b'hello' node
-        pyffi.toaster:INFO:updated 'controller_type_offset' for b'hello' node
-        pyffi.toaster:INFO:updated 'variable_2_offset' for b'hello' node
         False
         >>> block.node_name_offset
         6
@@ -714,15 +709,12 @@ class SpellFixFallout3StringOffsets(NifSpell):
         >>> block.get_node_name()
         b'hello'
         >>> block.get_property_type()
-        pyffi.nif.stringpalette:WARNING:StringPalette: no string starts at offset 16 (string is b'', preceeding character is b't')
         b''
         >>> block.get_controller_type()
-        pyffi.nif.stringpalette:WARNING:StringPalette: no string starts at offset 16 (string is b'', preceeding character is b't')
         b''
         >>> block.get_variable_1()
         b'there'
         >>> block.get_variable_2()
-        pyffi.nif.stringpalette:WARNING:StringPalette: no string starts at offset 16 (string is b'', preceeding character is b't')
         b''
         """
         if isinstance(branch,NifFormat.NiControllerSequence):
@@ -730,7 +722,7 @@ class SpellFixFallout3StringOffsets(NifSpell):
             # use the first string palette as reference
             string_palette = branch.string_palette
             if not string_palette:
-                self.toaster.logger.warn("empty string palette, skipped")
+                self.toaster.logger.warning("empty string palette, skipped")
                 return False
             palette = string_palette.palette.palette
             b00_offset = palette.rfind(b'\x00')
@@ -824,7 +816,7 @@ class SpellFixBhkSubShapes(NifSpell):
                 (sub_shape.num_vertices
                  for sub_shape in branch.get_sub_shapes()), 0)
             if num_verts_in_sub_shapes != branch.data.num_vertices:
-                self.toaster.logger.warn(
+                self.toaster.logger.warning(
                     "bad subshape vertex count (expected %i, got %i)"
                     % (branch.data.num_vertices, num_verts_in_sub_shapes))
                 # remove or add vertices from subshapes (start with the last)
@@ -885,7 +877,7 @@ class SpellFixEmptySkeletonRoots(NifSpell):
         if isinstance(branch, NifFormat.NiSkinInstance):
             if not branch.skeleton_root:
                 if self.skeleton_root:
-                    self.toaster.logger.warn(
+                    self.toaster.logger.warning(
                         "fixed missing skeleton root")
                     branch.skeleton_root = self.skeleton_root
                     self.changed = True

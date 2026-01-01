@@ -1,16 +1,8 @@
-import imp
-import os.path
 import sys
 
+from scripts.nif import niftoaster
+
 from tests import test_logger
-
-from os.path import dirname
-dir_path = __file__
-for i in range(4):  # recurse up to root repo dir
-    dir_path = dirname(dir_path)
-repo_root = dir_path
-
-niftoaster = imp.load_module("niftoaster", *imp.find_module("niftoaster", [os.path.join(repo_root, "scripts", "nif")]))
 
 
 def call_niftoaster(*args):

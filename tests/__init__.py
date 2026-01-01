@@ -2,6 +2,7 @@
 
 import logging
 import sys
+from pathlib import Path
 
 from logging.handlers import RotatingFileHandler
 
@@ -12,7 +13,8 @@ test_logger.setLevel(logging.DEBUG)
 # Get Handlers
 log_handler = logging.StreamHandler(sys.stdout)
 log_handler.setLevel(logging.DEBUG)
-file_handler = RotatingFileHandler("tests\\test.log", mode='w', maxBytes=64000000, backupCount=3)
+log_path = str(Path(__file__).parent / "test.log")
+file_handler = RotatingFileHandler(log_path, mode='w', maxBytes=64000000, backupCount=3)
 
 # Set Formatting
 # Make this a better format with more information

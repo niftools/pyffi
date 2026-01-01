@@ -29,7 +29,7 @@ Read a EGT file
 >>> data = EgtFormat.Data()
 >>> data.inspect(stream)
 >>> # do some stuff with header?
->>> data.read(stream) # doctest: +ELLIPSIS
+>>> data.read(stream)
 >>> # do more stuff?
 
 Parse all EGT files in a directory tree
@@ -45,7 +45,7 @@ Parse all EGT files in a directory tree
 ...     except Exception:
 ...         print(
 ...             "Warning: read failed due corrupt file,"
-...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
+...             " corrupt format description, or bug.")
 reading tests/formats/egt/test.egt
 
 Create an EGT file from scratch and write to file

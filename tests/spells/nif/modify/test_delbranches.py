@@ -2,8 +2,6 @@
 from tests.scripts.nif import call_niftoaster
 from tests.utils import BaseNifFileTestCase
 
-from nose.tools import assert_equals
-
 
 class TestModifyDelBranchesNif(BaseNifFileTestCase):
     """Invoke the modify_delbranches spell check through nif toaster"""
@@ -25,7 +23,7 @@ class TestModifyDelBranchesNif(BaseNifFileTestCase):
                  'NiDitherProperty', 'NiTriStripsData']
 
         blocks = [block.__class__.__name__ for block in self.data.blocks]
-        assert_equals(props, blocks)
+        assert props == blocks
 
         # strip properties
         call_niftoaster("--raise", "modify_delbranches", "-x", "NiProperty", "--noninteractive", "--verbose=1",
@@ -99,7 +97,7 @@ class TestModifyDelBranchesNif(BaseNifFileTestCase):
 
         branches = ['NiNode', 'NiNode', 'NiTriStrips', 'NiTriStripsData', 'NiTriStrips',
                     'NiTriStripsData', 'NiTriStrips', 'NiTriStripsData', 'NiTriStrips', 'NiTriStripsData']
-        assert_equals(blocks, branches)
+        assert blocks == branches
 
     def test_non_interactive_modify_delalphaprop(self):
         """NifToaster modify_delalphaprop check"""
@@ -116,7 +114,7 @@ class TestModifyDelBranchesNif(BaseNifFileTestCase):
                     'NiTriStripsData', 'NiTriStrips', 'NiTexturingProperty', 'NiSourceTexture',
                     'NiMaterialProperty', 'NiWireframeProperty', 'NiDitherProperty', 'NiTriStripsData']
 
-        assert_equals(blocks, branches)
+        assert blocks == branches
 
         # strip properties
         call_niftoaster("--raise", "modify_delalphaprop", "--noninteractive", "--verbose=1", self.dest_file)
@@ -179,4 +177,4 @@ class TestModifyDelBranchesNif(BaseNifFileTestCase):
                     'NiTexturingProperty', 'NiSourceTexture', 'NiMaterialProperty', 'NiWireframeProperty',
                     'NiDitherProperty', 'NiTriStripsData']
 
-        assert_equals(blocks, branches)
+        assert blocks == branches

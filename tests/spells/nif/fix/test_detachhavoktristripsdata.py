@@ -4,8 +4,6 @@ from tests.utils import BaseNifFileTestCase
 
 from pyffi.spells.nif.fix import SpellDetachHavokTriStripsData
 
-from nose.tools import assert_equals, assert_true, assert_false
-
 
 class TestDetachHavokTriStripsDataNif(BaseNifFileTestCase):
     """Invoke the fix_detachhavoktristripsdata spell check through nif toaster"""
@@ -20,15 +18,15 @@ class TestDetachHavokTriStripsDataNif(BaseNifFileTestCase):
         """run the spell that detaches the trishapedata"""
 
         # check that data is shared
-        assert_true(self.data.roots[0].children[0].collision_object.body.shape.sub_shapes[0].strips_data[0] \
+        assert (self.data.roots[0].children[0].collision_object.body.shape.sub_shapes[0].strips_data[0]
                     is self.data.roots[0].children[0].data)
 
         s = SpellDetachHavokTriStripsData(data=self.data)
         s.recurse()
 
         # check that data is no longer shared
-        assert_false(self.data.roots[0].children[0].collision_object.body.shape.sub_shapes[0].strips_data[0]
-                     is self.data.roots[0].children[0].data)
+        assert (self.data.roots[0].children[0].collision_object.body.shape.sub_shapes[0].strips_data[0]
+                     is not self.data.roots[0].children[0].data)
 
     def test_non_interactive_fix_string_palette(self):
         call_niftoaster("--raise", "fix_detachhavoktristripsdata", "--dry-run", "--noninteractive", "--verbose=1",

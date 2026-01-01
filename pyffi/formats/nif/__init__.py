@@ -61,7 +61,7 @@ Parse all NIF files in a directory tree
 ...     except Exception:
 ...         print(
 ...             "Warning: read failed due corrupt file,"
-...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
+...             " corrupt format description, or bug.")
 reading tests/spells/nif/files/invalid.nif
 Warning: read failed due corrupt file, corrupt format description, or bug.
 reading tests/spells/nif/files/nds.nif
@@ -92,7 +92,8 @@ reading tests/spells/nif/files/test_opt_collision_to_boxshape.nif
 reading tests/spells/nif/files/test_opt_collision_to_boxshape_notabox.nif
 reading tests/spells/nif/files/test_opt_collision_unpacked.nif
 reading tests/spells/nif/files/test_opt_delunusedbones.nif
-
+reading tests/spells/nif/files/test_opt_dupgeomdata.nif
+Warning: read failed due corrupt file, corrupt format description, or bug.
 reading tests/spells/nif/files/test_opt_dupverts.nif
 reading tests/spells/nif/files/test_opt_emptyproperties.nif
 reading tests/spells/nif/files/test_opt_grid_layout.nif
@@ -173,7 +174,7 @@ Get list of versions and games
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> for vnum in sorted(NifFormat.versions.values()):
-...     print('0x%08X' % vnum) # doctest: +REPORT_UDIFF
+...     print('0x%08X' % vnum)
 0x02030000
 0x03000000
 0x03000300
@@ -210,7 +211,7 @@ Get list of versions and games
 0x1E000002
 0x1E010003
 >>> for game, versions in sorted(NifFormat.games.items(), key=lambda x: x[0]):
-...     print("%s " % game + " ".join('0x%08X' % vnum for vnum in versions)) # doctest: +REPORT_UDIFF
+...     print("%s " % game + " ".join('0x%08X' % vnum for vnum in versions))
 ? 0x0A000103
 Atlantica 0x14020008
 Axis and Allies 0x0A010000
@@ -260,7 +261,7 @@ Reading an unsupported NIF file
 >>> stream = open(file, 'rb')
 >>> data = NifFormat.Data()
 >>> data.inspect(stream) # the file seems ok on inspection
->>> data.read(stream) # doctest: +ELLIPSIS
+>>> data.read(stream)
 Traceback (most recent call last):
     ...
 ValueError: ...
@@ -531,7 +532,7 @@ class NifFormat(FileFormat):
                 try:
                     block_index = data._block_index_dct[self.get_value()]
                 except KeyError:
-                    logging.getLogger("pyffi.nif.ref").warn(
+                    logging.getLogger("pyffi.nif.ref").warning(
                         "%s block is missing from the nif tree:"
                         " omitting reference"
                         % self.get_value().__class__.__name__)
@@ -558,7 +559,7 @@ class NifFormat(FileFormat):
             if self._template != None:
                 if not isinstance(block, self._template):
                     #raise TypeError('expected an instance of %s but got instance of %s'%(self._template, block.__class__))
-                    logging.getLogger("pyffi.nif.ref").warn(
+                    logging.getLogger("pyffi.nif.ref").warning(
                     "Expected an %s but got %s: ignoring reference."
                     % (self._template, block.__class__))
 
@@ -4144,7 +4145,7 @@ class NifFormat(FileFormat):
         (60, 2.5, 1.5)
         >>> list(block.get_short_data(60, 2, 2))
         [(-32767, -10922), (32767, 10922)]
-        >>> list(block.get_comp_data(60, 2, 2, 2.5, 1.5)) # doctest: +ELLIPSIS
+        >>> list(block.get_comp_data(60, 2, 2, 2.5, 1.5))
         [(1.0, 2.00...), (4.0, 2.99...)]
         """
         def _getData(self, offset, num_elements, element_size, controlpoints):
@@ -4766,7 +4767,7 @@ class NifFormat(FileFormat):
 
             for i, s in enumerate(sumweights):
                 if abs(s - 1.0) > 0.01: 
-                    logging.getLogger("pyffi.nif.nigeometry").warn(
+                    logging.getLogger("pyffi.nif.nigeometry").warning(
                         "vertex %i has weights not summing to one" % i)
 
             return vertices, normals
@@ -4781,7 +4782,7 @@ class NifFormat(FileFormat):
                 this function.
             """
 
-            warnings.warn("use NifFormat.NiNode.send_bones_to_bind_position", DeprecationWarning)
+            warnings.warning("use NifFormat.NiNode.send_bones_to_bind_position", DeprecationWarning)
 
             if not self.is_skin():
                 return
@@ -5156,7 +5157,7 @@ class NifFormat(FileFormat):
                 # check transforms
                 if (geom.skin_instance.data.get_transform()
                     * geom.get_transform(geom.skin_instance.skeleton_root) != id44):
-                    logger.warn(
+                    logger.warning(
                         "can't rebase %s: global skin data transform does not match "
                         "geometry transform relative to skeleton root" % geom.name)
                     failed.append(geom)
@@ -6017,13 +6018,6 @@ class NifFormat(FileFormat):
             >>> toaster = pyffi.spells.nif.NifToaster()
             >>> toaster.scale = 0.1
             >>> pyffi.spells.nif.fix.SpellScale(data=data, toaster=toaster).recurse()
-            pyffi.toaster:INFO:--- fix_scale ---
-            pyffi.toaster:INFO:  scaling by factor 0.100000
-            pyffi.toaster:INFO:  ~~~ NiNode [Scene Root] ~~~
-            pyffi.toaster:INFO:    ~~~ NiNode [bone1] ~~~
-            pyffi.toaster:INFO:    ~~~ NiTriShape [] ~~~
-            pyffi.toaster:INFO:      ~~~ NiSkinInstance [] ~~~
-            pyffi.toaster:INFO:        ~~~ NiSkinData [] ~~~
             >>> bone1.translation.x
             1.0
             >>> skindata.bone_list[0].skin_transform.translation.x
@@ -6127,7 +6121,7 @@ class NifFormat(FileFormat):
             [0, 2]
             >>> list(geomdata.get_triangle_indices([(0,0,0),(4,2,3)]))
             [None, 2]
-            >>> list(geomdata.get_triangle_indices([(0,3,4),(4,2,3)])) # doctest: +ELLIPSIS
+            >>> list(geomdata.get_triangle_indices([(0,3,4),(4,2,3)]))
             Traceback (most recent call last):
                 ...
             ValueError: ...
@@ -6229,7 +6223,7 @@ class NifFormat(FileFormat):
                 # This is an error state and the mesh part should not be included in the exported nif.
                 # happens in Fallout NV meshes/architecture/bouldercity/arcadeendl.nif
                 self.data.extra_vectors_flags = 0
-                warnings.warn("Attempting to export mesh without uv data", DeprecationWarning)
+                warnings.warning("Attempting to export mesh without uv data", DeprecationWarning)
                 return
 
             # check that shape has norms and uvs
@@ -6476,7 +6470,7 @@ class NifFormat(FileFormat):
                 noweights = [v for v, weight in enumerate(weights)
                              if not weight]
                 #raise ValueError(
-                logger.warn(
+                logger.warning(
                     'bad NiSkinData: some vertices have no weights %s'
                     % noweights)
             logger.info("Counted minimum of %i and maximum of %i bones per vertex"
@@ -7107,10 +7101,9 @@ class NifFormat(FileFormat):
             abc
             >>> print(pal.get_string(4).decode("ascii"))
             def
-            >>> pal.get_string(5) # doctest: +ELLIPSIS
-            pyffi.nif.stringpalette:WARNING:StringPalette: no string starts at offset 5 (string is b'ef', preceeding character is b'd')
+            >>> pal.get_string(5)
             b'ef'
-            >>> pal.get_string(100) # doctest: +ELLIPSIS
+            >>> pal.get_string(100)
             Traceback (most recent call last):
                 ...
             ValueError: ...

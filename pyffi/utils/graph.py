@@ -114,7 +114,7 @@ class DetailNode(object):
     """
 
     def get_detail_child_nodes(self, edge_filter=EdgeFilter()):
-        """Generator which yields all children of this item in the
+        r"""Generator which yields all children of this item in the
         detail view (by default, all acyclic and active ones).
 
         Override this method if the node has children.
@@ -127,7 +127,7 @@ class DetailNode(object):
         return (dummy for dummy in ())
 
     def get_detail_child_names(self, edge_filter=EdgeFilter()):
-        """Generator which yields all child names of this item in the detail
+        r"""Generator which yields all child names of this item in the detail
         view.
 
         Override this method if the node has children.

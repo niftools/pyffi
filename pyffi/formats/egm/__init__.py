@@ -57,7 +57,7 @@ Parse all EGM files in a directory tree
 ...     except Exception:
 ...         print(
 ...             "Warning: read failed due corrupt file,"
-...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
+...             " corrupt format description, or bug.")
 reading tests/formats/egm/mmouthxivilai.egm
 
 Create an EGM file from scratch and write to file
@@ -373,7 +373,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
         >>> morph.set_relative_vertices(
         ...     [(3, 5, 2), (1, 3, 2), (-9, 3, -1)])
         >>> # scale should be 9/32768.0 = 0.0002746...
-        >>> morph.scale # doctest: +ELLIPSIS
+        >>> morph.scale
         0.0002746...
         >>> for vert in morph.get_relative_vertices():
         ...     print([int(1000 * x + 0.5) for x in vert])

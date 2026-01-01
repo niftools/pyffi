@@ -38,7 +38,7 @@ built from StructBase instances possibly referring to one another."""
 #
 # ***** END LICENSE BLOCK *****
 
-from collections import MutableMapping
+from collections.abc import MutableMapping
 
 from PyQt4 import QtGui, QtCore
 

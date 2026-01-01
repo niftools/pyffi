@@ -2,8 +2,6 @@
 from tests.scripts.nif import call_niftoaster
 from tests.utils import BaseNifFileTestCase
 
-from nose.tools import assert_equals, assert_false, assert_true
-
 
 class TestModifyDelBranchesNif(BaseNifFileTestCase):
     """Invoke the modify_delvertexcolor spell check through nif toaster"""
@@ -19,8 +17,8 @@ class TestModifyDelBranchesNif(BaseNifFileTestCase):
         blocks = [block.__class__.__name__ for block in self.data.blocks]
         expected = ['NiNode', 'NiTriStrips', 'NiStencilProperty', 'NiSpecularProperty', 'NiMaterialProperty',
                     'NiVertexColorProperty', 'NiTriStripsData']
-        assert_equals(blocks, expected)
-        assert_true(self.data.roots[0].children[0].data.has_vertex_colors)
+        assert blocks == expected
+        assert self.data.roots[0].children[0].data.has_vertex_colors
 
 
         # delete vertex color
@@ -43,5 +41,5 @@ class TestModifyDelBranchesNif(BaseNifFileTestCase):
         # check that file has no vertex color
         blocks = [block.__class__.__name__ for block in self.data.blocks]
         expected = ['NiNode', 'NiTriStrips', 'NiStencilProperty', 'NiSpecularProperty', 'NiMaterialProperty', 'NiTriStripsData']
-        assert_equals(blocks, expected)
-        assert_false(self.data.roots[0].children[0].data.has_vertex_colors)
+        assert blocks == expected
+        assert not self.data.roots[0].children[0].data.has_vertex_colors

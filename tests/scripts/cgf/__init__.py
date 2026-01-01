@@ -1,15 +1,8 @@
-import imp
-import os.path
 import sys
+
+from scripts.cgf import cgftoaster
+
 from tests import test_logger
-
-from os.path import dirname
-dir_path = __file__
-for i in range(4):  # recurse up to root repo dir
-    dir_path = dirname(dir_path)
-
-repo_root = dir_path
-cgftoaster = imp.load_module("cgftoaster", *imp.find_module("cgftoaster", [os.path.join(repo_root, "scripts", "cgf")]))
 
 
 def call_cgftoaster(*args):

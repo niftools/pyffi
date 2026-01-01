@@ -1,6 +1,5 @@
 """Tests for pyffi.utils.withref module."""
 
-import nose.tools
 from pyffi.utils.withref import ref
 
 
@@ -16,21 +15,21 @@ class B:
 def test_withref_1():
     a = A()
     with ref(a) as z:
-        nose.tools.assert_equal(z.x, 1)
-        nose.tools.assert_equal(z.y, 2)
-        nose.tools.assert_is(a, z)
+        assert z.x == 1
+        assert z.y == 2
+        assert a is z
 
 
 def test_withref_2():
     b = B()
     with ref(b) as z:
-        nose.tools.assert_equal(z.a.x, 1)
-        nose.tools.assert_equal(z.a.y, 2)
-        nose.tools.assert_is(b, z)
+        assert z.a.x == 1
+        assert z.a.y == 2
+        assert b is z
 
 
 def test_withref_3():
     b = B()
     with ref(b.a) as z:
-        nose.tools.assert_equal(z.x, 1)
-        nose.tools.assert_is(b.a, z)
+        assert z.x == 1
+        assert b.a is z

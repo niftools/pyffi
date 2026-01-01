@@ -1,5 +1,3 @@
-from nose.tools import assert_equals
-
 from tests.scripts.nif import call_niftoaster
 from tests.utils import BaseNifFileTestCase
 
@@ -17,11 +15,11 @@ class TestModifyAllBonePrioritiesNif(BaseNifFileTestCase):
             """Run the spell that modifies the bone prioirities"""
 
             # check current controller blocks
-            assert_equals([block.priority
-                           for block in self.data.roots[0].controller.controller_sequences[0].controlled_blocks],
+            assert ([block.priority
+                           for block in self.data.roots[0].controller.controller_sequences[0].controlled_blocks] ==
                           [0, 0])
-            assert_equals([block.priority
-                           for block in self.data.roots[0].controller.controller_sequences[1].controlled_blocks],
+            assert ([block.priority
+                           for block in self.data.roots[0].controller.controller_sequences[1].controlled_blocks] ==
                           [0, 0])
 
             call_niftoaster("--raise", "modify_allbonepriorities", "-a", "50", "--dry-run", "--noninteractive",
@@ -41,9 +39,9 @@ class TestModifyAllBonePrioritiesNif(BaseNifFileTestCase):
             pyffi.toaster:INFO:Finished.
             """
 
-            assert_equals([block.priority
-                           for block in self.data.roots[0].controller.controller_sequences[0].controlled_blocks],
+            assert ([block.priority
+                           for block in self.data.roots[0].controller.controller_sequences[0].controlled_blocks] ==
                           [50, 50])
-            assert_equals([block.priority
-                           for block in self.data.roots[0].controller.controller_sequences[1].controlled_blocks],
+            assert ([block.priority
+                           for block in self.data.roots[0].controller.controller_sequences[1].controlled_blocks] ==
                           [50, 50])

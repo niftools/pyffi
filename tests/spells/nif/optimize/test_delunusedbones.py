@@ -1,5 +1,4 @@
 from tests.utils import BaseNifFileTestCase
-from nose.tools import assert_equals, assert_is
 from pyffi.spells.nif.optimize import SpellDelUnusedBones
 
 
@@ -14,7 +13,7 @@ class TestDeleteUnusedBonesOptimisationNif(BaseNifFileTestCase):
 
     def test_unused_bone_deletion(self):
         # check dummy bone
-        assert_equals(self.data.roots[0].children[0].children[0].name, b'Test')
+        assert self.data.roots[0].children[0].children[0].name == b'Test'
 
         # run the spell that fixes this
         spell = SpellDelUnusedBones(data=self.data)
@@ -51,4 +50,4 @@ class TestDeleteUnusedBonesOptimisationNif(BaseNifFileTestCase):
         pyffi.toaster:INFO:                ~~~ NiNode [Bip01 R Toe0] ~~~
         """
         # check that dummy bone is gone
-        assert_is(self.data.roots[0].children[0].children[0], None)
+        assert self.data.roots[0].children[0].children[0] is None

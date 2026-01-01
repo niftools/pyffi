@@ -40,7 +40,7 @@ Read a TRI file
 89
 >>> data.num_morphs
 18
->>> data.read(stream) # doctest: +ELLIPSIS
+>>> data.read(stream)
 >>> print([str(morph.name.decode("ascii")) for morph in data.morphs])
 ['Fear', 'Surprise', 'Aah', 'BigAah', 'BMP', 'ChJSh', 'DST', 'Eee', 'Eh', \
 'FV', 'I', 'K', 'N', 'Oh', 'OohQ', 'R', 'Th', 'W']
@@ -58,7 +58,7 @@ Parse all TRI files in a directory tree
 ...     except Exception:
 ...         print(
 ...             "Warning: read failed due corrupt file,"
-...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
+...             " corrupt format description, or bug.")
 reading tests/formats/tri/mmouthxivilai.tri
 
 Create an TRI file from scratch and write to file
@@ -390,7 +390,7 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
         >>> morph.set_relative_vertices(
         ...     [(3, 5, 2), (1, 3, 2), (-9, 3, -1)])
         >>> # scale should be 9/32768.0 = 0.0002746...
-        >>> morph.scale # doctest: +ELLIPSIS
+        >>> morph.scale
         0.0002746...
         >>> for vert in morph.get_relative_vertices():
         ...     print([int(1000 * x + 0.5) for x in vert])

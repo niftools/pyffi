@@ -126,11 +126,11 @@ class SpellCheckTangentSpace(CgfSpell):
                                   oldtangent[1].y,
                                   oldtangent[1].z))
             if abs(vecNorm(norm) - 1) > self.SENSITIVITY:
-                self.toaster.logger.warn("normal has non-unit norm")
+                self.toaster.logger.warning("normal has non-unit norm")
             if abs(vecNorm(tan) - 1) > self.SENSITIVITY:
-                self.toaster.logger.warn("oldtangent has non-unit norm")
+                self.toaster.logger.warning("oldtangent has non-unit norm")
             if abs(vecNorm(bin) - 1) > self.SENSITIVITY:
-                self.toaster.logger.warn("oldbinormal has non-unit norm")
+                self.toaster.logger.warning("oldbinormal has non-unit norm")
             if (oldtangent[0].w != oldtangent[1].w):
                 raise ValueError(
                     "inconsistent oldtangent w coordinate (%i != %i)"
@@ -145,19 +145,19 @@ class SpellCheckTangentSpace(CgfSpell):
             crossnorm = vecNorm(cross)
             if abs(crossnorm - 1) > self.SENSITIVITY:
                 # a lot of these...
-                self.toaster.logger.warn("tan and bin not orthogonal")
-                self.toaster.logger.warn("%s %s" % (tan, bin))
-                self.toaster.logger.warn("(error is %f)"
+                self.toaster.logger.warning("tan and bin not orthogonal")
+                self.toaster.logger.warning("%s %s" % (tan, bin))
+                self.toaster.logger.warning("(error is %f)"
                                          % abs(crossnorm - 1))
                 cross = vecscalarMul(cross, 1.0/crossnorm)
             if vecDistance(norm, cross) > self.SENSITIVITY:
-                self.toaster.logger.warn(
+                self.toaster.logger.warning(
                     "norm not cross product of tangent and binormal")
-                #self.toaster.logger.warn("norm                 = %s" % (norm,))
-                #self.toaster.logger.warn("tan                  = %s" % (tan,))
-                #self.toaster.logger.warn("bin                  = %s" % (bin,))
-                #self.toaster.logger.warn("tan bin cross prod   = %s" % (cross,))
-                self.toaster.logger.warn(
+                #self.toaster.logger.warning("norm                 = %s" % (norm,))
+                #self.toaster.logger.warning("tan                  = %s" % (tan,))
+                #self.toaster.logger.warning("bin                  = %s" % (bin,))
+                #self.toaster.logger.warning("tan bin cross prod   = %s" % (cross,))
+                self.toaster.logger.warning(
                     "(error is %f)" % vecDistance(norm, cross))
 
             # compare old with new
@@ -171,11 +171,11 @@ class SpellCheckTangentSpace(CgfSpell):
                     abs(oldtangent[1].w - newtangent[1].w))) > self.SENSITIVITY * 32767.0:
                 ntan = tuple(x / 32767.0 for x in (newtangent[0].x, newtangent[0].y, newtangent[0].z))
                 nbin = tuple(x / 32767.0 for x in (newtangent[1].x, newtangent[1].y, newtangent[1].z))
-                self.toaster.logger.warn("old and new tangents differ substantially")
-                self.toaster.logger.warn("old tangent")
-                self.toaster.logger.warn("%s %s" % (tan, bin))
-                self.toaster.logger.warn("new tangent")
-                self.toaster.logger.warn("%s %s" % (ntan, nbin))
+                self.toaster.logger.warning("old and new tangents differ substantially")
+                self.toaster.logger.warning("old tangent")
+                self.toaster.logger.warning("%s %s" % (tan, bin))
+                self.toaster.logger.warning("new tangent")
+                self.toaster.logger.warning("%s %s" % (ntan, nbin))
 
         self.toaster.msgblockend()
 

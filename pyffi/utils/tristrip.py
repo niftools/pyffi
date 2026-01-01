@@ -111,15 +111,15 @@ def _check_strips(triangles, strips):
     >>> _check_strips([(0,1,2),(2,1,3)], [[3,3,3,2,1,0,1]])
     >>> _check_strips([(0,1,2),(2,1,3),(1,0,1)], [[0,1,2,3]])
     >>> _check_strips([(0,1,2),(2,1,3),(4,4,4)], [[0,1,2,3]])
-    >>> _check_strips([(0,1,2),(2,1,3)], [[0,1,2,3], [2,3,4]]) # doctest: +ELLIPSIS
+    >>> _check_strips([(0,1,2),(2,1,3)], [[0,1,2,3], [2,3,4]])
     Traceback (most recent call last):
         ...
     ValueError: ...
-    >>> _check_strips([(0,1,2),(2,1,3),(2,3,4)], [[0,1,2,3]]) # doctest: +ELLIPSIS
+    >>> _check_strips([(0,1,2),(2,1,3),(2,3,4)], [[0,1,2,3]])
     Traceback (most recent call last):
         ...
     ValueError: ...
-    >>> _check_strips([(0,1,2),(2,1,3),(2,3,4),(3,8,1)], [[0,1,2,3,7],[9,10,5,9]]) # doctest: +ELLIPSIS
+    >>> _check_strips([(0,1,2),(2,1,3),(2,3,4),(3,8,1)], [[0,1,2,3,7],[9,10,5,9]])
     Traceback (most recent call last):
         ...
     ValueError: ...
@@ -226,7 +226,7 @@ class OrientedStrip:
         >>> ostrip2.reversed
         True
 
-        >>> ostrip = OrientedStrip(None) # doctest: +ELLIPSIS
+        >>> ostrip = OrientedStrip(None)
         Traceback (most recent call last):
             ...
         TypeError: ...

@@ -68,7 +68,7 @@ class DetailTreeItemData(object):
         return self.node.__class__.__name__
 
 class DetailTreeItem(object):
-    """Stores all internal information to vizualize :class:`DetailNode`\ s in a
+    r"""Stores all internal information to vizualize :class:`DetailNode`\ s in a
     tree view.
 
     :ivar data: The item data.

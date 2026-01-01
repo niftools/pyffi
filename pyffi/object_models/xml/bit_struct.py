@@ -175,16 +175,16 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
     >>> y = Flags()
     >>> y.a = 5
     >>> y.b = 1
-    >>> print(y) # doctest:+ELLIPSIS
-    <class 'pyffi.object_models.xml.bit_struct.Flags'> instance at 0x...
+    >>> print(y)
+    <bit_struct 'Flags'> instance at 0x...
     * a : 5
     * b : 1
     <BLANKLINE>
     >>> y.get_attributes_values(None)
     13
     >>> y.populate_attribute_values(9, None)
-    >>> print(y) # doctest:+ELLIPSIS
-    <class 'pyffi.object_models.xml.bit_struct.Flags'> instance at 0x...
+    >>> print(y)
+    <bit_struct 'Flags'> instance at 0x...
     * a : 1
     * b : 1
     <BLANKLINE>

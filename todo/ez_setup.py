@@ -117,7 +117,7 @@ def download_setuptools(
         try:
             from distutils import log
             if delay:
-                log.warn("""
+                log.warning("""
 ---------------------------------------------------------------------------
 This script requires setuptools version %s to run (even to display
 help).  I will attempt to download it for you (from
@@ -133,7 +133,7 @@ and place it in this directory before rerunning this script.)
 ---------------------------------------------------------------------------""",
                     version, download_base, delay, url
                 ); from time import sleep; sleep(delay)
-            log.warn("Downloading %s", url)
+            log.warning("Downloading %s", url)
             src = urllib2.urlopen(url)
             # Read/write all in one block, so we don't create a corrupt file
             # if the download is interrupted.

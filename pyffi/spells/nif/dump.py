@@ -39,7 +39,6 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-import codecs
 import http.server
 import ntpath # explicit windows style path manipulations
 import os
@@ -545,6 +544,6 @@ class SpellDumpPython(NifSpell):
         filename, ext = os.path.splitext(self.stream.name)
         filename = filename + "_dump.py"
         self.toaster.msg("writing %s" % filename)
-        with codecs.open(filename, "wb", encoding="ascii") as stream:
+        with open(filename, "w", encoding="ascii", newline="") as stream:
             for line in self.lines:
                 print(line, file=stream)

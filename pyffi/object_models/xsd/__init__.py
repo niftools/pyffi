@@ -216,7 +216,7 @@ class Tree(object):
                         self.pytype = child.class_
                         break
                 else:
-                    self.logger.warn(
+                    self.logger.warning(
                         "No type for %s '%s': falling back to xs:anyType."
                         % (self.__class__.__name__.lower(),
                            (self.name if self.name else self.ref)))
@@ -483,7 +483,7 @@ class Tree(object):
         try:
             return getattr(cls, class_name)(element, parent)
         except AttributeError:
-            cls.logger.warn("Unknown element type: making dummy node class %s."
+            cls.logger.warning("Unknown element type: making dummy node class %s."
                             % class_name)
             class_ = type(class_name, (cls.Node,), {})
             setattr(cls, class_name, class_)

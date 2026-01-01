@@ -2,8 +2,6 @@
 from tests.scripts.nif import call_niftoaster
 from tests.utils import BaseNifFileTestCase
 
-from nose.tools import assert_true
-
 
 class TestModifySubstitutePaletteNif(BaseNifFileTestCase):
     """Invoke the modify_substitutestringpalette spell check through nif toaster"""
@@ -18,7 +16,7 @@ class TestModifySubstitutePaletteNif(BaseNifFileTestCase):
         """Test that we can modify the string palette values"""
         strings = self.data.roots[0].controller.controller_sequences[0].string_palette.palette.get_all_strings()
         expected = [b'Test', b'Hello', b'People', b'NiTransformController', b'Test NonAccum', b'Useless', b'Crap']
-        assert_true(strings, expected)
+        assert strings == expected
 
         # substitute
         call_niftoaster("--raise", "modify_substitutestringpalette", "-a", "/Test/Woops", "--noninteractive", "--verbose=1", self.dest_file)
@@ -42,4 +40,4 @@ class TestModifySubstitutePaletteNif(BaseNifFileTestCase):
         # check cleaned palette
         strings = self.data.roots[0].controller.controller_sequences[0].string_palette.palette.get_all_strings()
         expected = [b'Woops', b'NiTransformController', b'Woops NonAccum']
-        assert_true(strings, expected)
+        assert strings == expected

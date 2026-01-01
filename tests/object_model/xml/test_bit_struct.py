@@ -1,7 +1,5 @@
 import unittest
 
-from nose.tools import assert_equals, assert_false, assert_true, raises
-
 from pyffi.object_models.xml.bit_struct import BitStructBase
 from pyffi.object_models.xml import BitStructAttribute as Attr
 
@@ -27,22 +25,22 @@ class TestBitStruct(unittest.TestCase):
 
     def test_value_population(self):
         self.y.populate_attribute_values(9, None)  # b1001
-        assert_equals(self.y.a, 1)
-        assert_equals(self.y.b, 1)
+        assert self.y.a == 1
+        assert self.y.b == 1
 
     def test_attributes(self):
         self.y.populate_attribute_values(13, None)
-        assert_true(len(self.y._names), 2)
-        assert_true(self.y._names, ('a', 'b'))
-        assert_true(self.y._a_value_, 5)
-        assert_true(self.y._b_value_, 5)
+        assert len(self.y._names) == 2
+        assert self.y._names == ['a', 'b']
+        assert self.y._a_value_.get_value() == 5
+        assert self.y._b_value_.get_value() == 1
 
     def test_get_value(self):
         self.y.a = 5
         self.y.b = 1
-        assert_equals(self.y.get_attributes_values(None), 13)
+        assert self.y.get_attributes_values(None) == 13
 
     def test_int_cast(self):
         self.y.populate_attribute_values(13, None)
-        assert_true(len(self.y._items), 2)
-        assert_equals(int(self.y), 13)
+        assert len(self.y._items) == 2
+        assert int(self.y) == 13

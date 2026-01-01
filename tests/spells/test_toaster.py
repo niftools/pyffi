@@ -1,9 +1,6 @@
 """Tests for pyffi."""
 import tempfile
 import os
-import shutil
-
-from nose.tools import assert_true, assert_false
 
 from pyffi.formats.nif import NifFormat
 from pyffi.spells import Toaster
@@ -19,43 +16,43 @@ class TestToaster:
     def test_toaster_default_admissible(self):
         """# no include or exclude: all admissible"""
         toaster = MyToaster()
-        assert_true(toaster.is_admissible_branch_class(NifFormat.NiProperty))
-        assert_true(toaster.is_admissible_branch_class(NifFormat.NiNode))
-        assert_true(toaster.is_admissible_branch_class(NifFormat.NiAVObject))
-        assert_true(toaster.is_admissible_branch_class(NifFormat.NiLODNode))
-        assert_true(toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty))
+        assert toaster.is_admissible_branch_class(NifFormat.NiProperty)
+        assert toaster.is_admissible_branch_class(NifFormat.NiNode)
+        assert toaster.is_admissible_branch_class(NifFormat.NiAVObject)
+        assert toaster.is_admissible_branch_class(NifFormat.NiLODNode)
+        assert toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty)
 
     def test_toaster_exclude(self):
         """Test exclude NiProperty and NiNode inherited types"""
         toaster = MyToaster(options={"exclude": ["NiProperty", "NiNode"]})
-        assert_false(toaster.is_admissible_branch_class(NifFormat.NiProperty))
-        assert_false(toaster.is_admissible_branch_class(NifFormat.NiNode))
-        assert_true(toaster.is_admissible_branch_class(NifFormat.NiAVObject))
-        assert_false(toaster.is_admissible_branch_class(NifFormat.NiLODNode))
-        assert_false(toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty))
+        assert not toaster.is_admissible_branch_class(NifFormat.NiProperty)
+        assert not toaster.is_admissible_branch_class(NifFormat.NiNode)
+        assert toaster.is_admissible_branch_class(NifFormat.NiAVObject)
+        assert not toaster.is_admissible_branch_class(NifFormat.NiLODNode)
+        assert not toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty)
 
 
     def test_toaster_include(self):
         """Test include only NiProperty and NiNode inherited types"""
         toaster = MyToaster(options={"include": ["NiProperty", "NiNode"]})
-        assert_true(toaster.is_admissible_branch_class(NifFormat.NiProperty))
-        assert_true(toaster.is_admissible_branch_class(NifFormat.NiNode))
-        assert_false(toaster.is_admissible_branch_class(NifFormat.NiAVObject))
-        assert_true(toaster.is_admissible_branch_class(NifFormat.NiLODNode))  # NiNode subclass!
-        assert_true(toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty))  # NiProperties are!
+        assert toaster.is_admissible_branch_class(NifFormat.NiProperty)
+        assert toaster.is_admissible_branch_class(NifFormat.NiNode)
+        assert not toaster.is_admissible_branch_class(NifFormat.NiAVObject)
+        assert toaster.is_admissible_branch_class(NifFormat.NiLODNode)  # NiNode subclass!
+        assert toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty)  # NiProperties are!
 
 
     def test_toaster_include_and_exclude(self):
         """Test include NiProperty and NiNode, exclude NiMaterialProp and NiLODNode"""
         toaster = MyToaster(options={"include": ["NiProperty", "NiNode"],
                                      "exclude": ["NiMaterialProperty", "NiLODNode"]})
-        assert_true(toaster.is_admissible_branch_class(NifFormat.NiProperty))
-        assert_true(toaster.is_admissible_branch_class(NifFormat.NiNode))
-        assert_false(toaster.is_admissible_branch_class(NifFormat.NiAVObject))
-        assert_false(toaster.is_admissible_branch_class(NifFormat.NiLODNode))
-        assert_true(toaster.is_admissible_branch_class(NifFormat.NiSwitchNode))
-        assert_false(toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty))
-        assert_true(toaster.is_admissible_branch_class(NifFormat.NiAlphaProperty))
+        assert toaster.is_admissible_branch_class(NifFormat.NiProperty)
+        assert toaster.is_admissible_branch_class(NifFormat.NiNode)
+        assert not toaster.is_admissible_branch_class(NifFormat.NiAVObject)
+        assert not toaster.is_admissible_branch_class(NifFormat.NiLODNode)
+        assert toaster.is_admissible_branch_class(NifFormat.NiSwitchNode)
+        assert not toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty)
+        assert toaster.is_admissible_branch_class(NifFormat.NiAlphaProperty)
 
 
 class TestIniParser:
@@ -67,15 +64,8 @@ class TestIniParser:
         dir_path = dirname(dir_path)
     test_root = dir_path
     input_files = os.path.join(test_root, 'spells', 'nif', 'files').replace("\\", "/")
-    out = None
 
-    def setup(self):
-        self.out = tempfile.mkdtemp()
-
-    def teardown(self):
-        shutil.rmtree(self.out)
-
-    def test_config_input(self):
+    def test_config_input(self, tmp_path):
         """Test config file input with delete branch spell"""
         src_file = os.path.join(self.input_files, 'test_vertexcolor.nif').replace("\\", "/")
         assert os.path.exists(src_file)
@@ -89,7 +79,7 @@ class TestIniParser:
         cfg.write("folder = {0}\n".format(src_file).encode())
         cfg.write(b"[options]\n")
         cfg.write("source-dir = {0}\n".format(self.test_root.replace("\\", "/")).encode())
-        cfg.write("dest-dir = {0}\n".format(self.out.replace("\\", "/")).encode())
+        cfg.write("dest-dir = {0}\n".format(tmp_path.as_posix()).encode())
         cfg.write(b"exclude = NiVertexColorProperty NiStencilProperty\n")
         cfg.write(b"skip = 'testing quoted string'    normal_string\n")
         cfg.close()
@@ -106,8 +96,8 @@ class TestIniParser:
                     "--ini-file={0}".format(cfg.name), "--noninteractive", "--jobs=1"]
         toaster.cli()
 
-        dest_file = os.path.join(self.out, 'spells', 'nif', 'files', 'test_vertexcolor.nif').replace("\\", "/")
-        assert os.path.exists(dest_file.replace("\\", "/"))
+        dest_file = tmp_path.joinpath('spells', 'nif', 'files', 'test_vertexcolor.nif')
+        assert dest_file.exists()
 
         # TODO - Assert on file contents
         """
@@ -156,7 +146,7 @@ class TestIniParser:
         verbose: 1
         """
 
-        os.remove(dest_file)
+        dest_file.unlink()
 
         for name, value in sorted(toaster.options.items()):
             fake_logger.info("%s: %s" % (name, value))

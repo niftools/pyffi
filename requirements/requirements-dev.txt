@@ -1,8 +1,9 @@
 check-manifest
 coveralls
-nose
+nox
 pdbpp
 pyflakes
-pytest==3.6
+pytest
 pytest-cov
+pytest-doctestplus
 wheel

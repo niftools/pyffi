@@ -132,7 +132,6 @@ import pyffi.spells.nif.check # recycle checking spells for update spells
 import pyffi.spells.nif.fix
 
 
-import codecs
 import os
 import re
 
@@ -146,7 +145,7 @@ class SpellTexturePath(
     @classmethod
     def toastentry(cls, toaster):
         if not toaster.options["arg"]:
-            toaster.logger.warn(
+            toaster.logger.warning(
                 "must specify path as argument "
                 "(e.g. -a textures\\pm\\dungeons\\bloodyayleid\\interior) "
                 "to apply spell")
@@ -181,7 +180,7 @@ class SpellSubstituteTexturePath(
         arg = toaster.options["arg"]
         if not arg:
             # missing arg
-            toaster.logger.warn(
+            toaster.logger.warning(
                 "must specify regular expression and substitution as argument "
                 "(e.g. -a /architecture/city) to apply spell")
             return False
@@ -277,7 +276,7 @@ class SpellCollisionType(NifSpell):
             toaster.col_type = cls.COLLISION_TYPE_DICT[toaster.options["arg"]]
         except KeyError:
             # incorrect arg
-            toaster.logger.warn(
+            toaster.logger.warning(
                 "must specify collision type to change to as argument "
                 "(e.g. -a static (accepted names: %s) "
                 "to apply spell"
@@ -334,7 +333,7 @@ class SpellScaleAnimationTime(NifSpell):
     @classmethod
     def toastentry(cls, toaster):
         if not toaster.options["arg"]:
-            toaster.logger.warn(
+            toaster.logger.warning(
                 "must specify scaling number as argument "
                 "(e.g. -a 0.6) to apply spell")
             return False
@@ -489,7 +488,7 @@ class SpellCollisionMaterial(NifSpell):
             toaster.col_material = cls.COLLISION_MATERIAL_DICT[toaster.options["arg"]]
         except KeyError:
             # incorrect arg
-            toaster.logger.warn(
+            toaster.logger.warning(
                 "must specify collision material to change to as argument "
                 "(e.g. -a stone (accepted names: %s) "
                 "to apply spell"
@@ -809,7 +808,7 @@ class SpellSubstituteStringPalette(
         arg = toaster.options["arg"]
         if not arg:
             # missing arg
-            toaster.logger.warn(
+            toaster.logger.warning(
                 "must specify regular expression and substitution as argument "
                 "(e.g. -a /Bip01/Bip02) to apply spell")
             return False
@@ -839,7 +838,7 @@ class SpellChangeBonePriorities(NifSpell):
     @classmethod
     def toastentry(cls, toaster):
         if not toaster.options["arg"]:
-            toaster.logger.warn(
+            toaster.logger.warning(
                 "must specify bone(s) and priority(ies) as argument "
                 "(e.g. -a 'bip01:50|bip01 spine:10') to apply spell "
                 "make sure all bone names in lowercase")
@@ -885,7 +884,7 @@ class SpellChangeAllBonePriorities(SpellChangeBonePriorities):
     @classmethod
     def toastentry(cls, toaster):
         if not toaster.options["arg"]:
-            toaster.logger.warn(
+            toaster.logger.warning(
                 "must specify priority as argument (e.g. -a 20)")
             return False
         else:
@@ -940,16 +939,16 @@ class SpellGetBonePriorities(NifSpell):
                     bonepriorities[name] = priority
                     #self.toaster.msg("noted %r priority %i" % (name, priority))
                 elif bonepriorities[name] != priority:
-                    self.toaster.logger.warn(
+                    self.toaster.logger.warning(
                         "multiple priorities for %r" % name)
-                    self.toaster.logger.warn(
+                    self.toaster.logger.warning(
                         "(using %i, ignoring %i)"
                         % (self.bonepriorities[name], priority))
             sequence = branch.name.decode()
             if sequence not in self.bonepriorities:
                 self.bonepriorities[sequence] = bonepriorities
             else:
-                self.toaster.logger.warn(
+                self.toaster.logger.warning(
                     "multiple sequences named %r,"
                     " only the first will be recorded" % sequence)
         return True
@@ -964,7 +963,7 @@ class SpellGetBonePriorities(NifSpell):
         filename, ext = os.path.splitext(self.stream.name)
         filename = filename + "_bonepriorities.txt"
         self.toaster.msg("writing %s" % filename)
-        with codecs.open(filename, "wb", encoding="ascii") as stream:
+        with open(filename, "w", encoding="ascii", newline="") as stream:
             for sequence, bonepriorities in self.bonepriorities.items():
                 print("[%s]" % sequence, file=stream, end="\r\n")
                 for name, priority in sorted(bonepriorities.items(),
@@ -989,7 +988,7 @@ class SpellSetBonePriorities(NifSpell):
         filename = filename + "_bonepriorities.txt"
         if os.path.exists(filename):
             self.toaster.msg("reading %s" % filename)
-            with codecs.open(filename, "rb", encoding="ascii") as stream:
+            with open(filename, "r", encoding="ascii", newline="") as stream:
                 self.bonepriorities = {} # priorities for all sequences
                 sequence = "" # current sequence
                 bonepriorities = {} # priorities for current sequence
@@ -1004,7 +1003,7 @@ class SpellSetBonePriorities(NifSpell):
                     else:
                         m = re.match("(.*)=([0-9]+)$", line)
                         if not m:
-                            self.toaster.logger.warn("syntax error in %r" % line)
+                            self.toaster.logger.warning("syntax error in %r" % line)
                         bonepriorities[m.group(1)] = int(m.group(2))
                 if sequence:
                     self.bonepriorities[sequence] = bonepriorities
@@ -1023,7 +1022,7 @@ class SpellSetBonePriorities(NifSpell):
         if isinstance(branch, NifFormat.NiSequence):
             sequence = branch.name.decode()
             if sequence not in self.bonepriorities:
-                self.toaster.logger.warn(
+                self.toaster.logger.warning(
                     "sequence %r not listed, skipped" % sequence)
                 return False
             bonepriorities = self.bonepriorities[sequence]
@@ -1041,7 +1040,7 @@ class SpellSetBonePriorities(NifSpell):
                         self.toaster.msg("%r priority already at %i"
                                          % (name, priority))
                 else:
-                    self.toaster.logger.warn(
+                    self.toaster.logger.warning(
                         "%r in NIF file but not in priority file" % name)
         return True
 
@@ -1056,7 +1055,7 @@ class SpellSetInterpolatorTransRotScale(NifSpell):
     @classmethod
     def toastentry(cls, toaster):
         if not toaster.options["arg"]:
-            toaster.logger.warn(
+            toaster.logger.warning(
                 "must specify bone(s), translation and rotation for each"
                 " bone as argument (e.g."
                 " -a 'bip01:1,2,3;0,0,0,1;1|bip01 spine2:0,0,0;1,0,0,0.5;1')"
@@ -1134,7 +1133,7 @@ class SpellDelInterpolatorTransformData(NifSpell):
     @classmethod
     def toastentry(cls, toaster):
         if not toaster.options["arg"]:
-            toaster.logger.warn(
+            toaster.logger.warning(
                 "must specify bone name(s) as argument "
                 "(e.g. -a 'bip01|bip01 pelvis') to apply spell "
                 "make sure all bone name(s) in lowercase")

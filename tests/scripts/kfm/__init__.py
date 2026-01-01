@@ -1,16 +1,8 @@
-import imp
-import os.path
 import sys
 
+from scripts.kfm import kfmtoaster
+
 from tests import test_logger
-
-from os.path import dirname
-dir_path = __file__
-for i in range(4):  # recurse up to root repo dir
-    dir_path = dirname(dir_path)
-
-repo_root = dir_path
-kfmtoaster = imp.load_module("kfmtoaster", *imp.find_module("kfmtoaster", [os.path.join(repo_root, "scripts", "kfm")]))
 
 
 def call_kfmtoaster(*args):

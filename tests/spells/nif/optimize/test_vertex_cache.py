@@ -1,5 +1,4 @@
 from tests.utils import BaseNifFileTestCase
-from nose.tools import assert_equals
 
 import pyffi
 
@@ -13,13 +12,13 @@ class TestVertexCacheOptimisationNif(BaseNifFileTestCase):
         super(TestVertexCacheOptimisationNif, self).copyFile()
         super(TestVertexCacheOptimisationNif, self).readNifData()
 
-        assert_equals(self.data.roots[0].children[0].data.num_vertices, 32)
+        assert self.data.roots[0].children[0].data.num_vertices == 32
 
     def test_non_interactive_opt_merge_duplicates(self):
         spell = pyffi.spells.nif.optimize.SpellOptimizeGeometry(data=self.data)
         spell.recurse()
 
-        assert_equals(self.data.roots[0].children[0].data.num_vertices, 17)
+        assert self.data.roots[0].children[0].data.num_vertices == 17
         """
         pyffi.toaster:INFO:--- opt_geometry ---
         pyffi.toaster:INFO:  ~~~ NiNode [fan] ~~~

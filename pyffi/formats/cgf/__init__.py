@@ -21,7 +21,7 @@ Read a CGF file
 >>> for i in range(4): #recurse up to root repo dir
 ...     dirpath = dirname(dirpath)
 >>> repo_root = dirpath
->>> format_root = os.path.join(repo_root, 'tests', 'formats', 'cgf')
+>>> format_root = os.path.join(repo_root, 'tests', 'spells', 'cgf', 'files')
 >>> stream = open(os.path.join(format_root, 'test.cgf'), 'rb')
 >>> data = CgfFormat.Data()
 >>> # read chunk table only
@@ -35,17 +35,17 @@ Read a CGF file
 >>> data.read(stream)
 >>> # get all chunks
 >>> for chunk in data.chunks:
-...     print(chunk) # doctest: +ELLIPSIS
-<class '...SourceInfoChunk'> instance at ...
+...     print(chunk)
+<struct '...SourceInfoChunk'> instance at ...
 * source_file : <None>
 * date : Fri Sep 28 22:40:44 2007
 * author : blender@BLENDER
 <BLANKLINE>
-<class '...TimingChunk'> instance at ...
+<struct '...TimingChunk'> instance at ...
 * secs_per_tick : 0.0002083333...
 * ticks_per_frame : 160
 * global_range :
-    <class '...RangeEntity'> instance at ...
+    <struct '...RangeEntity'> instance at ...
     * name : GlobalRange
     * start : 0
     * end : 100
@@ -69,14 +69,14 @@ Parse all CGF files in a directory tree
 ...     # do something with the chunks
 ...     for chunk in data.chunks:
 ...         chunk.apply_scale(2.0)
-reading tests/formats/cgf/invalid.cgf
+reading spells/cgf/files/invalid.cgf
 Warning: read failed due corrupt file, corrupt format description, or bug.
 0
-reading tests/formats/cgf/monkey.cgf
+reading spells/cgf/files/monkey.cgf
 14
-reading tests/formats/cgf/test.cgf
+reading spells/cgf/files/test.cgf
 2
-reading tests/formats/cgf/vcols.cgf
+reading spells/cgf/files/vcols.cgf
 6
 
 Create a CGF file from scratch
@@ -105,8 +105,8 @@ Create a CGF file from scratch
 >>> data.read(stream)
 >>> # get all chunks
 >>> for chunk in data.chunks:
-...     print(chunk) # doctest: +ELLIPSIS +REPORT_NDIFF
-<class 'pyffi.formats.cgf.NodeChunk'> instance at 0x...
+...     print(chunk)
+<struct 'NodeChunk'> instance at 0x...
 * name : hello
 * object : None
 * parent : None
@@ -125,7 +125,7 @@ Create a CGF file from scratch
     [  0.000  0.000  0.000  0.000 ]
 * pos : [  0.000  0.000  0.000 ]
 * rot :
-    <class 'pyffi.formats.cgf.Quat'> instance at 0x...
+    <struct 'Quat'> instance at 0x...
     * x : 0.0
     * y : 0.0
     * z : 0.0
@@ -139,7 +139,7 @@ Create a CGF file from scratch
     <class 'pyffi.object_models.xml.array.Array'> instance at 0x...
     0: <class 'pyffi.formats.cgf.NodeChunk'> instance at 0x...
 <BLANKLINE>
-<class 'pyffi.formats.cgf.NodeChunk'> instance at 0x...
+<struct 'NodeChunk'> instance at 0x...
 * name : world
 * object : None
 * parent : None
@@ -158,7 +158,7 @@ Create a CGF file from scratch
     [  0.000  0.000  0.000  0.000 ]
 * pos : [  0.000  0.000  0.000 ]
 * rot :
-    <class 'pyffi.formats.cgf.Quat'> instance at 0x...
+    <struct 'Quat'> instance at 0x...
     * x : 0.0
     * y : 0.0
     * z : 0.0
@@ -426,7 +426,7 @@ class CgfFormat(pyffi.object_models.xml.FileFormat, metaclass=_MetaCgfFormat):
             except KeyError:
                 # make this raise an exception when all reference errors
                 # are sorted out
-                logger.warn("invalid chunk reference (%i)" % block_index)
+                logger.warning("invalid chunk reference (%i)" % block_index)
                 self._value = None
                 return
             if not isinstance(block, self._template):
@@ -437,7 +437,7 @@ class CgfFormat(pyffi.object_models.xml.FileFormat, metaclass=_MetaCgfFormat):
                 else:
                     # make this raise an exception when all reference errors
                     # are sorted out
-                    logger.warn("""\
+                    logger.warning("""\
 expected instance of %s
 but got instance of %s""" % (self._template, block.__class__))
             self._value = block
@@ -850,7 +850,7 @@ actual bytes read is %i, get_size yields %i (expected %i bytes)"""
                         size += padlen
                     # check size
                     if size != chunk_sizes[chunknum]:
-                        logger.warn("""\
+                        logger.warning("""\
 chunk size mismatch when reading %s at 0x%08X
 %i bytes available, but actual bytes read is %i"""
                                     % (chunk.__class__.__name__,
@@ -1944,7 +1944,7 @@ chunk size mismatch when reading %s at 0x%08X
             ...                   uvslist = [uvs1, uvs2],
             ...                   matlist = [2,5],
             ...                   colorslist = [colors1, colors_2])
-            >>> print(chunk) # doctest: +ELLIPSIS +REPORT_UDIFF
+            >>> print(chunk)
             <class 'pyffi.formats.cgf.MeshChunk'> instance at ...
             * has_vertex_weights : False
             * has_vertex_colors : True
@@ -2138,7 +2138,7 @@ chunk size mismatch when reading %s at 0x%08X
                 16: 0
                 etc...
             <BLANKLINE>
-            >>> print(chunk.mesh_subsets) # doctest: +ELLIPSIS
+            >>> print(chunk.mesh_subsets)
             <class 'pyffi.formats.cgf.MeshSubsetsChunk'> instance at ...
             * flags :
                 <class 'pyffi.formats.cgf.MeshSubsetsFlags'> instance at ...
@@ -2167,7 +2167,7 @@ chunk size mismatch when reading %s at 0x%08X
                 * radius : 0.7071067...
                 * center : [  0.500  0.500  1.000 ]
             <BLANKLINE>
-            >>> print(chunk.vertices_data) # doctest: +ELLIPSIS
+            >>> print(chunk.vertices_data)
             <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
             * flags : 0
             * data_stream_type : VERTICES
@@ -2186,7 +2186,7 @@ chunk size mismatch when reading %s at 0x%08X
                 6: [  1.000  0.000  1.000 ]
                 7: [  1.000  1.000  1.000 ]
             <BLANKLINE>
-            >>> print(chunk.normals_data) # doctest: +ELLIPSIS
+            >>> print(chunk.normals_data)
             <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
             * flags : 0
             * data_stream_type : NORMALS
@@ -2205,7 +2205,7 @@ chunk size mismatch when reading %s at 0x%08X
                 6: [  0.000  0.000  1.000 ]
                 7: [  0.000  0.000  1.000 ]
             <BLANKLINE>
-            >>> print(chunk.indices_data) # doctest: +ELLIPSIS
+            >>> print(chunk.indices_data)
             <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
             * flags : 0
             * data_stream_type : INDICES
@@ -2228,7 +2228,7 @@ chunk size mismatch when reading %s at 0x%08X
                 10: 5
                 11: 7
             <BLANKLINE>
-            >>> print(chunk.uvs_data) # doctest: +ELLIPSIS
+            >>> print(chunk.uvs_data)
             <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
             * flags : 0
             * data_stream_type : UVS
@@ -2263,7 +2263,7 @@ chunk size mismatch when reading %s at 0x%08X
                 * u : 1.0
                 * v : 0.0
             <BLANKLINE>
-            >>> print(chunk.tangents_data) # doctest: +ELLIPSIS
+            >>> print(chunk.tangents_data)
             <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
             * flags : 0
             * data_stream_type : TANGENTS
@@ -2354,7 +2354,7 @@ chunk size mismatch when reading %s at 0x%08X
                 * z : 0
                 * w : 32767
             <BLANKLINE>
-            >>> print(chunk.colors_data) # doctest: +ELLIPSIS
+            >>> print(chunk.colors_data)
             <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
             * flags : 0
             * data_stream_type : COLORS

@@ -191,13 +191,13 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
     >>> y.c = 3
     >>> y.d.a = 4
     >>> y.d.b = 5
-    >>> print(y) # doctest:+ELLIPSIS
-    <class 'pyffi.object_models.xml.struct_.Y'> instance at 0x...
+    >>> print(y)
+    <struct 'Y'> instance at 0x...
     * a : 1
     * b : 2
     * c : 3
     * d :
-        <class 'pyffi.object_models.xml.struct_.X'> instance at 0x...
+        <struct 'X'> instance at 0x...
         * a : 4
         * b : 5
     <BLANKLINE>
@@ -209,13 +209,13 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
     >>> x.a = 8
     >>> x.b = 9
     >>> y.d = x
-    >>> print(y) # doctest:+ELLIPSIS
-    <class 'pyffi.object_models.xml.struct_.Y'> instance at 0x...
+    >>> print(y)
+    <struct 'Y'> instance at 0x...
     * a : 1
     * b : 2
     * c : 3
     * d :
-        <class 'pyffi.object_models.xml.struct_.X'> instance at 0x...
+        <struct 'X'> instance at 0x...
         * a : 8
         * b : 9
     <BLANKLINE>

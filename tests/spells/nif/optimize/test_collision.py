@@ -1,5 +1,4 @@
 from tests.utils import BaseNifFileTestCase
-import nose
 import pyffi
 from pyffi.spells import Toaster
 from pyffi.formats.nif import NifFormat
@@ -18,10 +17,10 @@ class TestCollisionOptimisationNif(BaseNifFileTestCase):
     def test_box_optimisation(self):
         # check initial data
         shape = self.data.roots[0].collision_object.body.shape
-        nose.tools.assert_equals(shape.data.num_vertices, 8)
+        assert shape.data.num_vertices == 8
         sub_shape = shape.sub_shapes[0]
-        nose.tools.assert_equals(sub_shape.num_vertices, 8)
-        nose.tools.assert_equals(sub_shape.material.material, 0)
+        assert sub_shape.num_vertices == 8
+        assert sub_shape.material.material == 0
 
         # run the spell that optimizes this
         spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=self.data)
@@ -49,8 +48,8 @@ class TestCollisionOptimisationNif(BaseNifFileTestCase):
 
         # check optimized data
         shape = self.data.roots[0].collision_object.body.shape
-        nose.tools.assert_equals(shape.material.material, 0)
-        nose.tools.assert_true(isinstance(shape, NifFormat.bhkBoxShape))
+        assert shape.material.material == 0
+        assert isinstance(shape, NifFormat.bhkBoxShape)
 
 
 class TestBoxCollisionOptimisationNif(BaseNifFileTestCase):
@@ -66,8 +65,8 @@ class TestBoxCollisionOptimisationNif(BaseNifFileTestCase):
 
         # check initial data
         shape = self.data.roots[0].collision_object.body.shape
-        nose.tools.assert_equals(shape.strips_data[0].num_vertices, 24)
-        nose.tools.assert_equals(shape.material.material, 9)
+        assert shape.strips_data[0].num_vertices == 24
+        assert shape.material.material == 9
 
         # run the spell that optimizes this
         spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=self.data)
@@ -84,8 +83,8 @@ class TestBoxCollisionOptimisationNif(BaseNifFileTestCase):
 
         # check optimized data
         shape = self.data.roots[0].collision_object.body.shape
-        nose.tools.assert_true(isinstance(shape, NifFormat.bhkConvexTransformShape))
-        nose.tools.assert_equals(shape.material.material, 9)
+        assert isinstance(shape, NifFormat.bhkConvexTransformShape)
+        assert shape.material.material == 9
 
 
 class TestPackedBoxCollisionOptimisationNif(BaseNifFileTestCase):
@@ -101,9 +100,9 @@ class TestPackedBoxCollisionOptimisationNif(BaseNifFileTestCase):
 
         # check initial data
         shape = self.data.roots[0].collision_object.body.shape
-        nose.tools.assert_equals(shape.data.num_vertices, 24)
-        nose.tools.assert_equals(shape.sub_shapes[0].num_vertices, 24)
-        nose.tools.assert_equals(shape.sub_shapes[0].material.material, 9)
+        assert shape.data.num_vertices == 24
+        assert shape.sub_shapes[0].num_vertices == 24
+        assert shape.sub_shapes[0].material.material == 9
 
         # run the spell that optimizes this
         spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=self.data)
@@ -119,18 +118,18 @@ class TestPackedBoxCollisionOptimisationNif(BaseNifFileTestCase):
 
         # check optimized data
         shape = self.data.roots[0].collision_object.body.shape
-        nose.tools.assert_equals(shape.material.material, 9)
-        nose.tools.assert_true(isinstance(shape, NifFormat.bhkConvexTransformShape))
-        nose.tools.assert_true(isinstance(shape.shape, NifFormat.bhkBoxShape))
+        assert shape.material.material == 9
+        assert isinstance(shape, NifFormat.bhkConvexTransformShape)
+        assert isinstance(shape.shape, NifFormat.bhkBoxShape)
 
     def test_box_from_mopp_collision_optimisation(self):
         """Test Box conversion from mopp collision"""
 
         # check initial data
         shape = self.data.roots[0].collision_object.body.shape
-        nose.tools.assert_equals(shape.data.num_vertices, 24)
-        nose.tools.assert_equals(shape.sub_shapes[0].num_vertices, 24)
-        nose.tools.assert_equals(shape.sub_shapes[0].material.material, 9)
+        assert shape.data.num_vertices == 24
+        assert shape.sub_shapes[0].num_vertices == 24
+        assert shape.sub_shapes[0].material.material == 9
 
         # run the spell that optimizes this
         spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=self.data)
@@ -147,10 +146,10 @@ class TestPackedBoxCollisionOptimisationNif(BaseNifFileTestCase):
 
         # check optimized data
         shape = self.data.roots[0].collision_object.body.shape
-        nose.tools.assert_equals(shape.material.material, 9)
-        nose.tools.assert_equals(shape.shape.material.material, 9)
-        nose.tools.assert_true(isinstance(shape, NifFormat.bhkConvexTransformShape))
-        nose.tools.assert_true(isinstance(shape.shape, NifFormat.bhkBoxShape))
+        assert shape.material.material == 9
+        assert shape.shape.material.material == 9
+        assert isinstance(shape, NifFormat.bhkConvexTransformShape)
+        assert isinstance(shape.shape, NifFormat.bhkBoxShape)
 
 
 class TestNotBoxCollisionOptimisationNif(BaseNifFileTestCase):
@@ -165,7 +164,7 @@ class TestNotBoxCollisionOptimisationNif(BaseNifFileTestCase):
         """Test that a collision mesh which is not a box, but whose vertices form a box, is not converted to a box."""
 
         # check initial data
-        nose.tools.assert_equals(self.data.roots[0].collision_object.body.shape.__class__.__name__, 'bhkMoppBvTreeShape')
+        assert self.data.roots[0].collision_object.body.shape.__class__.__name__ == 'bhkMoppBvTreeShape'
 
         # run the box spell
         spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=self.data)
@@ -179,7 +178,7 @@ class TestNotBoxCollisionOptimisationNif(BaseNifFileTestCase):
         """
 
         # check that we still have a mopp collision, and not a box collision
-        nose.tools.assert_equals(self.data.roots[0].collision_object.body.shape.__class__.__name__, 'bhkMoppBvTreeShape')
+        assert self.data.roots[0].collision_object.body.shape.__class__.__name__ == 'bhkMoppBvTreeShape'
 
 
 class TestMoppCollisionOptimisationNif(BaseNifFileTestCase):
@@ -193,13 +192,13 @@ class TestMoppCollisionOptimisationNif(BaseNifFileTestCase):
 
         # check initial data
         shape = self.shape
-        nose.tools.assert_equals(shape.sub_shapes[0].num_vertices, 53)
-        nose.tools.assert_equals(shape.data.num_vertices, 53)
-        nose.tools.assert_equals(shape.data.num_triangles, 102)
+        assert shape.sub_shapes[0].num_vertices == 53
+        assert shape.data.num_vertices == 53
+        assert shape.data.num_triangles == 102
 
         hktriangle = self.data.roots[0].collision_object.body.shape.shape.data.triangles[-1]
         triangle = hktriangle.triangle
-        nose.tools.assert_equals(hktriangle.welding_info, 18924)
+        assert hktriangle.welding_info == 18924
 
         assert_tuple_values((triangle.v_1, triangle.v_2, triangle.v_3), (13, 17, 5))
         normal = hktriangle.normal
@@ -211,15 +210,15 @@ class TestMoppCollisionOptimisationNif(BaseNifFileTestCase):
 
         # check optimized data
         shape = self.data.roots[0].collision_object.body.shape.shape
-        nose.tools.assert_equals(shape.sub_shapes[0].num_vertices, 51)
-        nose.tools.assert_equals(shape.data.num_vertices, 51)
-        nose.tools.assert_equals(shape.data.num_triangles, 98)
+        assert shape.sub_shapes[0].num_vertices == 51
+        assert shape.data.num_vertices == 51
+        assert shape.data.num_triangles == 98
 
         hktriangle = self.data.roots[0].collision_object.body.shape.shape.data.triangles[-1]
 
         triangle = hktriangle.triangle
         assert_tuple_values((triangle.v_1, triangle.v_2, triangle.v_3), (12, 16, 4))
-        nose.tools.assert_equals(hktriangle.welding_info, 18924)
+        assert hktriangle.welding_info == 18924
         assert_tuple_values((-0.9038461, 0.19667668, - 0.37997436), (normal.x, normal.y, normal.z))
 
         """
@@ -252,8 +251,8 @@ class TestUnpackedCollisionOptimisationNif(BaseNifFileTestCase):
 
         # check initial data
         strip = self.data.roots[0].collision_object.body.shape.strips_data[0]
-        nose.tools.assert_equals(strip.num_vertices, 24)
-        nose.tools.assert_equals(strip.num_triangles, 32)
+        assert strip.num_vertices == 24
+        assert strip.num_triangles == 32
 
         # run the spell
         spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionGeometry(data=self.data)
@@ -269,9 +268,9 @@ class TestUnpackedCollisionOptimisationNif(BaseNifFileTestCase):
         """
         # check optimized data
         shape = self.data.roots[0].collision_object.body.shape.shape
-        nose.tools.assert_equals(shape.sub_shapes[0].num_vertices, 8)
-        nose.tools.assert_equals(shape.data.num_vertices, 8)
-        nose.tools.assert_equals(shape.data.num_triangles, 12)
+        assert shape.sub_shapes[0].num_vertices == 8
+        assert shape.data.num_vertices == 8
+        assert shape.data.num_triangles == 12
 
 
 class TestPackedCollisionOptimisationNif(BaseNifFileTestCase):
@@ -287,9 +286,9 @@ class TestPackedCollisionOptimisationNif(BaseNifFileTestCase):
 
         # check initial data
         shape = self.data.roots[0].collision_object.body.shape
-        nose.tools.assert_equals(shape.sub_shapes[0].num_vertices, 24)
-        nose.tools.assert_equals(shape.data.num_vertices, 24)
-        nose.tools.assert_equals(shape.data.num_triangles, 12)
+        assert shape.sub_shapes[0].num_vertices == 24
+        assert shape.data.num_vertices == 24
+        assert shape.data.num_triangles == 12
 
         # run the spell
         spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionGeometry(data=self.data)
@@ -311,9 +310,9 @@ class TestPackedCollisionOptimisationNif(BaseNifFileTestCase):
 
         # check optimized data
         shape = self.data.roots[0].collision_object.body.shape.shape
-        nose.tools.assert_equals(shape.sub_shapes[0].num_vertices, 8)
-        nose.tools.assert_equals(shape.data.num_vertices, 8)
-        nose.tools.assert_equals(shape.data.num_triangles, 12)
+        assert shape.sub_shapes[0].num_vertices == 8
+        assert shape.data.num_vertices == 8
+        assert shape.data.num_triangles == 12
 
 
 class TestMoppCollisionOptimisationNif(BaseNifFileTestCase):
@@ -329,9 +328,9 @@ class TestMoppCollisionOptimisationNif(BaseNifFileTestCase):
 
         # check initial data
         shape = self.data.roots[0].collision_object.body.shape.shape
-        nose.tools.assert_equals(shape.sub_shapes[0].num_vertices, 24)
-        nose.tools.assert_equals(shape.data.num_vertices, 24)
-        nose.tools.assert_equals(shape.data.num_triangles, 12)
+        assert shape.sub_shapes[0].num_vertices == 24
+        assert shape.data.num_vertices == 24
+        assert shape.data.num_triangles == 12
 
         # run the spell
         spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionGeometry(data=self.data)
@@ -353,6 +352,6 @@ class TestMoppCollisionOptimisationNif(BaseNifFileTestCase):
         """
         # check optimized data
         shape = self.data.roots[0].collision_object.body.shape.shape
-        nose.tools.assert_equals(shape.sub_shapes[0].num_vertices, 8)
-        nose.tools.assert_equals(shape.data.num_vertices, 8)
-        nose.tools.assert_equals(shape.data.num_triangles, 12)
+        assert shape.sub_shapes[0].num_vertices == 8
+        assert shape.data.num_vertices == 8
+        assert shape.data.num_triangles == 12

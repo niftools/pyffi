@@ -47,7 +47,7 @@ Parse all TGA files in a directory tree
 ...     except Exception:
 ...         print(
 ...             "Warning: read failed due corrupt file,"
-...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
+...             " corrupt format description, or bug.")
 reading tests/formats/tga/test.tga
 reading tests/formats/tga/test_footer.tga
 

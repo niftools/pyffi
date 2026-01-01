@@ -1,4 +1,4 @@
-"""
+r"""
 :mod:`pyffi.spells` --- High level file operations
 ==================================================
 
@@ -404,13 +404,13 @@ class Spell(object):
 
 
 class SpellGroupBase(Spell):
-    """Base class for grouping spells. This implements all the spell grouping
+    r"""Base class for grouping spells. This implements all the spell grouping
     functions that fall outside of the actual recursing (:meth:`__init__`,
     :meth:`toastentry`, :meth:`_datainspect`, :meth:`datainspect`, and :meth:`toastexit`).
     """
 
     SPELLCLASSES = []
-    """List of :class:`Spell`\ s of this group (not instantiated)."""
+    r"""List of :class:`Spell`\ s of this group (not instantiated)."""
 
     ACTIVESPELLCLASSES = []
     """List of active spells of this group (not instantiated).
@@ -592,6 +592,10 @@ class fake_logger:
         cls._log(logging.WARNING, "WARNING", msg)
 
     @classmethod
+    def warning(cls, msg):
+        cls._log(logging.WARNING, "WARNING", msg)
+
+    @classmethod
     def info(cls, msg):
         cls._log(logging.INFO, "INFO", msg)
 
@@ -762,7 +766,7 @@ class Toaster(object):
                 "option --patch-cmd can only be used with --patch")
         # multiprocessing available?
         if (multiprocessing is None) and self.options["jobs"] > 1:
-            self.logger.warn(
+            self.logger.warning(
                 "multiprocessing not supported on this platform")
             self.options["jobs"] = 1
         # update include and exclude types
@@ -1238,8 +1242,8 @@ class Toaster(object):
         if ((not self.spellclass.READONLY) and (not dryrun)
                 and (not prefix) and (not createpatch)
                 and interactive and (not suffix) and (not destdir)):
-            self.logger.warn("This script will modify your files, in particular if something goes wrong it may destroy them.")
-            self.logger.warn("Make a backup of your files before running this script.")
+            self.logger.warning("This script will modify your files, in particular if something goes wrong it may destroy them.")
+            self.logger.warning("Make a backup of your files before running this script.")
             if not input("Are you sure that you want to proceed? [n/y] ") in ("y", "Y"):
                 self.logger.info("Script aborted by user.")
                 if pause:
@@ -1285,7 +1289,7 @@ class Toaster(object):
                 try:
                     archive_in = ARCHIVE_CLASS.Data(name=filename_in, mode='r')
                 except ValueError:
-                    self.logger.warn("archive format not recognized, skipped")
+                    self.logger.warning("archive format not recognized, skipped")
                     continue
                 # toast all members in the archive
                 # and save them to a temporary archive as we go
@@ -1357,7 +1361,7 @@ class Toaster(object):
             self.msgblockend()
 
     def get_toast_head_root_ext(self, filename):
-        """Get the name of where the input file *filename* would
+        r"""Get the name of where the input file *filename* would
         be written to by the toaster: head, root, and extension.
 
         :param filename: The name of the hypothetical file to be

@@ -59,7 +59,7 @@ Parse all BSA files in a directory tree
 ...     except Exception:
 ...         print(
 ...             "Warning: read failed due corrupt file,"
-...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
+...             " corrupt format description, or bug.")
 reading tests/formats/bsa/test.bsa
 
 Create an BSA file from scratch and write to file

@@ -106,7 +106,7 @@ class Face:
         >>> face = Face(3, 7, 5)
         >>> face.verts
         (3, 7, 5)
-        >>> Face(30, 0, 30) # doctest: +ELLIPSIS
+        >>> Face(30, 0, 30)
         Traceback (most recent call last):
             ...
         ValueError: ...
@@ -292,7 +292,7 @@ class Mesh:
         >>> m = Mesh()
         >>> f0 = m.add_face(3, 1, 2)
         >>> f1 = m.add_face(0, 1, 2)
-        >>> m.faces # doctest: +ELLIPSIS
+        >>> m.faces
         Traceback (most recent call last):
             ...
         AttributeError: ...

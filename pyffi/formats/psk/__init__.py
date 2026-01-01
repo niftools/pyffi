@@ -30,7 +30,7 @@ Read a PSK file
 >>> data = PskFormat.Data()
 >>> data.inspect(stream)
 >>> # do some stuff with header?
->>> data.read(stream) # doctest: +ELLIPSIS
+>>> data.read(stream)
 >>> # do some stuff with data?
 
 Parse all PSK files in a directory tree
@@ -46,7 +46,7 @@ Parse all PSK files in a directory tree
 ...     except Exception:
 ...         print(
 ...             "Warning: read failed due corrupt file,"
-...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
+...             " corrupt format description, or bug.")
 reading tests/formats/psk/examplemesh.psk
 
 Create an PSK file from scratch and write to file

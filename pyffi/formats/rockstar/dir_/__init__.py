@@ -54,7 +54,7 @@ Parse all DIR files in a directory tree
 ...     except Exception:
 ...         print(
 ...             "Warning: read failed due corrupt file,"
-...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
+...             " corrupt format description, or bug.")
 reading tests/formats/rockstar/dir/test.dir
 
 Create an DIR file from scratch and write to file

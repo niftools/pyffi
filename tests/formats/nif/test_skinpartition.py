@@ -1,5 +1,4 @@
 from pyffi.formats.nif import NifFormat
-from nose.tools import assert_equals
 
 
 class TestSkinPartition:
@@ -35,10 +34,10 @@ class TestSkinPartition:
         part.strips[1][3] = 6
 
         expected_tris = [(0, 2, 4), (2, 3, 4), (4, 3, 1), (7, 6, 5)]
-        assert_equals(list(part.get_triangles()), expected_tris)
+        assert list(part.get_triangles()) == expected_tris
 
         expected_mapped_tris = [(2, 4, 6), (4, 5, 6), (6, 5, 3), (0, 1, 7)]
-        assert_equals(list(part.get_mapped_triangles()), expected_mapped_tris)
+        assert list(part.get_mapped_triangles()) == expected_mapped_tris
 
 
     def test_skinpartition_update_triangles(self):
@@ -75,4 +74,4 @@ class TestSkinPartition:
         part.triangles[5].v_2 = 7
         part.triangles[5].v_3 = 6
         expected_indices = [(5, 4, 3), (2, 4, 6), (3, 5, 7), (2, 3, 4), (5, 6, 7), (1, 0, 1)]
-        assert_equals(list(part.get_mapped_triangles()), expected_indices)
+        assert list(part.get_mapped_triangles()) == expected_indices

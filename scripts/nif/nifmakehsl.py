@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-"""Make hex structure libraries for all nif versions.
+r"""Make hex structure libraries for all nif versions.
 
 Installation
 ------------

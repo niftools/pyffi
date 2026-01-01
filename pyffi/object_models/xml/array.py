@@ -181,9 +181,9 @@ class Array(_ListWrap):
     def _len1(self):
         """The length the array should have, obtained by evaluating the count1 expression."""
         if self._parent is None:
-            return self._count1.eval()
+            return int(self._count1.eval())
         else:
-            return self._count1.eval(self._parent())
+            return int(self._count1.eval(self._parent()))
 
     def _len2(self, index1):
         """The length the array should have, obtained by evaluating the count2 expression."""
@@ -193,6 +193,10 @@ class Array(_ListWrap):
             expr = self._count2.eval()
         else:
             expr = self._count2.eval(self._parent())
+
+        if isinstance(expr, float):
+            expr = int(expr)
+
         if isinstance(expr, int):
             return expr
         else:

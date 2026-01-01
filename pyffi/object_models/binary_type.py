@@ -86,10 +86,10 @@ def _as_bytes(value):
     :rtype: C{_bytes}
 
     >>> # following doctest fails on py3k, hence disabled
-    >>> _as_bytes(u"\\u00e9defa") == u"\\u00e9defa".encode("utf-8") # doctest: +SKIP
+    >>> _as_bytes(u"\\u00e9defa") == u"\\u00e9defa".encode("utf-8")
     True
 
-    >>> _as_bytes(123) # doctest: +ELLIPSIS
+    >>> _as_bytes(123)
     Traceback (most recent call last):
         ...
     TypeError: ...
@@ -140,7 +140,7 @@ class IntType(BinarySimpleType, EditableSpinBox):
     >>> j.read(tmp)
     >>> hex(j.value)
     '0x11223344'
-    >>> i.value = 2**40 # doctest: +ELLIPSIS
+    >>> i.value = 2**40
     Traceback (most recent call last):
         ...
     ValueError: ...

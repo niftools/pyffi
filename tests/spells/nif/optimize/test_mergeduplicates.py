@@ -4,8 +4,6 @@ from tests.utils import BaseNifFileTestCase
 import pyffi
 from pyffi.spells import Toaster
 
-from nose.tools import assert_true, assert_false
-
 
 class TestMergeDuplicatesOptimisationNif(BaseNifFileTestCase):
     # I didn't need setUp and tearDown here..
@@ -74,10 +72,10 @@ class TestExplicitMergeDuplicatesGeomOptimisationNif(BaseNifFileTestCase):
 
     def test_non_interactive_opt_merge_duplicates(self):
         # check that there are duplicates
-        assert_true(has_duplicates(self.data.roots[0]))
+        assert has_duplicates(self.data.roots[0])
 
         # run the spell that fixes this
         spell = pyffi.spells.nif.optimize.SpellMergeDuplicates(data=self.data)
         spell.recurse()
 
-        assert_false(has_duplicates(self.data.roots[0]))
+        assert not has_duplicates(self.data.roots[0])

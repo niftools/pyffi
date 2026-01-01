@@ -61,12 +61,12 @@ We love tests, they help guarantee that things keep working they way
 they should. You can run them yourself with the following::
 
     source venv/bin/activate
-    nosetest -v test
+    pytest
 
-or::
+To run tests for all Python versions, use nox::
 
     source venv/bin/activate
-    py.test -v tests
+    nox
 
 Documentation
 -------------

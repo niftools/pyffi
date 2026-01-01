@@ -48,9 +48,9 @@ def getMassInertiaSphere(radius, density=1, solid=True):
     """Return mass and inertia matrix for a sphere of given radius and
     density.
     >>> mass, inertia_matrix = getMassInertiaSphere(2.0, 3.0)
-    >>> mass # doctest: +ELLIPSIS
+    >>> mass
     100.53096...
-    >>> inertia_matrix[0][0] # doctest: +ELLIPSIS
+    >>> inertia_matrix[0][0]
     160.84954..."""
 
     if solid:

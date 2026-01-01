@@ -82,11 +82,11 @@ class SimpleType(AnyType, metaclass=_MetaSimpleType):
     >>> test.value = 255
     >>> print(test)
     255
-    >>> test.value = 100000 # doctest: +ELLIPSIS
+    >>> test.value = 100000
     Traceback (most recent call last):
         ...
     ValueError: ...
-    >>> test.value = "hello world" # doctest: +ELLIPSIS
+    >>> test.value = "hello world"
     Traceback (most recent call last):
         ...
     TypeError: ...

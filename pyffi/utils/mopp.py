@@ -102,7 +102,7 @@ def getMopperCredits():
     return creditstr
 
 def getMopperOriginScaleCodeWelding(vertices, triangles, material_indices=None):
-    """Generate mopp code and welding info for given geometry. Raises
+    r"""Generate mopp code and welding info for given geometry. Raises
     RuntimeError if something goes wrong (e.g. if mopp generator fails, or if
     mopper.exe cannot be run on the current platform).
 

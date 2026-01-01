@@ -1,16 +1,15 @@
 """Tests for the kfmtoaster script"""
-
-from nose.tools import raises
+import pytest
 
 from tests.scripts.kfm import call_kfmtoaster
 
 kfm_dir = "tests/spells/kfm/files/"
 
 
-@raises(SystemExit)  # --help uses sys.exit()
 def test_help():
     """Tests spell help"""
-    call_kfmtoaster("--raise", "--help")
+    with pytest.raises(SystemExit):  # --help uses sys.exit()
+        call_kfmtoaster("--raise", "--help")
 
 
 def test_examples():
@@ -28,10 +27,10 @@ def test_spells():
     """
 
 
-@raises(ValueError)
 def test_raise():
     """Test exception raised on invalid kfm"""
-    call_kfmtoaster("--raise", "check_read", kfm_dir + "invalid.kfm")
+    with pytest.raises(ValueError):
+        call_kfmtoaster("--raise", "check_read", kfm_dir + "invalid.kfm")
 
     """
     pyffi:testlogger:INFO:=== tests/spells/kfm/files/invalid.kfm ===

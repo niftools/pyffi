@@ -3,37 +3,12 @@
 import os
 import sys
 
-if sys.version_info < (3, 3):
-    raise RuntimeError("PyFFI requires Python 3.3 or higher.")
+if sys.version_info < (3, 10):
+    raise RuntimeError("PyFFI requires Python 3.10 or higher.")
 
 NAME = "PyFFI"
 with open("pyffi/VERSION", "rt") as f:
     VERSION = f.read().strip()
-PACKAGES = [
-    'pyffi',
-    'pyffi.object_models',
-    'pyffi.object_models.xml',
-    'pyffi.object_models.xsd',
-    'pyffi.utils',
-    'pyffi.formats',
-    'pyffi.formats.nif',
-    'pyffi.formats.kfm',
-    'pyffi.formats.cgf',
-    'pyffi.formats.dds',
-    'pyffi.formats.tga',
-    'pyffi.formats.egm',
-    'pyffi.formats.egt',
-    'pyffi.formats.esp',
-    'pyffi.formats.tri',
-    'pyffi.formats.bsa',
-    'pyffi.formats.psk',
-    'pyffi.formats.rockstar',
-    'pyffi.formats.rockstar.dir_',
-    'pyffi.spells',
-    'pyffi.spells.cgf',
-    'pyffi.spells.nif',
-    'pyffi.qskope',
-    'pyffi.formats.dae']
 
 CLASSIFIERS = [
     'Development Status :: 4 - Beta',
@@ -42,9 +17,11 @@ CLASSIFIERS = [
     'Intended Audience :: End Users/Desktop',
     'Topic :: Multimedia :: Graphics :: 3D Modeling',
     'Programming Language :: Python',
-    'Programming Language :: Python :: 3.5',
-    'Programming Language :: Python :: 3.6',
-    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
+    'Programming Language :: Python :: 3.14',
     'Operating System :: OS Independent']
 
 try:
@@ -96,7 +73,6 @@ params = dict(
     version=VERSION,
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
-    packages=PACKAGES,
     package_data=PACKAGE_DATA,
     scripts=SCRIPTS,
     author=AUTHOR,

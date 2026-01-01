@@ -52,7 +52,7 @@ def mean(vec):
 def sd(vec):
     """Sample standard deviation.
 
-    >>> sd([1, 2, 3, 4, 5]) # doctest: +ELLIPSIS
+    >>> sd([1, 2, 3, 4, 5])
     1.581138...
     """
     m = mean(vec)

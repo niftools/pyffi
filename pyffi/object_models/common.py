@@ -60,7 +60,7 @@ def _as_bytes(value):
     >>> _as_bytes("\\u00e9defa") == "\\u00e9defa".encode("utf-8")
     True
 
-    >>> _as_bytes(123) # doctest: +ELLIPSIS
+    >>> _as_bytes(123)
     Traceback (most recent call last):
         ...
     TypeError: ...
@@ -103,7 +103,7 @@ class Int(BasicBase, EditableSpinBox):
     >>> j.read(tmp, data)
     >>> hex(j.get_value())
     '0x11223344'
-    >>> i.set_value(2**40) # doctest: +ELLIPSIS
+    >>> i.set_value(2**40)
     Traceback (most recent call last):
         ...
     ValueError: ...
@@ -395,7 +395,7 @@ class Float(BasicBase, EditableFloatSpinBox):
                                      self._value))
         except OverflowError:
             logger = logging.getLogger("pyffi.object_models")
-            logger.warn("float value overflow, writing NaN")
+            logger.warning("float value overflow, writing NaN")
             stream.write(struct.pack(data._byte_order + 'I',
                                      0x7fc00000))
 

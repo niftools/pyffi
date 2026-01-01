@@ -2,16 +2,18 @@
 
 import os
 import os.path
-from nose.tools import assert_equal, assert_almost_equal, raises
+
+import pytest
+
 from tests.scripts.nif import call_niftoaster
 
 nif_dir = "tests/spells/nif/files/"
 
 
-@raises(SystemExit)  # --help uses sys.exit()
 def test_help():
     """Tests spell help"""
-    call_niftoaster("--raise", "--help")
+    with pytest.raises(SystemExit):  # --help uses sys.exit()
+        call_niftoaster("--raise", "--help")
 
 
 def test_examples():
@@ -24,16 +26,16 @@ def test_spells():
     call_niftoaster("--raise", "--spells")
 
 
-@raises(AttributeError)
 def test_raise():
     """Test exception raised on invalid nif"""
-    call_niftoaster("--raise", "check_readwrite", nif_dir + "invalid.nif")
+    with pytest.raises(AttributeError):
+        call_niftoaster("--raise", "check_readwrite", nif_dir + "invalid.nif")
 
 
 def test_no_raise():
     """Test ignore exception raised on invalid nif"""
     toaster = call_niftoaster("check_readwrite", nif_dir + "invalid.nif")
-    assert_equal(sorted(toaster.files_failed), [nif_dir + "invalid.nif"])
+    assert sorted(toaster.files_failed) == [nif_dir + "invalid.nif"]
 
 
 def test_check_readwrite():
@@ -41,18 +43,18 @@ def test_check_readwrite():
     for filename in ["nds.nif", "neosteam.nif", "test.nif"]:
         file_path = nif_dir + "{0}".format(filename)
         toaster = call_niftoaster("--raise", "check_readwrite", file_path)
-        assert_equal(sorted(toaster.files_done), [file_path])
+        assert sorted(toaster.files_done) == [file_path]
 
 
 def test_check_skip_only():
     """Test skip NIF files using filters and type"""
     toaster = call_niftoaster(
         *("--raise --skip texture --skip skin --only fix_t --only center check_nop {0}".format(nif_dir).split()))
-    assert_equal(sorted(toaster.files_done), [
+    assert sorted(toaster.files_done) == [
             nif_dir + 'test_centerradius.nif',
-            nif_dir + 'test_fix_tangentspace.nif'])
+            nif_dir + 'test_fix_tangentspace.nif']
 
-    assert_equal(sorted(toaster.files_skipped), [
+    assert sorted(toaster.files_skipped) == [
             nif_dir + 'invalid.nif',
             nif_dir + 'nds.nif',
             nif_dir + 'neosteam.nif',
@@ -89,15 +91,15 @@ def test_check_skip_only():
             nif_dir + 'test_opt_zeroscale.nif',
             nif_dir + 'test_skincenterradius.nif',
             nif_dir + 'test_vertexcolor.nif',
-            ])
-    assert_equal(toaster.files_failed, set([]))
+            ]
+    assert toaster.files_failed == set([])
 
 
 def test_prefix_suffix():
     """Test add prefix and suffix to output"""
     call_niftoaster(
         *("--raise --prefix=pre_ --suffix=_suf --noninteractive optimize {0}test.nif".format(nif_dir).split()))
-    assert_equal(os.path.exists(nif_dir + "pre_test_suf.nif"), True)
+    assert os.path.exists(nif_dir + "pre_test_suf.nif") == True
     os.remove(nif_dir + "pre_test_suf.nif")
 
 
@@ -108,11 +110,11 @@ def test_check_bhkbodycenter():
     toaster = call_niftoaster("--raise", "check_bhkbodycenter", testfile)
     orig = toaster.files_done[testfile][0]["center"]["orig"]
     calc = toaster.files_done[testfile][0]["center"]["calc"]
-    assert_equal(orig, (0.0, 0.0, 0.0, 0.0))
-    assert_almost_equal(calc[0], -1.08541444)
-    assert_almost_equal(calc[1], 18.46527444)
-    assert_almost_equal(calc[2], 6.88672184)
-    assert_almost_equal(calc[3], 0.0)
+    assert orig, (0.0, 0.0, 0.0 == 0.0)
+    assert calc[0] == pytest.approx(-1.08541444)
+    assert calc[1] == pytest.approx(18.46527444)
+    assert calc[2] == pytest.approx(6.88672184)
+    assert calc[3] == pytest.approx(0.0)
 
 
 def test_check_centerradius():
@@ -124,10 +126,10 @@ def test_check_centerradius():
     calc_center = toaster.files_done[testfile][0]["center"]["calc"]
     orig_radius = toaster.files_done[testfile][0]["radius"]["orig"]
     calc_radius = toaster.files_done[testfile][0]["radius"]["calc"]
-    assert_equal(vertex_outside, (10.0, -10.0, -10.0))
-    assert_equal(orig_center, (-1.0, 0.0, 0.0))
-    assert_almost_equal(orig_radius, 10.0)
-    assert_almost_equal(calc_radius, 17.32050890)
+    assert vertex_outside, (10.0, -10.0 == -10.0)
+    assert orig_center, (-1.0, 0.0 == 0.0)
+    assert orig_radius == pytest.approx(10.0)
+    assert calc_radius == pytest.approx(17.32050890)
 
 """
 The check_skincenterradius spell
@@ -137,7 +139,7 @@ The check_skincenterradius spell
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_skincenterradius", nif_dir + "test_skincenterradius.nif"]
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+>>> niftoaster.NifToaster().cli()
 pyffi.toaster:INFO:=== tests/formats/nif/test_skincenterradius.nif ===
 pyffi.toaster:INFO:  --- check_skincenterradius ---
 pyffi.toaster:INFO:    ~~~ NiNode [Bip01] ~~~
@@ -176,7 +178,7 @@ The check_convexverticesshape spell
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_convexverticesshape", nif_dir + "test_convexverticesshape.nif"]
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+>>> niftoaster.NifToaster().cli()
 pyffi.toaster:INFO:=== tests/formats/nif/test_convexverticesshape.nif ===
 pyffi.toaster:INFO:  --- check_convexverticesshape ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
@@ -195,7 +197,7 @@ The check_mopp spell
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=2", "--raise", "check_mopp", nif_dir + "test_mopp.nif"]
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+>>> niftoaster.NifToaster().cli()
 pyffi.toaster:INFO:=== tests/formats/nif/test_mopp.nif ===
 pyffi.nif.data:DEBUG:Reading header at 0x00000000
 pyffi.nif.data:DEBUG:Version 0x14000005
@@ -799,7 +801,7 @@ The modify_disableparallax spell
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "modify_disableparallax", nif_dir + "test_fix_disableparallax.nif"]
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+>>> niftoaster.NifToaster().cli()
 pyffi.toaster:INFO:=== tests/formats/nif/test_fix_disableparallax.nif ===
 pyffi.toaster:INFO:  --- modify_disableparallax ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
@@ -823,7 +825,7 @@ The check_tangentspace spell
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", nif_dir + "test_check_tangentspace1.nif"]
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+>>> niftoaster.NifToaster().cli()
 pyffi.toaster:INFO:=== tests/formats/nif/test_check_tangentspace1.nif ===
 pyffi.toaster:INFO:  --- check_tangentspace ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
@@ -831,7 +833,7 @@ pyffi.toaster:INFO:      ~~~ NiTriStrips [Plane] ~~~
 pyffi.toaster:INFO:        checking tangent space
 pyffi.toaster:INFO:Finished.
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", nif_dir + "test_check_tangentspace2.nif"]
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+>>> niftoaster.NifToaster().cli()
 pyffi.toaster:INFO:=== tests/formats/nif/test_check_tangentspace2.nif ===
 pyffi.toaster:INFO:  --- check_tangentspace ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
@@ -839,12 +841,12 @@ pyffi.toaster:INFO:      ~~~ NiTriStrips [Plane] ~~~
 pyffi.toaster:INFO:        checking tangent space
 pyffi.toaster:INFO:Finished.
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", nif_dir + "test_check_tangentspace3.nif"]
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+>>> niftoaster.NifToaster().cli()
 Traceback (most recent call last):
     ...
 ValueError: tangent space data has invalid size, expected 96 bytes but got 95
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", nif_dir + "test_check_tangentspace4.nif"]
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+>>> niftoaster.NifToaster().cli()
 pyffi.toaster:INFO:=== tests/formats/nif/test_check_tangentspace4.nif ===
 pyffi.toaster:INFO:  --- check_tangentspace ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
@@ -872,7 +874,7 @@ The check_tristrip spell
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tristrip", nif_dir + "test_opt_dupverts.nif"]
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+>>> niftoaster.NifToaster().cli()
 pyffi.toaster:INFO:=== tests/formats/nif/test_opt_dupverts.nif ===
 pyffi.toaster:INFO:  --- check_tristrip ---
 pyffi.toaster:INFO:    ~~~ NiNode [Lowerclass Dunmer Cup Type-1] ~~~
@@ -905,7 +907,7 @@ The fix_mergeskeletonroots spell
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=2", "--raise", "--dry-run", "fix_mergeskeletonroots", nif_dir + "test_fix_mergeskeletonroots.nif"]
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+>>> niftoaster.NifToaster().cli()
 pyffi.toaster:INFO:=== tests/formats/nif/test_fix_mergeskeletonroots.nif ===
 pyffi.nif.data:DEBUG:Reading header at 0x00000000
 pyffi.nif.data:DEBUG:Version 0x14000005
@@ -953,7 +955,7 @@ The fix_scale spell
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "fix_scale", nif_dir + "test_opt_dupverts.nif", "-a", "10"]
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+>>> niftoaster.NifToaster().cli()
 pyffi.toaster:INFO:=== tests/formats/nif/test_opt_dupverts.nif ===
 pyffi.toaster:INFO:  --- fix_scale ---
 pyffi.toaster:INFO:    scaling by factor 10.000000
@@ -993,7 +995,7 @@ The fix_mopp spell
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "fix_mopp", nif_dir + "test_mopp.nif"]
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+>>> niftoaster.NifToaster().cli()
 pyffi.toaster:INFO:=== tests/formats/nif/test_mopp.nif ===
 pyffi.toaster:INFO:  --- fix_mopp ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
@@ -1022,7 +1024,7 @@ The check_version spell
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "check_version", "tests/spells/nif", "-a", "10"]
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS +REPORT_NDIFF
+>>> niftoaster.NifToaster().cli()
 pyffi.toaster:INFO:=== tests/formats/nif/invalid.nif ===
 pyffi.toaster:ERROR:TEST FAILED ON tests/formats/nif/invalid.nif
 pyffi.toaster:ERROR:If you were running a spell that came with PyFFI, then

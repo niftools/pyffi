@@ -54,28 +54,25 @@ def float_to_int(value):
     >>> float_to_int(-0.6)
     -1
     >>> float_to_int(float('inf'))
-    pyffi.utils.mathutils:WARNING:float_to_int converted +inf to +2147483648.
     2147483648
     >>> float_to_int(-float('inf'))
-    pyffi.utils.mathutils:WARNING:float_to_int converted -inf to -2147483648.
     -2147483648
     >>> float_to_int(float('nan'))
-    pyffi.utils.mathutils:WARNING:float_to_int converted nan to 0.
     0
     """
     try:
         return int(value + 0.5 if value > 0 else value - 0.5)
     except ValueError:
-        logging.getLogger("pyffi.utils.mathutils").warn(
+        logging.getLogger("pyffi.utils.mathutils").warning(
             "float_to_int converted nan to 0.")
         return 0
     except OverflowError:
         if value > 0:
-            logging.getLogger("pyffi.utils.mathutils").warn(
+            logging.getLogger("pyffi.utils.mathutils").warning(
                 "float_to_int converted +inf to +2147483648.")
             return 2147483648
         else:
-            logging.getLogger("pyffi.utils.mathutils").warn(
+            logging.getLogger("pyffi.utils.mathutils").warning(
                 "float_to_int converted -inf to -2147483648.")
             return -2147483648
 
@@ -98,7 +95,7 @@ def getBoundingBox(veclist):
 def getCenterRadius(veclist):
     """Calculate center and radius of given list of vectors.
 
-    >>> getCenterRadius([(0,0,0), (1,1,2), (0.5,0.5,0.5)]) # doctest: +ELLIPSIS
+    >>> getCenterRadius([(0,0,0), (1,1,2), (0.5,0.5,0.5)])
     ((0.5, 0.5, 1.0), 1.2247...)
     """
     if not veclist:
@@ -141,7 +138,7 @@ def vecDotProduct(vec1, vec2):
 def vecDistance(vec1, vec2):
     """Return distance between two vectors (any dimension).
 
-    >>> vecDistance((1,2,3),(4,-5,6)) # doctest: +ELLIPSIS
+    >>> vecDistance((1,2,3),(4,-5,6))
     8.185...
     """
     return vecNorm(vecSub(vec1, vec2))
@@ -157,7 +154,7 @@ def vecDistanceAxis(axis, vec):
 
     >>> vecDistanceAxis([(0,0,0), (0,0,1)], (0,3.5,0))
     3.5
-    >>> vecDistanceAxis([(0,0,0), (1,1,1)], (0,1,0.5)) # doctest: +ELLIPSIS
+    >>> vecDistanceAxis([(0,0,0), (1,1,1)], (0,1,0.5))
     0.70710678...
     """
     return vecNorm(vecNormal(axis[0], axis[1], vec)) / vecDistance(*axis)
@@ -178,7 +175,7 @@ def vecDistanceTriangle(triangle, vert):
 def vecNorm(vec):
     """Norm of a vector (any dimension).
 
-    >>> vecNorm((2,3,4)) # doctest: +ELLIPSIS
+    >>> vecNorm((2,3,4))
     5.3851648...
     """
     return vecDotProduct(vec, vec) ** 0.5
@@ -186,7 +183,7 @@ def vecNorm(vec):
 def vecNormalized(vec):
     """Normalized version of a vector (any dimension).
 
-    >>> vecNormalized((2,3,4)) # doctest: +ELLIPSIS
+    >>> vecNormalized((2,3,4))
     (0.371..., 0.557..., 0.742...)
     """
     return vecscalarMul(vec, 1.0 / vecNorm(vec))

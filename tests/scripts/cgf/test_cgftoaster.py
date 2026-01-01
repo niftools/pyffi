@@ -1,14 +1,15 @@
 """Tests for the cgftoaster script"""
-from nose.tools import raises
+import pytest
+
 from tests.scripts.cgf import call_cgftoaster
 
 cfg_dir = "tests/spells/cgf/files/"
 
 
-@raises(SystemExit)  # --help uses sys.exit()
 def test_help():
     """Tests spell help"""
-    call_cgftoaster("--raise", "--help")
+    with pytest.raises(SystemExit):  # --help uses sys.exit()
+        call_cgftoaster("--raise", "--help")
 
 
 def test_examples():
@@ -29,10 +30,10 @@ def test_spells():
     """
 
 
-@raises(ValueError)
 def test_raise():
     """Test check_read and check_readwrite spells"""
-    call_cgftoaster("--raise", "check_read", cfg_dir)
+    with pytest.raises(ValueError):
+        call_cgftoaster("--raise", "check_read", cfg_dir)
 
     """
     pyffi.toaster:INFO:=== tests/formats/cgf/invalid.cgf ===

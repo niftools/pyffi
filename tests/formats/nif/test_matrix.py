@@ -1,5 +1,6 @@
+import pytest
+
 from pyffi.formats.nif import NifFormat
-from nose.tools import assert_equals, assert_true, assert_false, assert_almost_equals
 from tests.utils import assert_tuple_values
 
 
@@ -19,7 +20,7 @@ class TestMatrix:
         assert_tuple_values(mat.as_tuple(), identity)
 
         s, r, t = mat.get_scale_rotation_translation()
-        assert_equals(s, 1.0)
+        assert s == 1.0
 
         rotation = ((1.000, 0.000, 0.000),
                     (0.000, 1.000, 0.000),
@@ -29,10 +30,10 @@ class TestMatrix:
 
         translation = (0.000, 0.000, 0.000)
         assert_tuple_values(t.as_tuple(), translation)
-        assert_true(mat.get_matrix_33().is_scale_rotation())
+        assert mat.get_matrix_33().is_scale_rotation()
 
         mat.m_21 = 2.0
-        assert_false(mat.get_matrix_33().is_scale_rotation())
+        assert not mat.get_matrix_33().is_scale_rotation()
 
     def test_det_inverse_matrices(self):
         """Tests matrix determinants and inverse matrices"""
@@ -46,11 +47,11 @@ class TestMatrix:
         mat.m_31 = 0.779282
         mat.m_32 = 0.437844
         mat.m_33 = 0.448343
-        assert_true(mat == mat)
-        assert_false(mat != mat)
+        assert (mat == mat) is True
+        assert (mat != mat) is False
 
-        assert_almost_equals(mat.get_determinant(), 0.9999995)
-        assert_true(mat.is_rotation())
+        assert mat.get_determinant() == pytest.approx(0.9999995)
+        assert mat.is_rotation()
 
         transpose = ((-0.434308, -0.45177, 0.779282),
                      (0.893095, -0.103314, 0.437844),
@@ -59,14 +60,14 @@ class TestMatrix:
         t = mat.get_transpose()
         tup = t.as_tuple()
         assert_tuple_values(tup, transpose)
-        assert_true(mat.get_inverse() == mat.get_transpose())
+        assert mat.get_inverse() == mat.get_transpose()
 
         mat *= 0.321
-        assert_true(mat.get_scale(), 0.32100)
+        assert mat.get_scale() == pytest.approx(0.32100)
 
         s, r = mat.get_inverse().get_scale_rotation()
-        assert_almost_equals(s, 3.11526432)
-        assert_true(abs(0.321 - 1/s) < NifFormat.EPSILON)
+        assert s == pytest.approx(3.11526432)
+        assert abs(0.321 - 1/s) < NifFormat.EPSILON
 
         rotation = ((-0.43430806610505857, -0.45177006876291087, 0.7792821186127868),
                     (0.8930951359360114, -0.10331401572519507, 0.43784406664326525),
@@ -74,7 +75,7 @@ class TestMatrix:
 
         assert_tuple_values(r.as_tuple(), rotation)
 
-        assert_true(abs(mat.get_determinant() - 0.321 ** 3) < NifFormat.EPSILON)
+        assert abs(mat.get_determinant() - 0.321 ** 3) < NifFormat.EPSILON
 
         mat *= -2
 
@@ -83,8 +84,8 @@ class TestMatrix:
                          (-0.500299044, -0.28109584800000004, -0.287836206))
         assert_tuple_values(mat.as_tuple(), applied_scale)
 
-        assert_almost_equals(mat.get_scale(), -0.6419999)
-        assert_true(abs(mat.get_determinant() + 0.642 ** 3) < NifFormat.EPSILON)
+        assert mat.get_scale() == pytest.approx(-0.6419999)
+        assert abs(mat.get_determinant() + 0.642 ** 3) < NifFormat.EPSILON
 
         mat2 = NifFormat.Matrix44()
         mat2.set_identity()
@@ -102,8 +103,8 @@ class TestMatrix:
 
         assert_tuple_values(mat2.as_tuple(), mat_tuple)
 
-        assert_true(mat2 == mat2)
-        assert_false(mat2 != mat2)
+        assert (mat2 == mat2) is True
+        assert (mat2 != mat2) is False
 
         inverse = ((0.6764922116181463, 0.703691588556347, -1.2138348905712357, 0.0),
                    (-1.391113706712997, 0.1609252335925591, -0.68199999977835, 0.0),
@@ -118,13 +119,13 @@ class TestMatrix:
                            (2.8948703068251107, 6.337929576269453, 7.686191463927723, 1.0))
 
         assert_tuple_values(mat2.get_inverse(fast=False).as_tuple(), precise_inverse)
-        assert_true((mat2 * mat2.get_inverse()).is_identity())
+        assert (mat2 * mat2.get_inverse()).is_identity()
 
     def test_sup_norm(self):
         """Test sup norm of a matrix"""
         mat = NifFormat.Matrix44()
         mat.set_identity()
-        assert_equals(mat.sup_norm(), 1.0)
+        assert mat.sup_norm() == 1.0
         mat.m_11 = -0.434308
         mat.m_12 = 0.893095
         mat.m_13 = -0.117294
@@ -137,4 +138,4 @@ class TestMatrix:
         mat.m_41 = 3
         mat.m_41 = 4
         mat.m_41 = 8
-        assert_equals(mat.sup_norm(), 8.0)
+        assert mat.sup_norm() == 8.0

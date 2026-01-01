@@ -69,8 +69,8 @@ class BasicBase(DetailNode):
     >>> class Test(BasicBase): # bad: read, write, get_value, and set_value are
     ...                        # not implemented
     ...     pass
-    >>> x = Test() # doctest: +ELLIPSIS
-    >>> x.set_value('123') # doctest: +ELLIPSIS
+    >>> x = Test()
+    >>> x.set_value('123')
     Traceback (most recent call last):
         ...
     NotImplementedError

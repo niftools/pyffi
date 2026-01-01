@@ -1,7 +1,4 @@
-from tests.utils import BaseNifFileTestCase
-from nose.tools import assert_true
 from tests import test_logger
-import pyffi
 from tests.utils import BaseNifFileTestCase
 from pyffi.spells.nif.optimize import SpellDelZeroScale
 
@@ -17,7 +14,7 @@ class TestDelZeroScaleOptimisationNif(BaseNifFileTestCase):
     def test_zero_scale_deletion(self):
         # check zero scale
         children = self.data.roots[0].children[0].children
-        assert_true(len(children), 4)
+        assert len(children) == 4
         for child in children:
             test_logger.debug("{0}, {1}".format(child.name, child.scale))
 
@@ -37,8 +34,7 @@ class TestDelZeroScaleOptimisationNif(BaseNifFileTestCase):
         """
 
         # check that zero scale nodes are gone
-        children = self.data.roots[0].children[0].children
+        children = [c for c in self.data.roots[0].children[0].children if c is not None]
         for child in children:
-            if child:
-                test_logger.debug("{0}, {1}".format(child.name, child.scale))
-        assert_true(len(children), 2)
+            test_logger.debug("{0}, {1}".format(child.name, child.scale))
+        assert len(children) == 2

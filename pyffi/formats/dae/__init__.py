@@ -21,7 +21,7 @@ Create a DAE file
 ^^^^^^^^^^^^^^^^^
 
 >>> daedata = DaeFormat.Data()
->>> print(daedata.collada) # doctest: +ELLIPSIS
+>>> print(daedata.collada)
 <...Collada object at ...>
 
 Read a DAE file
@@ -35,7 +35,7 @@ Read a DAE file
 >>> # check and read dae file
 >>> stream = open(os.path.join(format_root, 'cube.dae'), 'rb')
 >>> daedata = DaeFormat.Data()
->>> daedata.read(stream) # doctest: +ELLIPSIS
+>>> daedata.read(stream)
 Traceback (most recent call last):
     ...
 NotImplementedError
@@ -65,7 +65,7 @@ Create a DAE file from scratch and write to file
 >>> daedata = DaeFormat.Data()
 >>> from tempfile import TemporaryFile
 >>> stream = TemporaryFile()
->>> daedata.write(stream) # doctest: +ELLIPSIS
+>>> daedata.write(stream)
 Traceback (most recent call last):
     ...
 NotImplementedError

@@ -309,7 +309,7 @@ class SpellCheckBhkBodyCenter(pyffi.spells.nif.NifSpell):
             #self.toaster.msg("checking mass...")
             #if mass != branch.mass:
             #    #raise ValueError("center does not match; original %s, calculated %s"%(center, branch.center))
-            #    self.toaster.logger.warn("warning: mass does not match; original %s, calculated %s"%(mass, branch.mass))
+            #    self.toaster.logger.warning("warning: mass does not match; original %s, calculated %s"%(mass, branch.mass))
             #    # adapt calculated inertia matrix with observed mass
             #    if mass > 0.001:
             #        correction = mass / branch.mass
@@ -322,7 +322,7 @@ class SpellCheckBhkBodyCenter(pyffi.spells.nif.NifSpell):
             report = {}
             if center != branch.center:
                 #raise ValueError("center does not match; original %s, calculated %s"%(center, branch.center))
-                self.toaster.logger.warn(
+                self.toaster.logger.warning(
                     "center does not match; original %s, calculated %s"
                     % (center, branch.center))
                 report["center"] = {
@@ -338,7 +338,7 @@ class SpellCheckBhkBodyCenter(pyffi.spells.nif.NifSpell):
                     for row1, row2 in zip(inertia.as_list(), branch.inertia.as_list()))
                 > 0.1 * scale):
                 #raise ValueError("center does not match; original %s, calculated %s"%(center, branch.center))
-                self.toaster.logger.warn(
+                self.toaster.logger.warning(
                     "inertia does not match:\n\noriginal\n%s\n\ncalculated\n%s\n"
                     % (inertia, branch.inertia))
                 report["inertia"] = {
@@ -397,7 +397,7 @@ class SpellCheckCenterRadius(pyffi.spells.nif.NifSpell):
 
             if maxr > 1.01 * radius + 0.01:
                 #raise ValueError(
-                self.toaster.logger.warn(
+                self.toaster.logger.warning(
                    "not all vertices inside bounding sphere (vertex %s, error %s)"
                    % (maxv, abs(maxr - radius)))
                 report["vertex_outside"] = maxv.as_tuple()
@@ -407,7 +407,7 @@ class SpellCheckCenterRadius(pyffi.spells.nif.NifSpell):
 
             self.toaster.msg("comparing old and new spheres")
             if center != branch.center:
-               self.toaster.logger.warn(
+               self.toaster.logger.warning(
                    "center does not match; original %s, calculated %s"
                    % (center, branch.center))
                report["center"] = {
@@ -415,7 +415,7 @@ class SpellCheckCenterRadius(pyffi.spells.nif.NifSpell):
                    "calc": branch.center.as_tuple(),
                    }
             if abs(radius - branch.radius) > NifFormat.EPSILON:
-               self.toaster.logger.warn(
+               self.toaster.logger.warning(
                    "radius does not match; original %s, calculated %s"
                    % (radius, branch.radius))
                report["radius"] = {
@@ -510,10 +510,10 @@ class SpellCheckConvexVerticesShape(pyffi.spells.nif.NifSpell):
                     self.toaster.logger.error(
                         "vertex %s does not intersect with any plane" % v)
                 elif num_intersect == 1:
-                    self.toaster.logger.warn(
+                    self.toaster.logger.warning(
                         "vertex %s only intersects with one plane" % v)
                 elif num_intersect == 2:
-                    self.toaster.logger.warn(
+                    self.toaster.logger.warning(
                         "vertex %s only intersects with two planes" % v)
             # stop recursing
             return False
@@ -553,12 +553,12 @@ class SpellCheckMopp(pyffi.spells.nif.NifSpell):
             branch.update_origin_scale()
 
             if branch.origin != o:
-                self.toaster.logger.warn("origin mismatch")
-                self.toaster.logger.warn("(was %s and is now %s)"
+                self.toaster.logger.warning("origin mismatch")
+                self.toaster.logger.warning("(was %s and is now %s)"
                                          % (o, branch.origin))
             if abs(branch.scale - scale) > 0.5:
-                self.toaster.logger.warn("scale mismatch")
-                self.toaster.logger.warn("(was %s and is now %s)"
+                self.toaster.logger.warning("scale mismatch")
+                self.toaster.logger.warning("(was %s and is now %s)"
                                          % (scale, branch.scale))
 
             self.toaster.msg("parsing mopp")
@@ -633,28 +633,28 @@ class SpellCheckTangentSpace(pyffi.spells.nif.NifSpell):
             for i, (n, t, b) in enumerate(tangentspace):
                 oldspace.append(n.as_list() + t.as_list() + b.as_list())
                 if abs(n * n - 1) > NifFormat.EPSILON:
-                    self.toaster.logger.warn(
+                    self.toaster.logger.warning(
                         'non-unit normal %s (norm %f) at vertex %i'
                         % (n, (n * n) ** 0.5, i))
                 if abs(t * t - 1) > NifFormat.EPSILON:
-                    self.toaster.logger.warn(
+                    self.toaster.logger.warning(
                         'non-unit tangent %s (norm %f) at vertex %i'
                         % (t, (t * t) ** 0.5, i))
                 if abs(b * b - 1) > NifFormat.EPSILON:
-                    self.toaster.logger.warn(
+                    self.toaster.logger.warning(
                         'non-unit binormal %s (norm %f) at vertex %i'
                         % (b, (b * b) ** 0.5, i))
                 if abs(n * t) + abs(n * b) > NifFormat.EPSILON:
                     volume = n * t.crossproduct(b)
-                    self.toaster.logger.warn(
+                    self.toaster.logger.warning(
                         'non-ortogonal tangent space at vertex %i' % i)
-                    self.toaster.logger.warn(
+                    self.toaster.logger.warning(
                         'n * t = %s * %s = %f'%(n, t, n * t))
-                    self.toaster.logger.warn(
+                    self.toaster.logger.warning(
                         'n * b = %s * %s = %f'%(n, b, n * b))
-                    self.toaster.logger.warn(
+                    self.toaster.logger.warning(
                         't * b = %s * %s = %f'%(t, b, t * b))
-                    self.toaster.logger.warn(
+                    self.toaster.logger.warning(
                         'volume = %f' % volume)
             # recalculate the tangent space
             branch.update_tangent_space()
@@ -666,15 +666,15 @@ class SpellCheckTangentSpace(pyffi.spells.nif.NifSpell):
                 for oldvalue, newvalue in zip(old, new):
                     # allow fairly big error
                     if abs(oldvalue - newvalue) > self.PRECISION:
-                        self.toaster.logger.warn(
+                        self.toaster.logger.warning(
                             'calculated tangent space differs from original '
                             'at vertex %i' % i)
-                        self.toaster.logger.warn('old: %s' % old[0:3])
-                        self.toaster.logger.warn('old: %s' % old[3:6])
-                        self.toaster.logger.warn('old: %s' % old[6:9])
-                        self.toaster.logger.warn('new: %s' % new[0:3])
-                        self.toaster.logger.warn('new: %s' % new[3:6])
-                        self.toaster.logger.warn('new: %s' % new[6:9])
+                        self.toaster.logger.warning('old: %s' % old[0:3])
+                        self.toaster.logger.warning('old: %s' % old[3:6])
+                        self.toaster.logger.warning('old: %s' % old[6:9])
+                        self.toaster.logger.warning('new: %s' % new[0:3])
+                        self.toaster.logger.warning('new: %s' % new[3:6])
+                        self.toaster.logger.warning('new: %s' % new[6:9])
                         break
             
             # don't recurse further
@@ -865,7 +865,7 @@ class SpellCheckMaterialEmissiveValue(pyffi.spells.nif.NifSpell):
                 # most glass, flame, gems, willothewisps etc.) that
                 # that is not too high but most other instances (i.e.
                 # ogres!) that this is the case it is incorrect)
-                self.toaster.logger.warn(
+                self.toaster.logger.warning(
                     "emissive value may be too high (highest value: %f)"
                     % (max(emissive.r, emissive.g, emissive.b)))
                 # we're done...
