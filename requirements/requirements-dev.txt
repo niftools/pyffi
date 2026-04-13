@@ -3,6 +3,6 @@ coveralls
 nose
 pdbpp
 pyflakes
-pytest==3.6
+pytest==9.0.3
 pytest-cov
 wheel
