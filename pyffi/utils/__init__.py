@@ -42,7 +42,14 @@
 # ***** END LICENSE BLOCK *****
 
 import os
-from distutils.cmd import Command
+try:
+    from distutils.cmd import Command
+except ImportError:
+    # distutils was removed from the standard library in Python 3.12.
+    # BuildDoc below is only used by setup.py's Sphinx doc-build command,
+    # which isn't relevant to normal (non-packaging) use of pyffi, so we
+    # fall back to a plain object rather than fail the whole import.
+    Command = object
 
 
 class BuildDoc(Command): # pragma: no cover
